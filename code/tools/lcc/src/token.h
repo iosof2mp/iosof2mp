@@ -1,5 +1,5 @@
 /*
-xx(symbol,	value,	prec,	op,	optree,	kind,	string)
+xx(symbol,  value,  prec,   op, optree, kind,   string)
 */
 yy(0,         0, 0,  0,    0,      0,      0)
 xx(FLOAT,     1, 0,  0,    0,      CHAR,   "float")

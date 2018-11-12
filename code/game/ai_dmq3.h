@@ -22,9 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 /*****************************************************************************
- * name:		ai_dmq3.h
+ * name:        ai_dmq3.h
  *
- * desc:		Quake3 bot AI
+ * desc:        Quake3 bot AI
  *
  * $Archive: /source/code/botai/ai_chat.c $
  *
@@ -179,15 +179,15 @@ int BotPointAreaNum(vec3_t origin);
 void BotMapScripts(bot_state_t *bs);
 
 //ctf flags
-#define CTF_FLAG_NONE		0
-#define CTF_FLAG_RED		1
-#define CTF_FLAG_BLUE		2
+#define CTF_FLAG_NONE       0
+#define CTF_FLAG_RED        1
+#define CTF_FLAG_BLUE       2
 //CTF skins
-#define CTF_SKIN_REDTEAM	"red"
-#define CTF_SKIN_BLUETEAM	"blue"
+#define CTF_SKIN_REDTEAM    "red"
+#define CTF_SKIN_BLUETEAM   "blue"
 
-extern int gametype;		//game type
-extern int maxclients;		//maximum number of clients
+extern int gametype;        //game type
+extern int maxclients;      //maximum number of clients
 
 extern vmCvar_t bot_grapple;
 extern vmCvar_t bot_rocketjump;

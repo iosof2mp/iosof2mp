@@ -9,10 +9,10 @@
 #import <Cocoa/Cocoa.h>
 
 @interface Controller : NSObject {
-	IBOutlet id		argsTextField;
-	NSTask			*quakeTask;
-	NSFileHandle	*quakeOut;
-	NSMutableData	*quakeData;
+    IBOutlet id     argsTextField;
+    NSTask          *quakeTask;
+    NSFileHandle    *quakeOut;
+    NSMutableData   *quakeData;
 }
 
 - (IBAction)launch:(id)sender;

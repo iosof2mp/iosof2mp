@@ -28,127 +28,127 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /* 19079 total symbols in FI, 2002 Jan 23 */
 #define DEFAULT_HASHTABLE_SIZE 2048
 
-char	outputFilename[MAX_OS_PATH];
+char    outputFilename[MAX_OS_PATH];
 
 // the zero page size is just used for detecting run time faults
-#define	ZERO_PAGE_SIZE	0		// 256
+#define ZERO_PAGE_SIZE  0       // 256
 
 typedef enum {
-	OP_UNDEF, 
+    OP_UNDEF,
 
-	OP_IGNORE, 
+    OP_IGNORE,
 
-	OP_BREAK, 
+    OP_BREAK,
 
-	OP_ENTER,
-	OP_LEAVE,
-	OP_CALL,
-	OP_PUSH,
-	OP_POP,
+    OP_ENTER,
+    OP_LEAVE,
+    OP_CALL,
+    OP_PUSH,
+    OP_POP,
 
-	OP_CONST,
-	OP_LOCAL,
+    OP_CONST,
+    OP_LOCAL,
 
-	OP_JUMP,
+    OP_JUMP,
 
-	//-------------------
+    //-------------------
 
-	OP_EQ,
-	OP_NE,
+    OP_EQ,
+    OP_NE,
 
-	OP_LTI,
-	OP_LEI,
-	OP_GTI,
-	OP_GEI,
+    OP_LTI,
+    OP_LEI,
+    OP_GTI,
+    OP_GEI,
 
-	OP_LTU,
-	OP_LEU,
-	OP_GTU,
-	OP_GEU,
+    OP_LTU,
+    OP_LEU,
+    OP_GTU,
+    OP_GEU,
 
-	OP_EQF,
-	OP_NEF,
+    OP_EQF,
+    OP_NEF,
 
-	OP_LTF,
-	OP_LEF,
-	OP_GTF,
-	OP_GEF,
+    OP_LTF,
+    OP_LEF,
+    OP_GTF,
+    OP_GEF,
 
-	//-------------------
+    //-------------------
 
-	OP_LOAD1,
-	OP_LOAD2,
-	OP_LOAD4,
-	OP_STORE1,
-	OP_STORE2,
-	OP_STORE4,				// *(stack[top-1]) = stack[yop
-	OP_ARG,
-	OP_BLOCK_COPY,
+    OP_LOAD1,
+    OP_LOAD2,
+    OP_LOAD4,
+    OP_STORE1,
+    OP_STORE2,
+    OP_STORE4,              // *(stack[top-1]) = stack[yop
+    OP_ARG,
+    OP_BLOCK_COPY,
 
-	//-------------------
+    //-------------------
 
-	OP_SEX8,
-	OP_SEX16,
+    OP_SEX8,
+    OP_SEX16,
 
-	OP_NEGI,
-	OP_ADD,
-	OP_SUB,
-	OP_DIVI,
-	OP_DIVU,
-	OP_MODI,
-	OP_MODU,
-	OP_MULI,
-	OP_MULU,
+    OP_NEGI,
+    OP_ADD,
+    OP_SUB,
+    OP_DIVI,
+    OP_DIVU,
+    OP_MODI,
+    OP_MODU,
+    OP_MULI,
+    OP_MULU,
 
-	OP_BAND,
-	OP_BOR,
-	OP_BXOR,
-	OP_BCOM,
+    OP_BAND,
+    OP_BOR,
+    OP_BXOR,
+    OP_BCOM,
 
-	OP_LSH,
-	OP_RSHI,
-	OP_RSHU,
+    OP_LSH,
+    OP_RSHI,
+    OP_RSHU,
 
-	OP_NEGF,
-	OP_ADDF,
-	OP_SUBF,
-	OP_DIVF,
-	OP_MULF,
+    OP_NEGF,
+    OP_ADDF,
+    OP_SUBF,
+    OP_DIVF,
+    OP_MULF,
 
-	OP_CVIF,
-	OP_CVFI
+    OP_CVIF,
+    OP_CVFI
 } opcode_t;
 
 typedef struct {
-	int		imageBytes;		// after decompression
-	int		entryPoint;
-	int		stackBase;
-	int		stackSize;
+    int     imageBytes;     // after decompression
+    int     entryPoint;
+    int     stackBase;
+    int     stackSize;
 } executableHeader_t;
 
 typedef enum {
-	CODESEG,
-	DATASEG,	// initialized 32 bit data, will be byte swapped
-	LITSEG,		// strings
-	BSSSEG,		// 0 filled
-	JTRGSEG,	// pseudo-segment that contains only jump table targets
-	NUM_SEGMENTS
+    CODESEG,
+    DATASEG,    // initialized 32 bit data, will be byte swapped
+    LITSEG,     // strings
+    BSSSEG,     // 0 filled
+    JTRGSEG,    // pseudo-segment that contains only jump table targets
+    NUM_SEGMENTS
 } segmentName_t;
 
-#define	MAX_IMAGE	0x400000
+#define MAX_IMAGE   0x400000
 
 typedef struct {
-	byte	image[MAX_IMAGE];
-	int		imageUsed;
-	int		segmentBase;		// only valid on second pass
+    byte    image[MAX_IMAGE];
+    int     imageUsed;
+    int     segmentBase;        // only valid on second pass
 } segment_t;
 
 typedef struct symbol_s {
-	struct	symbol_s	*next;
-	int		hash;
-	segment_t	*segment;
-	char	*name;
-	int		value;
+    struct  symbol_s    *next;
+    int     hash;
+    segment_t   *segment;
+    char    *name;
+    int     value;
 } symbol_t;
 
 typedef struct hashchain_s {
@@ -165,64 +165,64 @@ int symtablelen = DEFAULT_HASHTABLE_SIZE;
 hashtable_t *symtable;
 hashtable_t *optable;
 
-segment_t	segment[NUM_SEGMENTS];
-segment_t	*currentSegment;
+segment_t   segment[NUM_SEGMENTS];
+segment_t   *currentSegment;
 
-int		passNumber;
+int     passNumber;
 
-int		numSymbols;
-int		errorCount;
+int     numSymbols;
+int     errorCount;
 
 typedef struct options_s {
-	qboolean verbose;
-	qboolean writeMapFile;
-	qboolean vanillaQ3Compatibility;
+    qboolean verbose;
+    qboolean writeMapFile;
+    qboolean vanillaQ3Compatibility;
 } options_t;
 
 options_t options = { 0 };
 
-symbol_t	*symbols;
-symbol_t	*lastSymbol = 0;  /* Most recent symbol defined. */
+symbol_t    *symbols;
+symbol_t    *lastSymbol = 0;  /* Most recent symbol defined. */
 
 
-#define	MAX_ASM_FILES	256
-int		numAsmFiles;
-char	*asmFiles[MAX_ASM_FILES];
-char	*asmFileNames[MAX_ASM_FILES];
+#define MAX_ASM_FILES   256
+int     numAsmFiles;
+char    *asmFiles[MAX_ASM_FILES];
+char    *asmFileNames[MAX_ASM_FILES];
 
-int		currentFileIndex;
-char	*currentFileName;
-int		currentFileLine;
+int     currentFileIndex;
+char    *currentFileName;
+int     currentFileLine;
 
-//int		stackSize = 16384;
-int		stackSize = 0x10000;
+//int       stackSize = 16384;
+int     stackSize = 0x10000;
 
 // we need to convert arg and ret instructions to
 // stores to the local stack frame, so we need to track the
 // characteristics of the current functions stack frame
-int		currentLocals;			// bytes of locals needed by this function
-int		currentArgs;			// bytes of largest argument list called from this function
-int		currentArgOffset;		// byte offset in currentArgs to store next arg, reset each call
+int     currentLocals;          // bytes of locals needed by this function
+int     currentArgs;            // bytes of largest argument list called from this function
+int     currentArgOffset;       // byte offset in currentArgs to store next arg, reset each call
 
-#define	MAX_LINE_LENGTH	1024
-char	lineBuffer[MAX_LINE_LENGTH];
-int		lineParseOffset;
-char	token[MAX_LINE_LENGTH];
+#define MAX_LINE_LENGTH 1024
+char    lineBuffer[MAX_LINE_LENGTH];
+int     lineParseOffset;
+char    token[MAX_LINE_LENGTH];
 
-int		instructionCount;
+int     instructionCount;
 
 typedef struct {
-	char	*name;
-	int		opcode;
+    char    *name;
+    int     opcode;
 } sourceOps_t;
 
-sourceOps_t		sourceOps[] = {
+sourceOps_t     sourceOps[] = {
 #include "opstrings.h"
 };
 
-#define	NUM_SOURCE_OPS ( sizeof( sourceOps ) / sizeof( sourceOps[0] ) )
+#define NUM_SOURCE_OPS ( sizeof( sourceOps ) / sizeof( sourceOps[0] ) )
 
-int		opcodesHash[ NUM_SOURCE_OPS ];
+int     opcodesHash[ NUM_SOURCE_OPS ];
 
 
 
@@ -385,7 +385,7 @@ static void sort_symbols ()
   symbol_t **symlist;
 
   if(!symbols)
-  	return;
+    return;
 
 //crumb("sort_symbols: Constructing symlist array\n");
   for (elems = 0, s = symbols; s; s = s->next, elems++) /* nop */ ;
@@ -423,11 +423,11 @@ static void sort_symbols ()
 
 /*
  Problem:
-	BYTE values are specified as signed decimal string.  A properly functional
-	atoip() will cap large signed values at 0x7FFFFFFF.  Negative word values are
-	often specified as very large decimal values by lcc.  Therefore, values that
-	should be between 0x7FFFFFFF and 0xFFFFFFFF come out as 0x7FFFFFFF when using
-	atoi().  Bad.
+    BYTE values are specified as signed decimal string.  A properly functional
+    atoip() will cap large signed values at 0x7FFFFFFF.  Negative word values are
+    often specified as very large decimal values by lcc.  Therefore, values that
+    should be between 0x7FFFFFFF and 0xFFFFFFFF come out as 0x7FFFFFFF when using
+    atoi().  Bad.
 
  This function is one big evil hack to work around this problem.
 */
@@ -487,15 +487,15 @@ CodeError
 ============
 */
 static void CodeError( char *fmt, ... ) {
-	va_list		argptr;
+    va_list     argptr;
 
-	errorCount++;
+    errorCount++;
 
-	fprintf( stderr, "%s:%i ", currentFileName, currentFileLine );
+    fprintf( stderr, "%s:%i ", currentFileName, currentFileLine );
 
-	va_start( argptr,fmt );
-	vfprintf( stderr, fmt, argptr );
-	va_end( argptr );
+    va_start( argptr,fmt );
+    vfprintf( stderr, fmt, argptr );
+    va_end( argptr );
 }
 
 /*
@@ -504,11 +504,11 @@ EmitByte
 ============
 */
 static void EmitByte( segment_t *seg, int v ) {
-	if ( seg->imageUsed >= MAX_IMAGE ) {
-		Error( "MAX_IMAGE" );
-	}
-	seg->image[ seg->imageUsed ] = v;
-	seg->imageUsed++;
+    if ( seg->imageUsed >= MAX_IMAGE ) {
+        Error( "MAX_IMAGE" );
+    }
+    seg->image[ seg->imageUsed ] = v;
+    seg->imageUsed++;
 }
 
 /*
@@ -517,14 +517,14 @@ EmitInt
 ============
 */
 static void EmitInt( segment_t *seg, int v ) {
-	if ( seg->imageUsed >= MAX_IMAGE - 4) {
-		Error( "MAX_IMAGE" );
-	}
-	seg->image[ seg->imageUsed ] = v & 255;
-	seg->image[ seg->imageUsed + 1 ] = ( v >> 8 ) & 255;
-	seg->image[ seg->imageUsed + 2 ] = ( v >> 16 ) & 255;
-	seg->image[ seg->imageUsed + 3 ] = ( v >> 24 ) & 255;
-	seg->imageUsed += 4;
+    if ( seg->imageUsed >= MAX_IMAGE - 4) {
+        Error( "MAX_IMAGE" );
+    }
+    seg->image[ seg->imageUsed ] = v & 255;
+    seg->image[ seg->imageUsed + 1 ] = ( v >> 8 ) & 255;
+    seg->image[ seg->imageUsed + 2 ] = ( v >> 16 ) & 255;
+    seg->image[ seg->imageUsed + 3 ] = ( v >> 24 ) & 255;
+    seg->imageUsed += 4;
 }
 
 /*
@@ -535,36 +535,36 @@ Symbols can only be defined on pass 0
 ============
 */
 static void DefineSymbol( char *sym, int value ) {
-	/* Hand optimization by PhaethonH */
-	symbol_t	*s;
-	char		expanded[MAX_LINE_LENGTH];
-	int			hash;
+    /* Hand optimization by PhaethonH */
+    symbol_t    *s;
+    char        expanded[MAX_LINE_LENGTH];
+    int         hash;
 
-	if ( passNumber == 1 ) {
-		return;
-	}
+    if ( passNumber == 1 ) {
+        return;
+    }
 
-	// add the file prefix to local symbols to guarantee unique
-	if ( sym[0] == '$' ) {
-		sprintf( expanded, "%s_%i", sym, currentFileIndex );
-		sym = expanded;
-	}
+    // add the file prefix to local symbols to guarantee unique
+    if ( sym[0] == '$' ) {
+        sprintf( expanded, "%s_%i", sym, currentFileIndex );
+        sym = expanded;
+    }
 
-	hash = HashString( sym );
+    hash = HashString( sym );
 
-	if (hashtable_symbol_exists(symtable, hash, sym)) {
-		CodeError( "Multiple definitions for %s\n", sym );
-		return;
-	}
+    if (hashtable_symbol_exists(symtable, hash, sym)) {
+        CodeError( "Multiple definitions for %s\n", sym );
+        return;
+    }
 
-	s = malloc( sizeof( *s ) );
-	s->next = NULL;
-	s->name = copystring( sym );
-	s->hash = hash;
-	s->value = value;
-	s->segment = currentSegment;
+    s = malloc( sizeof( *s ) );
+    s->next = NULL;
+    s->name = copystring( sym );
+    s->hash = hash;
+    s->value = value;
+    s->segment = currentSegment;
 
-	hashtable_add(symtable, hash, s);
+    hashtable_add(symtable, hash, s);
 
 /*
   Hash table lookup already speeds up symbol lookup enormously.
@@ -574,12 +574,12 @@ static void DefineSymbol( char *sym, int value ) {
   This allows constant time for adding to the list.
  -PH
 */
-	if (symbols == 0) {
-		lastSymbol = symbols = s;
-	} else {
-		lastSymbol->next = s;
-		lastSymbol = s;
-	}
+    if (symbols == 0) {
+        lastSymbol = symbols = s;
+    } else {
+        lastSymbol->next = s;
+        lastSymbol = s;
+    }
 }
 
 
@@ -591,22 +591,22 @@ Symbols can only be evaluated on pass 1
 ============
 */
 static int LookupSymbol( char *sym ) {
-	symbol_t	*s;
-	char		expanded[MAX_LINE_LENGTH];
-	int			hash;
-	hashchain_t *hc;
+    symbol_t    *s;
+    char        expanded[MAX_LINE_LENGTH];
+    int         hash;
+    hashchain_t *hc;
 
-	if ( passNumber == 0 ) {
-		return 0;
-	}
+    if ( passNumber == 0 ) {
+        return 0;
+    }
 
-	// add the file prefix to local symbols to guarantee unique
-	if ( sym[0] == '$' ) {
-		sprintf( expanded, "%s_%i", sym, currentFileIndex );
-		sym = expanded;
-	}
+    // add the file prefix to local symbols to guarantee unique
+    if ( sym[0] == '$' ) {
+        sprintf( expanded, "%s_%i", sym, currentFileIndex );
+        sym = expanded;
+    }
 
-	hash = HashString( sym );
+    hash = HashString( sym );
 
 /*
   Hand optimization by PhaethonH
@@ -614,18 +614,18 @@ static int LookupSymbol( char *sym ) {
   Using a hash table with chain/bucket for lookups alone sped up q3asm by almost 3x for me.
  -PH
 */
-	for (hc = hashtable_get(symtable, hash); hc; hc = hc->next) {
-		s = (symbol_t*)hc->data;  /* ugly typecasting, but it's fast! */
-		if ( (hash == s->hash) && !strcmp(sym, s->name) ) {
-			return s->segment->segmentBase + s->value;
-		}
-	}
+    for (hc = hashtable_get(symtable, hash); hc; hc = hc->next) {
+        s = (symbol_t*)hc->data;  /* ugly typecasting, but it's fast! */
+        if ( (hash == s->hash) && !strcmp(sym, s->name) ) {
+            return s->segment->segmentBase + s->value;
+        }
+    }
 
-	CodeError( "error: symbol %s undefined\n", sym );
-	passNumber = 0;
-	DefineSymbol( sym, 0 );	// so more errors aren't printed
-	passNumber = 1;
-	return 0;
+    CodeError( "error: symbol %s undefined\n", sym );
+    passNumber = 0;
+    DefineSymbol( sym, 0 ); // so more errors aren't printed
+    passNumber = 1;
+    return 0;
 }
 
 
@@ -640,36 +640,36 @@ Otherwise returns the updated parse pointer
 */
 static char *ExtractLine( char *data ) {
 /* Goal:
-	 Given a string `data', extract one text line into buffer `lineBuffer' that
-	 is no longer than MAX_LINE_LENGTH characters long.  Return value is
-	 remainder of `data' that isn't part of `lineBuffer'.
+     Given a string `data', extract one text line into buffer `lineBuffer' that
+     is no longer than MAX_LINE_LENGTH characters long.  Return value is
+     remainder of `data' that isn't part of `lineBuffer'.
  -PH
 */
-	/* Hand-optimized by PhaethonH */
-	char 	*p, *q;
+    /* Hand-optimized by PhaethonH */
+    char    *p, *q;
 
-	currentFileLine++;
+    currentFileLine++;
 
-	lineParseOffset = 0;
-	token[0] = 0;
-	*lineBuffer = 0;
+    lineParseOffset = 0;
+    token[0] = 0;
+    *lineBuffer = 0;
 
-	p = q = data;
-	if (!*q) {
-		return NULL;
-	}
+    p = q = data;
+    if (!*q) {
+        return NULL;
+    }
 
-	for ( ; !((*p == 0) || (*p == '\n')); p++)  /* nop */ ;
+    for ( ; !((*p == 0) || (*p == '\n')); p++)  /* nop */ ;
 
-	if ((p - q) >= MAX_LINE_LENGTH) {
-		CodeError( "MAX_LINE_LENGTH" );
-		return data;
-	}
+    if ((p - q) >= MAX_LINE_LENGTH) {
+        CodeError( "MAX_LINE_LENGTH" );
+        return data;
+    }
 
-	memcpy( lineBuffer, data, (p - data) );
-	lineBuffer[(p - data)] = 0;
-	p += (*p == '\n') ? 1 : 0;  /* Skip over final newline. */
-	return p;
+    memcpy( lineBuffer, data, (p - data) );
+    lineBuffer[(p - data)] = 0;
+    p += (*p == '\n') ? 1 : 0;  /* Skip over final newline. */
+    return p;
 }
 
 
@@ -681,33 +681,33 @@ Parse a token out of linebuffer
 ==============
 */
 static qboolean Parse( void ) {
-	/* Hand-optimized by PhaethonH */
-	const char 	*p, *q;
+    /* Hand-optimized by PhaethonH */
+    const char  *p, *q;
 
-	/* Because lineParseOffset is only updated just before exit, this makes this code version somewhat harder to debug under a symbolic debugger. */
+    /* Because lineParseOffset is only updated just before exit, this makes this code version somewhat harder to debug under a symbolic debugger. */
 
-	*token = 0;  /* Clear token. */
+    *token = 0;  /* Clear token. */
 
-	// skip whitespace
-	for (p = lineBuffer + lineParseOffset; *p && (*p <= ' '); p++) /* nop */ ;
+    // skip whitespace
+    for (p = lineBuffer + lineParseOffset; *p && (*p <= ' '); p++) /* nop */ ;
 
-	// skip ; comments
-	/* die on end-of-string */
-	if ((*p == ';') || (*p == 0)) {
-		lineParseOffset = p - lineBuffer;
-		return qfalse;
-	}
+    // skip ; comments
+    /* die on end-of-string */
+    if ((*p == ';') || (*p == 0)) {
+        lineParseOffset = p - lineBuffer;
+        return qfalse;
+    }
 
-	q = p;  /* Mark the start of token. */
-	/* Find separator first. */
-	for ( ; *p > 32; p++) /* nop */ ;  /* XXX: unsafe assumptions. */
-	/* *p now sits on separator.  Mangle other values accordingly. */
-	strncpy(token, q, p - q);
-	token[p - q] = 0;
+    q = p;  /* Mark the start of token. */
+    /* Find separator first. */
+    for ( ; *p > 32; p++) /* nop */ ;  /* XXX: unsafe assumptions. */
+    /* *p now sits on separator.  Mangle other values accordingly. */
+    strncpy(token, q, p - q);
+    token[p - q] = 0;
 
-	lineParseOffset = p - lineBuffer;
+    lineParseOffset = p - lineBuffer;
 
-	return qtrue;
+    return qtrue;
 }
 
 
@@ -717,8 +717,8 @@ ParseValue
 ==============
 */
 static int ParseValue( void ) {
-	Parse();
-	return atoiNoCap( token );
+    Parse();
+    return atoiNoCap( token );
 }
 
 
@@ -728,57 +728,57 @@ ParseExpression
 ==============
 */
 static int ParseExpression(void) {
-	/* Hand optimization, PhaethonH */
-	int		i, j;
-	char	sym[MAX_LINE_LENGTH];
-	int		v;
+    /* Hand optimization, PhaethonH */
+    int     i, j;
+    char    sym[MAX_LINE_LENGTH];
+    int     v;
 
-	/* Skip over a leading minus. */
-	for ( i = ((token[0] == '-') ? 1 : 0) ; i < MAX_LINE_LENGTH ; i++ ) {
-		if ( token[i] == '+' || token[i] == '-' || token[i] == 0 ) {
-			break;
-		}
-	}
+    /* Skip over a leading minus. */
+    for ( i = ((token[0] == '-') ? 1 : 0) ; i < MAX_LINE_LENGTH ; i++ ) {
+        if ( token[i] == '+' || token[i] == '-' || token[i] == 0 ) {
+            break;
+        }
+    }
 
-	memcpy( sym, token, i );
-	sym[i] = 0;
+    memcpy( sym, token, i );
+    sym[i] = 0;
 
-	switch (*sym) {  /* Resolve depending on first character. */
+    switch (*sym) {  /* Resolve depending on first character. */
 /* Optimizing compilers can convert cases into "calculated jumps".  I think these are faster.  -PH */
-		case '-':
-		case '0': case '1': case '2': case '3': case '4':
-		case '5': case '6': case '7': case '8': case '9':
-			v = atoiNoCap(sym);
-			break;
-		default:
-			v = LookupSymbol(sym);
-			break;
-	}
+        case '-':
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            v = atoiNoCap(sym);
+            break;
+        default:
+            v = LookupSymbol(sym);
+            break;
+    }
 
-	// parse add / subtract offsets
-	while ( token[i] != 0 ) {
-		for ( j = i + 1 ; j < MAX_LINE_LENGTH ; j++ ) {
-			if ( token[j] == '+' || token[j] == '-' || token[j] == 0 ) {
-				break;
-			}
-		}
+    // parse add / subtract offsets
+    while ( token[i] != 0 ) {
+        for ( j = i + 1 ; j < MAX_LINE_LENGTH ; j++ ) {
+            if ( token[j] == '+' || token[j] == '-' || token[j] == 0 ) {
+                break;
+            }
+        }
 
-		memcpy( sym, token+i+1, j-i-1 );
-		sym[j-i-1] = 0;
+        memcpy( sym, token+i+1, j-i-1 );
+        sym[j-i-1] = 0;
 
-		switch (token[i]) {
-			case '+':
-				v += atoiNoCap(sym);
-				break;
-			case '-':
-				v -= atoiNoCap(sym);
-				break;
-		}
+        switch (token[i]) {
+            case '+':
+                v += atoiNoCap(sym);
+                break;
+            case '-':
+                v -= atoiNoCap(sym);
+                break;
+        }
 
-		i = j;
-	}
+        i = j;
+    }
 
-	return v;
+    return v;
 }
 
 
@@ -799,15 +799,15 @@ aren't read only as in some architectures.
 ==============
 */
 static void HackToSegment( segmentName_t seg ) {
-	if ( currentSegment == &segment[seg] ) {
-		return;
-	}
+    if ( currentSegment == &segment[seg] ) {
+        return;
+    }
 
-	currentSegment = &segment[seg];
-	if ( passNumber == 0 ) {
-		lastSymbol->segment = currentSegment;
-		lastSymbol->value = currentSegment->imageUsed;
-	}
+    currentSegment = &segment[seg];
+    if ( passNumber == 0 ) {
+        lastSymbol->segment = currentSegment;
+        lastSymbol->value = currentSegment->imageUsed;
+    }
 }
 
 
@@ -827,325 +827,325 @@ static void HackToSegment( segmentName_t seg ) {
  -PH
 */
 
-	// call instructions reset currentArgOffset
+    // call instructions reset currentArgOffset
 ASM(CALL)
 {
-	if ( !strncmp( token, "CALL", 4 ) ) {
+    if ( !strncmp( token, "CALL", 4 ) ) {
 STAT("CALL");
-		EmitByte( &segment[CODESEG], OP_CALL );
-		instructionCount++;
-		currentArgOffset = 0;
-		return 1;
-	}
-	return 0;
+        EmitByte( &segment[CODESEG], OP_CALL );
+        instructionCount++;
+        currentArgOffset = 0;
+        return 1;
+    }
+    return 0;
 }
 
-	// arg is converted to a reversed store
+    // arg is converted to a reversed store
 ASM(ARG)
 {
-	if ( !strncmp( token, "ARG", 3 ) ) {
+    if ( !strncmp( token, "ARG", 3 ) ) {
 STAT("ARG");
-		EmitByte( &segment[CODESEG], OP_ARG );
-		instructionCount++;
-		if ( 8 + currentArgOffset >= 256 ) {
-			CodeError( "currentArgOffset >= 256" );
-			return 1;
-		}
-		EmitByte( &segment[CODESEG], 8 + currentArgOffset );
-		currentArgOffset += 4;
-		return 1;
-	}
-	return 0;
+        EmitByte( &segment[CODESEG], OP_ARG );
+        instructionCount++;
+        if ( 8 + currentArgOffset >= 256 ) {
+            CodeError( "currentArgOffset >= 256" );
+            return 1;
+        }
+        EmitByte( &segment[CODESEG], 8 + currentArgOffset );
+        currentArgOffset += 4;
+        return 1;
+    }
+    return 0;
 }
 
-	// ret just leaves something on the op stack
+    // ret just leaves something on the op stack
 ASM(RET)
 {
-	if ( !strncmp( token, "RET", 3 ) ) {
+    if ( !strncmp( token, "RET", 3 ) ) {
 STAT("RET");
-		EmitByte( &segment[CODESEG], OP_LEAVE );
-		instructionCount++;
-		EmitInt( &segment[CODESEG], 8 + currentLocals + currentArgs );
-		return 1;
-	}
-	return 0;
+        EmitByte( &segment[CODESEG], OP_LEAVE );
+        instructionCount++;
+        EmitInt( &segment[CODESEG], 8 + currentLocals + currentArgs );
+        return 1;
+    }
+    return 0;
 }
 
-	// pop is needed to discard the return value of 
-	// a function
+    // pop is needed to discard the return value of
+    // a function
 ASM(POP)
 {
-	if ( !strncmp( token, "pop", 3 ) ) {
+    if ( !strncmp( token, "pop", 3 ) ) {
 STAT("POP");
-		EmitByte( &segment[CODESEG], OP_POP );
-		instructionCount++;
-		return 1;
-	}
-	return 0;
+        EmitByte( &segment[CODESEG], OP_POP );
+        instructionCount++;
+        return 1;
+    }
+    return 0;
 }
 
-	// address of a parameter is converted to OP_LOCAL
+    // address of a parameter is converted to OP_LOCAL
 ASM(ADDRF)
 {
-	int		v;
-	if ( !strncmp( token, "ADDRF", 5 ) ) {
+    int     v;
+    if ( !strncmp( token, "ADDRF", 5 ) ) {
 STAT("ADDRF");
-		instructionCount++;
-		Parse();
-		v = ParseExpression();
-		v = 16 + currentArgs + currentLocals + v;
-		EmitByte( &segment[CODESEG], OP_LOCAL );
-		EmitInt( &segment[CODESEG], v );
-		return 1;
-	}
-	return 0;
+        instructionCount++;
+        Parse();
+        v = ParseExpression();
+        v = 16 + currentArgs + currentLocals + v;
+        EmitByte( &segment[CODESEG], OP_LOCAL );
+        EmitInt( &segment[CODESEG], v );
+        return 1;
+    }
+    return 0;
 }
 
-	// address of a local is converted to OP_LOCAL
+    // address of a local is converted to OP_LOCAL
 ASM(ADDRL)
 {
-	int		v;
-	if ( !strncmp( token, "ADDRL", 5 ) ) {
+    int     v;
+    if ( !strncmp( token, "ADDRL", 5 ) ) {
 STAT("ADDRL");
-		instructionCount++;
-		Parse();
-		v = ParseExpression();
-		v = 8 + currentArgs + v;
-		EmitByte( &segment[CODESEG], OP_LOCAL );
-		EmitInt( &segment[CODESEG], v );
-		return 1;
-	}
-	return 0;
+        instructionCount++;
+        Parse();
+        v = ParseExpression();
+        v = 8 + currentArgs + v;
+        EmitByte( &segment[CODESEG], OP_LOCAL );
+        EmitInt( &segment[CODESEG], v );
+        return 1;
+    }
+    return 0;
 }
 
 ASM(PROC)
 {
-	char	name[1024];
-	if ( !strcmp( token, "proc" ) ) {
+    char    name[1024];
+    if ( !strcmp( token, "proc" ) ) {
 STAT("PROC");
-		Parse();					// function name
-		strcpy( name, token );
+        Parse();                    // function name
+        strcpy( name, token );
 
-		DefineSymbol( token, instructionCount ); // segment[CODESEG].imageUsed );
+        DefineSymbol( token, instructionCount ); // segment[CODESEG].imageUsed );
 
-		currentLocals = ParseValue();	// locals
-		currentLocals = ( currentLocals + 3 ) & ~3;
-		currentArgs = ParseValue();		// arg marshalling
-		currentArgs = ( currentArgs + 3 ) & ~3;
+        currentLocals = ParseValue();   // locals
+        currentLocals = ( currentLocals + 3 ) & ~3;
+        currentArgs = ParseValue();     // arg marshalling
+        currentArgs = ( currentArgs + 3 ) & ~3;
 
-		if ( 8 + currentLocals + currentArgs >= 32767 ) {
-			CodeError( "Locals > 32k in %s\n", name );
-		}
+        if ( 8 + currentLocals + currentArgs >= 32767 ) {
+            CodeError( "Locals > 32k in %s\n", name );
+        }
 
-		instructionCount++;
-		EmitByte( &segment[CODESEG], OP_ENTER );
-		EmitInt( &segment[CODESEG], 8 + currentLocals + currentArgs );
-		return 1;
-	}
-	return 0;
+        instructionCount++;
+        EmitByte( &segment[CODESEG], OP_ENTER );
+        EmitInt( &segment[CODESEG], 8 + currentLocals + currentArgs );
+        return 1;
+    }
+    return 0;
 }
 
 
 ASM(ENDPROC)
 {
-	if ( !strcmp( token, "endproc" ) ) {
+    if ( !strcmp( token, "endproc" ) ) {
 STAT("ENDPROC");
-		Parse();				// skip the function name
-		ParseValue();		// locals
-		ParseValue();		// arg marshalling
+        Parse();                // skip the function name
+        ParseValue();       // locals
+        ParseValue();       // arg marshalling
 
-		// all functions must leave something on the opstack
-		instructionCount++;
-		EmitByte( &segment[CODESEG], OP_PUSH );
+        // all functions must leave something on the opstack
+        instructionCount++;
+        EmitByte( &segment[CODESEG], OP_PUSH );
 
-		instructionCount++;
-		EmitByte( &segment[CODESEG], OP_LEAVE );
-		EmitInt( &segment[CODESEG], 8 + currentLocals + currentArgs );
+        instructionCount++;
+        EmitByte( &segment[CODESEG], OP_LEAVE );
+        EmitInt( &segment[CODESEG], 8 + currentLocals + currentArgs );
 
-		return 1;
-	}
-	return 0;
+        return 1;
+    }
+    return 0;
 }
 
 
 ASM(ADDRESS)
 {
-	int		v;
-	if ( !strcmp( token, "address" ) ) {
+    int     v;
+    if ( !strcmp( token, "address" ) ) {
 STAT("ADDRESS");
-		Parse();
-		v = ParseExpression();
+        Parse();
+        v = ParseExpression();
 
 /* Addresses are 32 bits wide, and therefore go into data segment. */
-		HackToSegment( DATASEG );
-		EmitInt( currentSegment, v );
-		if( passNumber == 1 && token[ 0 ] == '$' ) // crude test for labels
-			EmitInt( &segment[ JTRGSEG ], v );
-		return 1;
-	}
-	return 0;
+        HackToSegment( DATASEG );
+        EmitInt( currentSegment, v );
+        if( passNumber == 1 && token[ 0 ] == '$' ) // crude test for labels
+            EmitInt( &segment[ JTRGSEG ], v );
+        return 1;
+    }
+    return 0;
 }
 
 ASM(EXPORT)
 {
-	if ( !strcmp( token, "export" ) ) {
+    if ( !strcmp( token, "export" ) ) {
 STAT("EXPORT");
-		return 1;
-	}
-	return 0;
+        return 1;
+    }
+    return 0;
 }
 
 ASM(IMPORT)
 {
-	if ( !strcmp( token, "import" ) ) {
+    if ( !strcmp( token, "import" ) ) {
 STAT("IMPORT");
-		return 1;
-	}
-	return 0;
+        return 1;
+    }
+    return 0;
 }
 
 ASM(CODE)
 {
-	if ( !strcmp( token, "code" ) ) {
+    if ( !strcmp( token, "code" ) ) {
 STAT("CODE");
-		currentSegment = &segment[CODESEG];
-		return 1;
-	}
-	return 0;
+        currentSegment = &segment[CODESEG];
+        return 1;
+    }
+    return 0;
 }
 
 ASM(BSS)
 {
-	if ( !strcmp( token, "bss" ) ) {
+    if ( !strcmp( token, "bss" ) ) {
 STAT("BSS");
-		currentSegment = &segment[BSSSEG];
-		return 1;
-	}
-	return 0;
+        currentSegment = &segment[BSSSEG];
+        return 1;
+    }
+    return 0;
 }
 
 ASM(DATA)
 {
-	if ( !strcmp( token, "data" ) ) {
+    if ( !strcmp( token, "data" ) ) {
 STAT("DATA");
-		currentSegment = &segment[DATASEG];
-		return 1;
-	}
-	return 0;
+        currentSegment = &segment[DATASEG];
+        return 1;
+    }
+    return 0;
 }
 
 ASM(LIT)
 {
-	if ( !strcmp( token, "lit" ) ) {
+    if ( !strcmp( token, "lit" ) ) {
 STAT("LIT");
-		currentSegment = &segment[LITSEG];
-		return 1;
-	}
-	return 0;
+        currentSegment = &segment[LITSEG];
+        return 1;
+    }
+    return 0;
 }
 
 ASM(LINE)
 {
-	if ( !strcmp( token, "line" ) ) {
+    if ( !strcmp( token, "line" ) ) {
 STAT("LINE");
-		return 1;
-	}
-	return 0;
+        return 1;
+    }
+    return 0;
 }
 
 ASM(FILE)
 {
-	if ( !strcmp( token, "file" ) ) {
+    if ( !strcmp( token, "file" ) ) {
 STAT("FILE");
-		return 1;
-	}
-	return 0;
+        return 1;
+    }
+    return 0;
 }
 
 ASM(EQU)
 {
-	char	name[1024];
-	if ( !strcmp( token, "equ" ) ) {
+    char    name[1024];
+    if ( !strcmp( token, "equ" ) ) {
 STAT("EQU");
-		Parse();
-		strcpy( name, token );
-		Parse();
-		DefineSymbol( name, atoiNoCap(token) );
-		return 1;
-	}
-	return 0;
+        Parse();
+        strcpy( name, token );
+        Parse();
+        DefineSymbol( name, atoiNoCap(token) );
+        return 1;
+    }
+    return 0;
 }
 
 ASM(ALIGN)
 {
-	int		v;
-	if ( !strcmp( token, "align" ) ) {
+    int     v;
+    if ( !strcmp( token, "align" ) ) {
 STAT("ALIGN");
-		v = ParseValue();
-		currentSegment->imageUsed = (currentSegment->imageUsed + v - 1 ) & ~( v - 1 );
-		return 1;
-	}
-	return 0;
+        v = ParseValue();
+        currentSegment->imageUsed = (currentSegment->imageUsed + v - 1 ) & ~( v - 1 );
+        return 1;
+    }
+    return 0;
 }
 
 ASM(SKIP)
 {
-	int		v;
-	if ( !strcmp( token, "skip" ) ) {
+    int     v;
+    if ( !strcmp( token, "skip" ) ) {
 STAT("SKIP");
-		v = ParseValue();
-		currentSegment->imageUsed += v;
-		return 1;
-	}
-	return 0;
+        v = ParseValue();
+        currentSegment->imageUsed += v;
+        return 1;
+    }
+    return 0;
 }
 
 ASM(BYTE)
 {
-	int		i, v, v2;
-	if ( !strcmp( token, "byte" ) ) {
+    int     i, v, v2;
+    if ( !strcmp( token, "byte" ) ) {
 STAT("BYTE");
-		v = ParseValue();
-		v2 = ParseValue();
+        v = ParseValue();
+        v2 = ParseValue();
 
-		if ( v == 1 ) {
+        if ( v == 1 ) {
 /* Character (1-byte) values go into lit(eral) segment. */
-			HackToSegment( LITSEG );
-		} else if ( v == 4 ) {
+            HackToSegment( LITSEG );
+        } else if ( v == 4 ) {
 /* 32-bit (4-byte) values go into data segment. */
-			HackToSegment( DATASEG );
-		} else if ( v == 2 ) {
+            HackToSegment( DATASEG );
+        } else if ( v == 2 ) {
 /* and 16-bit (2-byte) values will cause q3asm to barf. */
-			CodeError( "16 bit initialized data not supported" );
-		}
+            CodeError( "16 bit initialized data not supported" );
+        }
 
-		// emit little endien
-		for ( i = 0 ; i < v ; i++ ) {
-			EmitByte( currentSegment, (v2 & 0xFF) ); /* paranoid ANDing  -PH */
-			v2 >>= 8;
-		}
-		return 1;
-	}
-	return 0;
+        // emit little endien
+        for ( i = 0 ; i < v ; i++ ) {
+            EmitByte( currentSegment, (v2 & 0xFF) ); /* paranoid ANDing  -PH */
+            v2 >>= 8;
+        }
+        return 1;
+    }
+    return 0;
 }
 
-	// code labels are emitted as instruction counts, not byte offsets,
-	// because the physical size of the code will change with
-	// different run time compilers and we want to minimize the
-	// size of the required translation table
+    // code labels are emitted as instruction counts, not byte offsets,
+    // because the physical size of the code will change with
+    // different run time compilers and we want to minimize the
+    // size of the required translation table
 ASM(LABEL)
 {
-	if ( !strncmp( token, "LABEL", 5 ) ) {
+    if ( !strncmp( token, "LABEL", 5 ) ) {
 STAT("LABEL");
-		Parse();
-		if ( currentSegment == &segment[CODESEG] ) {
-			DefineSymbol( token, instructionCount );
-		} else {
-			DefineSymbol( token, currentSegment->imageUsed );
-		}
-		return 1;
-	}
-	return 0;
+        Parse();
+        if ( currentSegment == &segment[CODESEG] ) {
+            DefineSymbol( token, instructionCount );
+        } else {
+            DefineSymbol( token, currentSegment->imageUsed );
+        }
+        return 1;
+    }
+    return 0;
 }
 
 
@@ -1157,17 +1157,17 @@ AssembleLine
 ==============
 */
 static void AssembleLine( void ) {
-	hashchain_t *hc;
-	sourceOps_t *op;
-	int		i;
-	int		hash;
+    hashchain_t *hc;
+    sourceOps_t *op;
+    int     i;
+    int     hash;
 
-	Parse();
-	if ( !token[0] ) {
-		return;
-	}
+    Parse();
+    if ( !token[0] ) {
+        return;
+    }
 
-	hash = HashString( token );
+    hash = HashString( token );
 
 /*
   Opcode search using hash table.
@@ -1175,86 +1175,86 @@ static void AssembleLine( void ) {
   Always with the tree :)
  -PH
 */
-	for (hc = hashtable_get(optable, hash); hc; hc = hc->next) {
-		op = (sourceOps_t*)(hc->data);
-		i = op - sourceOps;
-		if ((hash == opcodesHash[i]) && (!strcmp(token, op->name))) {
-			int		opcode;
-			int		expression;
+    for (hc = hashtable_get(optable, hash); hc; hc = hc->next) {
+        op = (sourceOps_t*)(hc->data);
+        i = op - sourceOps;
+        if ((hash == opcodesHash[i]) && (!strcmp(token, op->name))) {
+            int     opcode;
+            int     expression;
 
-			if ( op->opcode == OP_UNDEF ) {
-				CodeError( "Undefined opcode: %s\n", token );
-			}
-			if ( op->opcode == OP_IGNORE ) {
-				return;		// we ignore most conversions
-			}
+            if ( op->opcode == OP_UNDEF ) {
+                CodeError( "Undefined opcode: %s\n", token );
+            }
+            if ( op->opcode == OP_IGNORE ) {
+                return;     // we ignore most conversions
+            }
 
-			// sign extensions need to check next parm
-			opcode = op->opcode;
-			if ( opcode == OP_SEX8 ) {
-				Parse();
-				if ( token[0] == '1' ) {
-					opcode = OP_SEX8;
-				} else if ( token[0] == '2' ) {
-					opcode = OP_SEX16;
-				} else {
-					CodeError( "Bad sign extension: %s\n", token );
-					return;
-				}
-			}
+            // sign extensions need to check next parm
+            opcode = op->opcode;
+            if ( opcode == OP_SEX8 ) {
+                Parse();
+                if ( token[0] == '1' ) {
+                    opcode = OP_SEX8;
+                } else if ( token[0] == '2' ) {
+                    opcode = OP_SEX16;
+                } else {
+                    CodeError( "Bad sign extension: %s\n", token );
+                    return;
+                }
+            }
 
-			// check for expression
-			Parse();
-			if ( token[0] && op->opcode != OP_CVIF
-					&& op->opcode != OP_CVFI ) {
-				expression = ParseExpression();
+            // check for expression
+            Parse();
+            if ( token[0] && op->opcode != OP_CVIF
+                    && op->opcode != OP_CVFI ) {
+                expression = ParseExpression();
 
-				// code like this can generate non-dword block copies:
-				// auto char buf[2] = " ";
-				// we are just going to round up.  This might conceivably
-				// be incorrect if other initialized chars follow.
-				if ( opcode == OP_BLOCK_COPY ) {
-					expression = ( expression + 3 ) & ~3;
-				}
+                // code like this can generate non-dword block copies:
+                // auto char buf[2] = " ";
+                // we are just going to round up.  This might conceivably
+                // be incorrect if other initialized chars follow.
+                if ( opcode == OP_BLOCK_COPY ) {
+                    expression = ( expression + 3 ) & ~3;
+                }
 
-				EmitByte( &segment[CODESEG], opcode );
-				EmitInt( &segment[CODESEG], expression );
-			} else {
-				EmitByte( &segment[CODESEG], opcode );
-			}
+                EmitByte( &segment[CODESEG], opcode );
+                EmitInt( &segment[CODESEG], expression );
+            } else {
+                EmitByte( &segment[CODESEG], opcode );
+            }
 
-			instructionCount++;
-			return;
-		}
-	}
+            instructionCount++;
+            return;
+        }
+    }
 
 /* This falls through if an assembly opcode is not found.  -PH */
 
 /* The following should be sorted in sequence of statistical frequency, most frequent first.  -PH */
 /*
 Empirical frequency statistics from FI 2001.01.23:
- 109892	STAT ADDRL
-  72188	STAT BYTE
-  51150	STAT LINE
-  50906	STAT ARG
-  43704	STAT IMPORT
-  34902	STAT LABEL
-  32066	STAT ADDRF
-  23704	STAT CALL
-   7720	STAT POP
-   7256	STAT RET
-   5198	STAT ALIGN
-   3292	STAT EXPORT
-   2878	STAT PROC
-   2878	STAT ENDPROC
-   2812	STAT ADDRESS
-    738	STAT SKIP
-    374	STAT EQU
-    280	STAT CODE
-    176	STAT LIT
-    102	STAT FILE
-    100	STAT BSS
-     68	STAT DATA
+ 109892 STAT ADDRL
+  72188 STAT BYTE
+  51150 STAT LINE
+  50906 STAT ARG
+  43704 STAT IMPORT
+  34902 STAT LABEL
+  32066 STAT ADDRF
+  23704 STAT CALL
+   7720 STAT POP
+   7256 STAT RET
+   5198 STAT ALIGN
+   3292 STAT EXPORT
+   2878 STAT PROC
+   2878 STAT ENDPROC
+   2812 STAT ADDRESS
+    738 STAT SKIP
+    374 STAT EQU
+    280 STAT CODE
+    176 STAT LIT
+    102 STAT FILE
+    100 STAT BSS
+     68 STAT DATA
 
  -PH
 */
@@ -1262,30 +1262,30 @@ Empirical frequency statistics from FI 2001.01.23:
 #undef ASM
 #define ASM(O) if (TryAssemble##O ()) return;
 
-	ASM(ADDRL)
-	ASM(BYTE)
-	ASM(LINE)
-	ASM(ARG)
-	ASM(IMPORT)
-	ASM(LABEL)
-	ASM(ADDRF)
-	ASM(CALL)
-	ASM(POP)
-	ASM(RET)
-	ASM(ALIGN)
-	ASM(EXPORT)
-	ASM(PROC)
-	ASM(ENDPROC)
-	ASM(ADDRESS)
-	ASM(SKIP)
-	ASM(EQU)
-	ASM(CODE)
-	ASM(LIT)
-	ASM(FILE)
-	ASM(BSS)
-	ASM(DATA)
+    ASM(ADDRL)
+    ASM(BYTE)
+    ASM(LINE)
+    ASM(ARG)
+    ASM(IMPORT)
+    ASM(LABEL)
+    ASM(ADDRF)
+    ASM(CALL)
+    ASM(POP)
+    ASM(RET)
+    ASM(ALIGN)
+    ASM(EXPORT)
+    ASM(PROC)
+    ASM(ENDPROC)
+    ASM(ADDRESS)
+    ASM(SKIP)
+    ASM(EQU)
+    ASM(CODE)
+    ASM(LIT)
+    ASM(FILE)
+    ASM(BSS)
+    ASM(DATA)
 
-	CodeError( "Unknown token: %s\n", token );
+    CodeError( "Unknown token: %s\n", token );
 }
 
 /*
@@ -1294,15 +1294,15 @@ InitTables
 ==============
 */
 void InitTables( void ) {
-	int i;
+    int i;
 
-	symtable = hashtable_new(symtablelen);
-	optable = hashtable_new(100);  /* There's hardly 100 opcodes anyway. */
+    symtable = hashtable_new(symtablelen);
+    optable = hashtable_new(100);  /* There's hardly 100 opcodes anyway. */
 
-	for ( i = 0 ; i < NUM_SOURCE_OPS ; i++ ) {
-		opcodesHash[i] = HashString( sourceOps[i].name );
-		hashtable_add(optable, opcodesHash[i], sourceOps + i);
-	}
+    for ( i = 0 ; i < NUM_SOURCE_OPS ; i++ ) {
+        opcodesHash[i] = HashString( sourceOps[i].name );
+        hashtable_add(optable, opcodesHash[i], sourceOps + i);
+    }
 }
 
 
@@ -1312,30 +1312,30 @@ WriteMapFile
 ==============
 */
 static void WriteMapFile( void ) {
-	FILE		*f;
-	symbol_t	*s;
-	char		imageName[MAX_OS_PATH];
-	int			seg;
+    FILE        *f;
+    symbol_t    *s;
+    char        imageName[MAX_OS_PATH];
+    int         seg;
 
-	strcpy( imageName, outputFilename );
-	StripExtension( imageName );
-	strcat( imageName, ".map" );
+    strcpy( imageName, outputFilename );
+    StripExtension( imageName );
+    strcat( imageName, ".map" );
 
-	report( "Writing %s...\n", imageName );
+    report( "Writing %s...\n", imageName );
 
-	f = SafeOpenWrite( imageName );
-	for ( seg = CODESEG ; seg <= BSSSEG ; seg++ ) {
-		for ( s = symbols ; s ; s = s->next ) {
-			if ( s->name[0] == '$' ) {
-				continue;	// skip locals
-			}
-			if ( &segment[seg] != s->segment ) {
-				continue;
-			}
-			fprintf( f, "%i %8x %s\n", seg, s->value, s->name );
-		}
-	}
-	fclose( f );
+    f = SafeOpenWrite( imageName );
+    for ( seg = CODESEG ; seg <= BSSSEG ; seg++ ) {
+        for ( s = symbols ; s ; s = s->next ) {
+            if ( s->name[0] == '$' ) {
+                continue;   // skip locals
+            }
+            if ( &segment[seg] != s->segment ) {
+                continue;
+            }
+            fprintf( f, "%i %8x %s\n", seg, s->value, s->name );
+        }
+    }
+    fclose( f );
 }
 
 /*
@@ -1344,77 +1344,77 @@ WriteVmFile
 ===============
 */
 static void WriteVmFile( void ) {
-	char	imageName[MAX_OS_PATH];
-	vmHeader_t	header;
-	FILE	*f;
-	int		headerSize;
+    char    imageName[MAX_OS_PATH];
+    vmHeader_t  header;
+    FILE    *f;
+    int     headerSize;
 
-	report( "%i total errors\n", errorCount );
+    report( "%i total errors\n", errorCount );
 
-	strcpy( imageName, outputFilename );
-	StripExtension( imageName );
-	strcat( imageName, ".qvm" );
+    strcpy( imageName, outputFilename );
+    StripExtension( imageName );
+    strcat( imageName, ".qvm" );
 
-	remove( imageName );
+    remove( imageName );
 
-	report( "code segment: %7i\n", segment[CODESEG].imageUsed );
-	report( "data segment: %7i\n", segment[DATASEG].imageUsed );
-	report( "lit  segment: %7i\n", segment[LITSEG].imageUsed );
-	report( "bss  segment: %7i\n", segment[BSSSEG].imageUsed );
-	report( "instruction count: %i\n", instructionCount );
-  
-	if ( errorCount != 0 ) {
-		report( "Not writing a file due to errors\n" );
-		return;
-	}
+    report( "code segment: %7i\n", segment[CODESEG].imageUsed );
+    report( "data segment: %7i\n", segment[DATASEG].imageUsed );
+    report( "lit  segment: %7i\n", segment[LITSEG].imageUsed );
+    report( "bss  segment: %7i\n", segment[BSSSEG].imageUsed );
+    report( "instruction count: %i\n", instructionCount );
 
-	if( !options.vanillaQ3Compatibility ) {
-		header.vmMagic = VM_MAGIC_VER2;
-		headerSize = sizeof( header );
-	} else {
-		header.vmMagic = VM_MAGIC;
+    if ( errorCount != 0 ) {
+        report( "Not writing a file due to errors\n" );
+        return;
+    }
 
-		// Don't write the VM_MAGIC_VER2 bits when maintaining 1.32b compatibility.
-		// (I know this isn't strictly correct due to padding, but then platforms
-		// that pad wouldn't be able to write a correct header anyway).  Note: if
-		// vmHeader_t changes, this needs to be adjusted too.
-		headerSize = sizeof( header ) - sizeof( header.jtrgLength );
-	}
+    if( !options.vanillaQ3Compatibility ) {
+        header.vmMagic = VM_MAGIC_VER2;
+        headerSize = sizeof( header );
+    } else {
+        header.vmMagic = VM_MAGIC;
 
-	header.instructionCount = instructionCount;
-	header.codeOffset = headerSize;
-	header.codeLength = segment[CODESEG].imageUsed;
-	header.dataOffset = header.codeOffset + segment[CODESEG].imageUsed;
-	header.dataLength = segment[DATASEG].imageUsed;
-	header.litLength = segment[LITSEG].imageUsed;
-	header.bssLength = segment[BSSSEG].imageUsed;
-	header.jtrgLength = segment[JTRGSEG].imageUsed;
+        // Don't write the VM_MAGIC_VER2 bits when maintaining 1.32b compatibility.
+        // (I know this isn't strictly correct due to padding, but then platforms
+        // that pad wouldn't be able to write a correct header anyway).  Note: if
+        // vmHeader_t changes, this needs to be adjusted too.
+        headerSize = sizeof( header ) - sizeof( header.jtrgLength );
+    }
 
-	report( "Writing to %s\n", imageName );
+    header.instructionCount = instructionCount;
+    header.codeOffset = headerSize;
+    header.codeLength = segment[CODESEG].imageUsed;
+    header.dataOffset = header.codeOffset + segment[CODESEG].imageUsed;
+    header.dataLength = segment[DATASEG].imageUsed;
+    header.litLength = segment[LITSEG].imageUsed;
+    header.bssLength = segment[BSSSEG].imageUsed;
+    header.jtrgLength = segment[JTRGSEG].imageUsed;
+
+    report( "Writing to %s\n", imageName );
 
 #ifdef Q3_BIG_ENDIAN
-	{
-		int i;
+    {
+        int i;
 
-		// byte swap the header
-		for ( i = 0 ; i < sizeof( vmHeader_t ) / 4 ; i++ ) {
-			((int *)&header)[i] = LittleLong( ((int *)&header)[i] );
-		}
-	}
+        // byte swap the header
+        for ( i = 0 ; i < sizeof( vmHeader_t ) / 4 ; i++ ) {
+            ((int *)&header)[i] = LittleLong( ((int *)&header)[i] );
+        }
+    }
 #endif
 
-	CreatePath( imageName );
-	f = SafeOpenWrite( imageName );
-	SafeWrite( f, &header, headerSize );
-	SafeWrite( f, &segment[CODESEG].image, segment[CODESEG].imageUsed );
-	SafeWrite( f, &segment[DATASEG].image, segment[DATASEG].imageUsed );
-	SafeWrite( f, &segment[LITSEG].image, segment[LITSEG].imageUsed );
+    CreatePath( imageName );
+    f = SafeOpenWrite( imageName );
+    SafeWrite( f, &header, headerSize );
+    SafeWrite( f, &segment[CODESEG].image, segment[CODESEG].imageUsed );
+    SafeWrite( f, &segment[DATASEG].image, segment[DATASEG].imageUsed );
+    SafeWrite( f, &segment[LITSEG].image, segment[LITSEG].imageUsed );
 
-	if( !options.vanillaQ3Compatibility ) {
-		SafeWrite( f, &segment[JTRGSEG].image, segment[JTRGSEG].imageUsed );
-	}
+    if( !options.vanillaQ3Compatibility ) {
+        SafeWrite( f, &segment[JTRGSEG].image, segment[JTRGSEG].imageUsed );
+    }
 
-	fclose( f );
+    fclose( f );
 }
 
 /*
@@ -1423,63 +1423,63 @@ Assemble
 ===============
 */
 static void Assemble( void ) {
-	int		i;
-	char	filename[MAX_OS_PATH];
-	char		*ptr;
+    int     i;
+    char    filename[MAX_OS_PATH];
+    char        *ptr;
 
-	report( "outputFilename: %s\n", outputFilename );
+    report( "outputFilename: %s\n", outputFilename );
 
-	for ( i = 0 ; i < numAsmFiles ; i++ ) {
-		strcpy( filename, asmFileNames[ i ] );
-		DefaultExtension( filename, ".asm" );
-		LoadFile( filename, (void **)&asmFiles[i] );
-	}
+    for ( i = 0 ; i < numAsmFiles ; i++ ) {
+        strcpy( filename, asmFileNames[ i ] );
+        DefaultExtension( filename, ".asm" );
+        LoadFile( filename, (void **)&asmFiles[i] );
+    }
 
-	// assemble
-	for ( passNumber = 0 ; passNumber < 2 ; passNumber++ ) {
-		segment[LITSEG].segmentBase = segment[DATASEG].imageUsed;
-		segment[BSSSEG].segmentBase = segment[LITSEG].segmentBase + segment[LITSEG].imageUsed;
-		segment[JTRGSEG].segmentBase = segment[BSSSEG].segmentBase + segment[BSSSEG].imageUsed;
-		for ( i = 0 ; i < NUM_SEGMENTS ; i++ ) {
-			segment[i].imageUsed = 0;
-		}
-		segment[DATASEG].imageUsed = 4;		// skip the 0 byte, so NULL pointers are fixed up properly
-		instructionCount = 0;
+    // assemble
+    for ( passNumber = 0 ; passNumber < 2 ; passNumber++ ) {
+        segment[LITSEG].segmentBase = segment[DATASEG].imageUsed;
+        segment[BSSSEG].segmentBase = segment[LITSEG].segmentBase + segment[LITSEG].imageUsed;
+        segment[JTRGSEG].segmentBase = segment[BSSSEG].segmentBase + segment[BSSSEG].imageUsed;
+        for ( i = 0 ; i < NUM_SEGMENTS ; i++ ) {
+            segment[i].imageUsed = 0;
+        }
+        segment[DATASEG].imageUsed = 4;     // skip the 0 byte, so NULL pointers are fixed up properly
+        instructionCount = 0;
 
-		for ( i = 0 ; i < numAsmFiles ; i++ ) {
-			currentFileIndex = i;
-			currentFileName = asmFileNames[ i ];
-			currentFileLine = 0;
-			report("pass %i: %s\n", passNumber, currentFileName );
-			fflush( NULL );
-			ptr = asmFiles[i];
-			while ( ptr ) {
-				ptr = ExtractLine( ptr );
-				AssembleLine();
-			}
-		}
+        for ( i = 0 ; i < numAsmFiles ; i++ ) {
+            currentFileIndex = i;
+            currentFileName = asmFileNames[ i ];
+            currentFileLine = 0;
+            report("pass %i: %s\n", passNumber, currentFileName );
+            fflush( NULL );
+            ptr = asmFiles[i];
+            while ( ptr ) {
+                ptr = ExtractLine( ptr );
+                AssembleLine();
+            }
+        }
 
-		// align all segment
-		for ( i = 0 ; i < NUM_SEGMENTS ; i++ ) {
-			segment[i].imageUsed = (segment[i].imageUsed + 3) & ~3;
-		}
-		if (passNumber == 0) {
-			sort_symbols();
-		}
-	}
+        // align all segment
+        for ( i = 0 ; i < NUM_SEGMENTS ; i++ ) {
+            segment[i].imageUsed = (segment[i].imageUsed + 3) & ~3;
+        }
+        if (passNumber == 0) {
+            sort_symbols();
+        }
+    }
 
-	// reserve the stack in bss
-	DefineSymbol( "_stackStart", segment[BSSSEG].imageUsed );
-	segment[BSSSEG].imageUsed += stackSize;
-	DefineSymbol( "_stackEnd", segment[BSSSEG].imageUsed );
+    // reserve the stack in bss
+    DefineSymbol( "_stackStart", segment[BSSSEG].imageUsed );
+    segment[BSSSEG].imageUsed += stackSize;
+    DefineSymbol( "_stackEnd", segment[BSSSEG].imageUsed );
 
-	// write the image
-	WriteVmFile();
+    // write the image
+    WriteVmFile();
 
-	// write the map file even if there were errors
-	if( options.writeMapFile ) {
-		WriteMapFile();
-	}
+    // write the map file even if there were errors
+    if( options.writeMapFile ) {
+        WriteMapFile();
+    }
 }
 
 
@@ -1490,35 +1490,35 @@ ParseOptionFile
 =============
 */
 static void ParseOptionFile( const char *filename ) {
-	char		expanded[MAX_OS_PATH];
-	char		*text, *text_p;
+    char        expanded[MAX_OS_PATH];
+    char        *text, *text_p;
 
-	strcpy( expanded, filename );
-	DefaultExtension( expanded, ".q3asm" );
-	LoadFile( expanded, (void **)&text );
-	if ( !text ) {
-		return;
-	}
+    strcpy( expanded, filename );
+    DefaultExtension( expanded, ".q3asm" );
+    LoadFile( expanded, (void **)&text );
+    if ( !text ) {
+        return;
+    }
 
-	text_p = text;
+    text_p = text;
 
-	while( ( text_p = COM_Parse( text_p ) ) != 0 ) {
-		if ( !strcmp( com_token, "-o" ) ) {
-			// allow output override in option file
-			text_p = COM_Parse( text_p );
-			if ( text_p ) {
-				strcpy( outputFilename, com_token );
-			}
-			continue;
-		}
+    while( ( text_p = COM_Parse( text_p ) ) != 0 ) {
+        if ( !strcmp( com_token, "-o" ) ) {
+            // allow output override in option file
+            text_p = COM_Parse( text_p );
+            if ( text_p ) {
+                strcpy( outputFilename, com_token );
+            }
+            continue;
+        }
 
-		asmFileNames[ numAsmFiles ] = copystring( com_token );
-		numAsmFiles++;
-	}
+        asmFileNames[ numAsmFiles ] = copystring( com_token );
+        numAsmFiles++;
+    }
 }
 
 static void ShowHelp( char *argv0 ) {
-	Error("Usage: %s [OPTION]... [FILES]...\n\
+    Error("Usage: %s [OPTION]... [FILES]...\n\
 Assemble LCC bytecode assembly to Q3VM bytecode.\n\
 \n\
   -o OUTPUT      Write assembled output to file OUTPUT.qvm\n\
@@ -1537,111 +1537,111 @@ main
 ==============
 */
 int main( int argc, char **argv ) {
-	int			i;
-	double		start, end;
+    int         i;
+    double      start, end;
 
-//	_chdir( "/quake3/jccode/cgame/lccout" );	// hack for vc profiler
+//  _chdir( "/quake3/jccode/cgame/lccout" );    // hack for vc profiler
 
-	if ( argc < 2 ) {
-		ShowHelp( argv[0] );
-	}
+    if ( argc < 2 ) {
+        ShowHelp( argv[0] );
+    }
 
-	start = I_FloatTime ();
+    start = I_FloatTime ();
 
-	// default filename is "q3asm"
-	strcpy( outputFilename, "q3asm" );
-	numAsmFiles = 0;	
+    // default filename is "q3asm"
+    strcpy( outputFilename, "q3asm" );
+    numAsmFiles = 0;
 
-	for ( i = 1 ; i < argc ; i++ ) {
-		if ( argv[i][0] != '-' ) {
-			break;
-		}
-		if( !strcmp( argv[ i ], "-h" ) || 
-		    !strcmp( argv[ i ], "--help" ) ||
-		    !strcmp( argv[ i ], "-?") ) {
-			ShowHelp( argv[0] );
-		}
+    for ( i = 1 ; i < argc ; i++ ) {
+        if ( argv[i][0] != '-' ) {
+            break;
+        }
+        if( !strcmp( argv[ i ], "-h" ) ||
+            !strcmp( argv[ i ], "--help" ) ||
+            !strcmp( argv[ i ], "-?") ) {
+            ShowHelp( argv[0] );
+        }
 
-		if ( !strcmp( argv[i], "-o" ) ) {
-			if ( i == argc - 1 ) {
-				Error( "-o must precede a filename" );
-			}
+        if ( !strcmp( argv[i], "-o" ) ) {
+            if ( i == argc - 1 ) {
+                Error( "-o must precede a filename" );
+            }
 /* Timbo of Tremulous pointed out -o not working; stock ID q3asm folded in the change. Yay. */
-			strcpy( outputFilename, argv[ i+1 ] );
-			i++;
-			continue;
-		}
+            strcpy( outputFilename, argv[ i+1 ] );
+            i++;
+            continue;
+        }
 
-		if ( !strcmp( argv[i], "-f" ) ) {
-			if ( i == argc - 1 ) {
-				Error( "-f must precede a filename" );
-			}
-			ParseOptionFile( argv[ i+1 ] );
-			i++;
-			continue;
-		}
+        if ( !strcmp( argv[i], "-f" ) ) {
+            if ( i == argc - 1 ) {
+                Error( "-f must precede a filename" );
+            }
+            ParseOptionFile( argv[ i+1 ] );
+            i++;
+            continue;
+        }
 
-		if (!strcmp(argv[i], "-b")) {
-			if (i == argc - 1) {
-				Error("-b requires an argument");
-			}
-			i++;
-			symtablelen = atoiNoCap(argv[i]);
-			continue;
-		}
+        if (!strcmp(argv[i], "-b")) {
+            if (i == argc - 1) {
+                Error("-b requires an argument");
+            }
+            i++;
+            symtablelen = atoiNoCap(argv[i]);
+            continue;
+        }
 
-		if( !strcmp( argv[ i ], "-v" ) ) {
+        if( !strcmp( argv[ i ], "-v" ) ) {
 /* Verbosity option added by Timbo, 2002.09.14.
 By default (no -v option), q3asm remains silent except for critical errors.
 Verbosity turns on all messages, error or not.
 Motivation: not wanting to scrollback for pages to find asm error.
 */
-			options.verbose = qtrue;
-			continue;
-		}
+            options.verbose = qtrue;
+            continue;
+        }
 
-		if( !strcmp( argv[ i ], "-m" ) ) {
-			options.writeMapFile = qtrue;
-			continue;
-		}
+        if( !strcmp( argv[ i ], "-m" ) ) {
+            options.writeMapFile = qtrue;
+            continue;
+        }
 
-		if( !strcmp( argv[ i ], "-vq3" ) ) {
-			options.vanillaQ3Compatibility = qtrue;
-			continue;
-		}
+        if( !strcmp( argv[ i ], "-vq3" ) ) {
+            options.vanillaQ3Compatibility = qtrue;
+            continue;
+        }
 
-		Error( "Unknown option: %s", argv[i] );
-	}
+        Error( "Unknown option: %s", argv[i] );
+    }
 
-	// the rest of the command line args are asm files
-	for ( ; i < argc ; i++ ) {
-		asmFileNames[ numAsmFiles ] = copystring( argv[ i ] );
-		numAsmFiles++;
-	}
-	// In some case it Segfault without this check
-	if ( numAsmFiles == 0 ) {
-		Error( "No file to assemble" );
-	}
+    // the rest of the command line args are asm files
+    for ( ; i < argc ; i++ ) {
+        asmFileNames[ numAsmFiles ] = copystring( argv[ i ] );
+        numAsmFiles++;
+    }
+    // In some case it Segfault without this check
+    if ( numAsmFiles == 0 ) {
+        Error( "No file to assemble" );
+    }
 
-	InitTables();
-	Assemble();
+    InitTables();
+    Assemble();
 
-	{
-		symbol_t *s;
+    {
+        symbol_t *s;
 
-		for ( i = 0, s = symbols ; s ; s = s->next, i++ ) /* nop */ ;
+        for ( i = 0, s = symbols ; s ; s = s->next, i++ ) /* nop */ ;
 
-		if (options.verbose)
-		{
-			report("%d symbols defined\n", i);
-			hashtable_stats(symtable);
-			hashtable_stats(optable);
-		}
-	}
+        if (options.verbose)
+        {
+            report("%d symbols defined\n", i);
+            hashtable_stats(symtable);
+            hashtable_stats(optable);
+        }
+    }
 
-	end = I_FloatTime ();
-	report ("%5.0f seconds elapsed\n", end-start);
+    end = I_FloatTime ();
+    report ("%5.0f seconds elapsed\n", end-start);
 
-	return errorCount;
+    return errorCount;
 }
 

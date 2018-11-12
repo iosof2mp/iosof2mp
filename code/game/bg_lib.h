@@ -74,13 +74,13 @@ typedef char *  va_list;
 #define isupper(c)  ((c) >=  'A' && (c) <= 'Z')
 #define isxdigit(c) (isxupper(c) || isxlower(c))
 #define isxlower(c) (isdigit(c) || (c >= 'a' && c <= 'f'))
-#define isxupper(c) (isdigit(c) || (c >= 'A' && c <= 'F')) 
+#define isxupper(c) (isdigit(c) || (c >= 'A' && c <= 'F'))
 
 // Misc functions
 typedef int cmp_t(const void *, const void *);
 void qsort(void *a, size_t n, size_t es, cmp_t *cmp);
-void	srand( unsigned seed );
-int		rand( void );
+void    srand( unsigned seed );
+int     rand( void );
 
 // String functions
 size_t strlen( const char *string );

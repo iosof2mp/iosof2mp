@@ -29,46 +29,46 @@ static void I(stabtype)(Symbol p) {}
 
 
 Interface nullIR = {
-	{1, 1, 0},	/* char */
-	{2, 2, 0},	/* short */
-	{4, 4, 0},	/* int */
-	{8, 8, 1},	/* long */
-	{8 ,8, 1},	/* long long */
-	{4, 4, 1},	/* float */
-	{8, 8, 1},	/* double */
-	{16,16,1},	/* long double */
-	{4, 4, 0},	/* T* */
-	{0, 4, 0},	/* struct */
-	1,		/* little_endian */
-	0,		/* mulops_calls */
-	0,		/* wants_callb */
-	0,		/* wants_argb */
-	1,		/* left_to_right */
-	0,		/* wants_dag */
-	0,		/* unsigned_char */
-	I(address),
-	I(blockbeg),
-	I(blockend),
-	I(defaddress),
-	I(defconst),
-	I(defstring),
-	I(defsymbol),
-	I(emit),
-	I(export),
-	I(function),
-	I(gen),
-	I(global),
-	I(import),
-	I(local),
-	I(progbeg),
-	I(progend),
-	I(segment),
-	I(space),
-	I(stabblock),
-	I(stabend),
-	I(stabfend),
-	I(stabinit),
-	I(stabline),
-	I(stabsym),
-	I(stabtype)
+    {1, 1, 0},  /* char */
+    {2, 2, 0},  /* short */
+    {4, 4, 0},  /* int */
+    {8, 8, 1},  /* long */
+    {8 ,8, 1},  /* long long */
+    {4, 4, 1},  /* float */
+    {8, 8, 1},  /* double */
+    {16,16,1},  /* long double */
+    {4, 4, 0},  /* T* */
+    {0, 4, 0},  /* struct */
+    1,      /* little_endian */
+    0,      /* mulops_calls */
+    0,      /* wants_callb */
+    0,      /* wants_argb */
+    1,      /* left_to_right */
+    0,      /* wants_dag */
+    0,      /* unsigned_char */
+    I(address),
+    I(blockbeg),
+    I(blockend),
+    I(defaddress),
+    I(defconst),
+    I(defstring),
+    I(defsymbol),
+    I(emit),
+    I(export),
+    I(function),
+    I(gen),
+    I(global),
+    I(import),
+    I(local),
+    I(progbeg),
+    I(progend),
+    I(segment),
+    I(space),
+    I(stabblock),
+    I(stabend),
+    I(stabfend),
+    I(stabinit),
+    I(stabline),
+    I(stabsym),
+    I(stabtype)
 };

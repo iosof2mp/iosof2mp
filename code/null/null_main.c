@@ -25,53 +25,53 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdio.h>
 #include "../qcommon/qcommon.h"
 
-int			sys_curtime;
+int         sys_curtime;
 
 
 //===================================================================
 
 
 void Sys_Error (char *error, ...) {
-	va_list		argptr;
+    va_list     argptr;
 
-	printf ("Sys_Error: ");	
-	va_start (argptr,error);
-	vprintf (error,argptr);
-	va_end (argptr);
-	printf ("\n");
+    printf ("Sys_Error: ");
+    va_start (argptr,error);
+    vprintf (error,argptr);
+    va_end (argptr);
+    printf ("\n");
 
-	exit (1);
+    exit (1);
 }
 
 void Sys_Quit (void) {
-	exit (0);
+    exit (0);
 }
 
 char *Sys_GetClipboardData( void ) {
-	return NULL;
+    return NULL;
 }
 
-int		Sys_Milliseconds (void) {
-	return 0;
+int     Sys_Milliseconds (void) {
+    return 0;
 }
 
-FILE	*Sys_FOpen(const char *ospath, const char *mode) {
-	return fopen( ospath, mode );
+FILE    *Sys_FOpen(const char *ospath, const char *mode) {
+    return fopen( ospath, mode );
 }
 
-void	Sys_Mkdir (char *path) {
+void    Sys_Mkdir (char *path) {
 }
 
-void	Sys_Init (void) {
+void    Sys_Init (void) {
 }
 
 
 void main (int argc, char **argv) {
-	Com_Init (argc, argv);
+    Com_Init (argc, argv);
 
-	while (1) {
-		Com_Frame( );
-	}
+    while (1) {
+        Com_Frame( );
+    }
 }
 
 

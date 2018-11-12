@@ -57,57 +57,57 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 struct powerpc_opcode
 {
-	const char *name;
-	unsigned long opcode;
-	unsigned long mask;
-	ppc_cpu_t flags;
-	unsigned char operands[8];
+    const char *name;
+    unsigned long opcode;
+    unsigned long mask;
+    ppc_cpu_t flags;
+    unsigned char operands[8];
 };
 
 static const struct powerpc_opcode powerpc_opcodes[];
 
-#define PPC_OPCODE_PPC			 1
-#define PPC_OPCODE_POWER		 2
-#define PPC_OPCODE_POWER2		 4
-#define PPC_OPCODE_32			 8
-#define PPC_OPCODE_64		      0x10
-#define PPC_OPCODE_601		      0x20
-#define PPC_OPCODE_COMMON	      0x40
-#define PPC_OPCODE_ANY		      0x80
-#define PPC_OPCODE_64_BRIDGE	     0x100
-#define PPC_OPCODE_ALTIVEC	     0x200
-#define PPC_OPCODE_403		     0x400
-#define PPC_OPCODE_BOOKE	     0x800
-#define PPC_OPCODE_BOOKE64	    0x1000
-#define PPC_OPCODE_440		    0x2000
-#define PPC_OPCODE_POWER4	    0x4000
-#define PPC_OPCODE_NOPOWER4	    0x8000
-#define PPC_OPCODE_CLASSIC	   0x10000
-#define PPC_OPCODE_SPE		   0x20000
-#define PPC_OPCODE_ISEL		   0x40000
-#define PPC_OPCODE_EFS		   0x80000
-#define PPC_OPCODE_BRLOCK	  0x100000
-#define PPC_OPCODE_PMR		  0x200000
-#define PPC_OPCODE_CACHELCK	  0x400000
-#define PPC_OPCODE_RFMCI	  0x800000
-#define PPC_OPCODE_POWER5	 0x1000000
-#define PPC_OPCODE_E300		 0x2000000
-#define PPC_OPCODE_POWER6	 0x4000000
-#define PPC_OPCODE_CELL		 0x8000000
-#define PPC_OPCODE_PPCPS	0x10000000
-#define PPC_OPCODE_E500MC	0x20000000
-#define PPC_OPCODE_405		0x40000000
-#define PPC_OPCODE_VSX		0x80000000
+#define PPC_OPCODE_PPC           1
+#define PPC_OPCODE_POWER         2
+#define PPC_OPCODE_POWER2        4
+#define PPC_OPCODE_32            8
+#define PPC_OPCODE_64             0x10
+#define PPC_OPCODE_601            0x20
+#define PPC_OPCODE_COMMON         0x40
+#define PPC_OPCODE_ANY            0x80
+#define PPC_OPCODE_64_BRIDGE         0x100
+#define PPC_OPCODE_ALTIVEC       0x200
+#define PPC_OPCODE_403           0x400
+#define PPC_OPCODE_BOOKE         0x800
+#define PPC_OPCODE_BOOKE64      0x1000
+#define PPC_OPCODE_440          0x2000
+#define PPC_OPCODE_POWER4       0x4000
+#define PPC_OPCODE_NOPOWER4     0x8000
+#define PPC_OPCODE_CLASSIC     0x10000
+#define PPC_OPCODE_SPE         0x20000
+#define PPC_OPCODE_ISEL        0x40000
+#define PPC_OPCODE_EFS         0x80000
+#define PPC_OPCODE_BRLOCK     0x100000
+#define PPC_OPCODE_PMR        0x200000
+#define PPC_OPCODE_CACHELCK   0x400000
+#define PPC_OPCODE_RFMCI      0x800000
+#define PPC_OPCODE_POWER5    0x1000000
+#define PPC_OPCODE_E300      0x2000000
+#define PPC_OPCODE_POWER6    0x4000000
+#define PPC_OPCODE_CELL      0x8000000
+#define PPC_OPCODE_PPCPS    0x10000000
+#define PPC_OPCODE_E500MC   0x20000000
+#define PPC_OPCODE_405      0x40000000
+#define PPC_OPCODE_VSX      0x80000000
 
 #define PPC_OP(i) (((i) >> 26) & 0x3f)
 
 struct powerpc_operand
 {
-	unsigned int bitm;
-	int shift;
-	unsigned long (*insert)
-		(unsigned long, long, int, const char **);
-	unsigned long flags;
+    unsigned int bitm;
+    int shift;
+    unsigned long (*insert)
+        (unsigned long, long, int, const char **);
+    unsigned long flags;
 };
 
 static const struct powerpc_operand powerpc_operands[];
@@ -143,79 +143,79 @@ static const struct powerpc_operand powerpc_operands[];
 ppc_instruction_t
 asm_instruction( powerpc_iname_t sname, const int argc, const long int *argv )
 {
-	const char *errmsg = NULL;
-	const char *name;
-	unsigned long int ret;
-	const struct powerpc_opcode *opcode = NULL;
-	int argi, argj;
+    const char *errmsg = NULL;
+    const char *name;
+    unsigned long int ret;
+    const struct powerpc_opcode *opcode = NULL;
+    int argi, argj;
 
-	opcode = &powerpc_opcodes[ sname ];
-	name = opcode->name;
+    opcode = &powerpc_opcodes[ sname ];
+    name = opcode->name;
 
-	if ( ! opcode ) {
-		printf( "Can't find opcode %d\n", sname );
-		return ASM_ERROR_OPC;
-	}
-	if ( ( opcode->flags & PPC_DEST_ARCH ) != PPC_DEST_ARCH ) {
-		printf( "opcode %s not defined for this arch\n", name );
-		return ASM_ERROR_OPC;
-	}
+    if ( ! opcode ) {
+        printf( "Can't find opcode %d\n", sname );
+        return ASM_ERROR_OPC;
+    }
+    if ( ( opcode->flags & PPC_DEST_ARCH ) != PPC_DEST_ARCH ) {
+        printf( "opcode %s not defined for this arch\n", name );
+        return ASM_ERROR_OPC;
+    }
 
-	ret = opcode->opcode;
+    ret = opcode->opcode;
 
-	argi = argj = 0;
-	while ( opcode->operands[ argi ] != 0 ) {
-		long int op = 0;
-		const struct powerpc_operand *operand = &powerpc_operands[ opcode->operands[ argi ] ];
+    argi = argj = 0;
+    while ( opcode->operands[ argi ] != 0 ) {
+        long int op = 0;
+        const struct powerpc_operand *operand = &powerpc_operands[ opcode->operands[ argi ] ];
 
-		if ( ! (operand->flags & PPC_OPERAND_FAKE) ) {
-			if ( argj >= argc ) {
-				printf( "Not enough arguments for %s, got %d\n", name, argc );
-				return ASM_ERROR_OPC;
-			}
+        if ( ! (operand->flags & PPC_OPERAND_FAKE) ) {
+            if ( argj >= argc ) {
+                printf( "Not enough arguments for %s, got %d\n", name, argc );
+                return ASM_ERROR_OPC;
+            }
 
-			op = argv[ argj++ ];
-		}
+            op = argv[ argj++ ];
+        }
 
-		if ( operand->insert ) {
-			errmsg = NULL;
-			ret = operand->insert( ret, op, PPC_DEST_ARCH, &errmsg );
-			if ( errmsg ) {
-				printf( "%s: error while inserting operand %d (0x%.2lx): %s\n",
-					name, argi, op, errmsg );
-			}
-		} else {
-			unsigned long int opu = *(unsigned long int *)&op;
-			unsigned long int bitm = operand->bitm;
-			unsigned long int bitm_full = bitm | ( bitm & 1 ? 0 : 0xf );
+        if ( operand->insert ) {
+            errmsg = NULL;
+            ret = operand->insert( ret, op, PPC_DEST_ARCH, &errmsg );
+            if ( errmsg ) {
+                printf( "%s: error while inserting operand %d (0x%.2lx): %s\n",
+                    name, argi, op, errmsg );
+            }
+        } else {
+            unsigned long int opu = *(unsigned long int *)&op;
+            unsigned long int bitm = operand->bitm;
+            unsigned long int bitm_full = bitm | ( bitm & 1 ? 0 : 0xf );
 
-			if ( operand->flags & PPC_OPERAND_SIGNED ) {
-				bitm_full >>= 1;
+            if ( operand->flags & PPC_OPERAND_SIGNED ) {
+                bitm_full >>= 1;
 
-				if ( ( opu & ~bitm_full ) != 0 && ( opu | bitm_full ) != -1 )
-					printf( "%s: signed operand nr.%d to wide. op: %.8lx, mask: %.8lx\n",
-						name, argi, opu, bitm );
-			} else {
-				if ( ( opu & ~bitm_full ) != 0 )
-					printf( "%s: unsigned operand nr.%d to wide. op: %.8lx, mask: %.8lx\n",
-						name, argi, opu, bitm );
-			}
-			if ( (bitm & 1) == 0 ) {
-				if ( opu & 0xf & ~bitm )
-					printf( "%s: operand nr.%d not aligned correctly. op: %.8lx, mask: %.8lx\n",
-						name, argi, opu, bitm );
-			}
+                if ( ( opu & ~bitm_full ) != 0 && ( opu | bitm_full ) != -1 )
+                    printf( "%s: signed operand nr.%d to wide. op: %.8lx, mask: %.8lx\n",
+                        name, argi, opu, bitm );
+            } else {
+                if ( ( opu & ~bitm_full ) != 0 )
+                    printf( "%s: unsigned operand nr.%d to wide. op: %.8lx, mask: %.8lx\n",
+                        name, argi, opu, bitm );
+            }
+            if ( (bitm & 1) == 0 ) {
+                if ( opu & 0xf & ~bitm )
+                    printf( "%s: operand nr.%d not aligned correctly. op: %.8lx, mask: %.8lx\n",
+                        name, argi, opu, bitm );
+            }
 
-			ret |= ( op & operand->bitm ) << operand->shift;
-		}
-		argi++;
-	}
-	if ( argc > argj ) {
-		printf( "Too many arguments for %s, got %d\n", name, argc );
-		return ASM_ERROR_OPC;
-	}
+            ret |= ( op & operand->bitm ) << operand->shift;
+        }
+        argi++;
+    }
+    if ( argc > argj ) {
+        printf( "Too many arguments for %s, got %d\n", name, argc );
+        return ASM_ERROR_OPC;
+    }
 
-	return ret;
+    return ret;
 }
 
 
@@ -410,21 +410,21 @@ static const struct powerpc_operand powerpc_operands[] =
 
 static unsigned long
 insert_bdm (unsigned long insn,
-	    long value,
-	    int dialect,
-	    const char **errmsg ATTRIBUTE_UNUSED)
+        long value,
+        int dialect,
+        const char **errmsg ATTRIBUTE_UNUSED)
 {
   if ((dialect & PPC_OPCODE_POWER4) == 0)
     {
       if ((value & 0x8000) != 0)
-	insn |= 1 << 21;
+    insn |= 1 << 21;
     }
   else
     {
       if ((insn & (0x14 << 21)) == (0x04 << 21))
-	insn |= 0x02 << 21;
+    insn |= 0x02 << 21;
       else if ((insn & (0x14 << 21)) == (0x10 << 21))
-	insn |= 0x08 << 21;
+    insn |= 0x08 << 21;
     }
   return insn | (value & 0xfffc);
 }
@@ -439,47 +439,47 @@ valid_bo (long value, int dialect, int extract)
     {
       int valid;
       /* Certain encodings have bits that are required to be zero.
-	 These are (z must be zero, y may be anything):
-	     001zy
-	     011zy
-	     1z00y
-	     1z01y
-	     1z1zz
+     These are (z must be zero, y may be anything):
+         001zy
+         011zy
+         1z00y
+         1z01y
+         1z1zz
       */
       switch (value & 0x14)
-	{
-	default:
-	case 0:
-	  valid = 1;
-	  break;
-	case 0x4:
-	  valid = (value & 0x2) == 0;
-	  break;
-	case 0x10:
-	  valid = (value & 0x8) == 0;
-	  break;
-	case 0x14:
-	  valid = value == 0x14;
-	  break;
-	}
+    {
+    default:
+    case 0:
+      valid = 1;
+      break;
+    case 0x4:
+      valid = (value & 0x2) == 0;
+      break;
+    case 0x10:
+      valid = (value & 0x8) == 0;
+      break;
+    case 0x14:
+      valid = value == 0x14;
+      break;
+    }
       /* When disassembling with -Many, accept power4 encodings too.  */
       if (valid
-	  || (dialect & PPC_OPCODE_ANY) == 0
-	  || !extract)
-	return valid;
+      || (dialect & PPC_OPCODE_ANY) == 0
+      || !extract)
+    return valid;
     }
 
   /* Certain encodings have bits that are required to be zero.
      These are (z must be zero, a & t may be anything):
-	 0000z
-	 0001z
-	 0100z
-	 0101z
-	 001at
-	 011at
-	 1a00t
-	 1a01t
-	 1z1zz
+     0000z
+     0001z
+     0100z
+     0101z
+     001at
+     011at
+     1a00t
+     1a01t
+     1z1zz
   */
   if ((value & 0x14) == 0)
     return (value & 0x1) == 0;
@@ -494,9 +494,9 @@ valid_bo (long value, int dialect, int extract)
 
 static unsigned long
 insert_bo (unsigned long insn,
-	   long value,
-	   int dialect,
-	   const char **errmsg)
+       long value,
+       int dialect,
+       const char **errmsg)
 {
   if (!valid_bo (value, dialect, 0))
     *errmsg = _("invalid conditional option");
@@ -509,9 +509,9 @@ insert_bo (unsigned long insn,
 
 static unsigned long
 insert_ras (unsigned long insn,
-	    long value,
-	    int dialect ATTRIBUTE_UNUSED,
-	    const char **errmsg)
+        long value,
+        int dialect ATTRIBUTE_UNUSED,
+        const char **errmsg)
 {
   if (value == 0)
     *errmsg = _("invalid register operand when updating");
@@ -526,9 +526,9 @@ insert_ras (unsigned long insn,
 
 static unsigned long
 insert_rbs (unsigned long insn,
-	    long value ATTRIBUTE_UNUSED,
-	    int dialect ATTRIBUTE_UNUSED,
-	    const char **errmsg ATTRIBUTE_UNUSED)
+        long value ATTRIBUTE_UNUSED,
+        int dialect ATTRIBUTE_UNUSED,
+        const char **errmsg ATTRIBUTE_UNUSED)
 {
   return insn | (((insn >> 21) & 0x1f) << 11);
 }
@@ -661,7 +661,7 @@ insert_rbs (unsigned long insn,
 #define VX(op, xop) (OP (op) | (((unsigned long)(xop)) & 0x7ff))
 
 /* The mask for a VX form instruction.  */
-#define VX_MASK	VX(0x3f, 0x7ff)
+#define VX_MASK VX(0x3f, 0x7ff)
 
 /* A VA form instruction.  */
 #define VXA(op, xop) (OP (op) | (((unsigned long)(xop)) & 0x03f))
@@ -842,73 +842,73 @@ insert_rbs (unsigned long insn,
 #define XUC_MASK      XUC(0x3f, 0x1f)
 
 /* The BO encodings used in extended conditional branch mnemonics.  */
-#define BODNZF	(0x0)
-#define BODNZFP	(0x1)
-#define BODZF	(0x2)
-#define BODZFP	(0x3)
-#define BODNZT	(0x8)
-#define BODNZTP	(0x9)
-#define BODZT	(0xa)
-#define BODZTP	(0xb)
+#define BODNZF  (0x0)
+#define BODNZFP (0x1)
+#define BODZF   (0x2)
+#define BODZFP  (0x3)
+#define BODNZT  (0x8)
+#define BODNZTP (0x9)
+#define BODZT   (0xa)
+#define BODZTP  (0xb)
 
-#define BOF	(0x4)
-#define BOFP	(0x5)
-#define BOFM4	(0x6)
-#define BOFP4	(0x7)
-#define BOT	(0xc)
-#define BOTP	(0xd)
-#define BOTM4	(0xe)
-#define BOTP4	(0xf)
+#define BOF (0x4)
+#define BOFP    (0x5)
+#define BOFM4   (0x6)
+#define BOFP4   (0x7)
+#define BOT (0xc)
+#define BOTP    (0xd)
+#define BOTM4   (0xe)
+#define BOTP4   (0xf)
 
-#define BODNZ	(0x10)
-#define BODNZP	(0x11)
-#define BODZ	(0x12)
-#define BODZP	(0x13)
+#define BODNZ   (0x10)
+#define BODNZP  (0x11)
+#define BODZ    (0x12)
+#define BODZP   (0x13)
 #define BODNZM4 (0x18)
 #define BODNZP4 (0x19)
-#define BODZM4	(0x1a)
-#define BODZP4	(0x1b)
+#define BODZM4  (0x1a)
+#define BODZP4  (0x1b)
 
-#define BOU	(0x14)
+#define BOU (0x14)
 
 /* The BI condition bit encodings used in extended conditional branch
    mnemonics.  */
-#define CBLT	(0)
-#define CBGT	(1)
-#define CBEQ	(2)
-#define CBSO	(3)
+#define CBLT    (0)
+#define CBGT    (1)
+#define CBEQ    (2)
+#define CBSO    (3)
 
 /* The TO encodings used in extended trap mnemonics.  */
-#define TOLGT	(0x1)
-#define TOLLT	(0x2)
-#define TOEQ	(0x4)
-#define TOLGE	(0x5)
-#define TOLNL	(0x5)
-#define TOLLE	(0x6)
-#define TOLNG	(0x6)
-#define TOGT	(0x8)
-#define TOGE	(0xc)
-#define TONL	(0xc)
-#define TOLT	(0x10)
-#define TOLE	(0x14)
-#define TONG	(0x14)
-#define TONE	(0x18)
-#define TOU	(0x1f)
+#define TOLGT   (0x1)
+#define TOLLT   (0x2)
+#define TOEQ    (0x4)
+#define TOLGE   (0x5)
+#define TOLNL   (0x5)
+#define TOLLE   (0x6)
+#define TOLNG   (0x6)
+#define TOGT    (0x8)
+#define TOGE    (0xc)
+#define TONL    (0xc)
+#define TOLT    (0x10)
+#define TOLE    (0x14)
+#define TONG    (0x14)
+#define TONE    (0x18)
+#define TOU (0x1f)
 
 /* Smaller names for the flags so each entry in the opcodes table will
    fit on a single line.  */
-#undef	PPC
+#undef  PPC
 #define PPC     PPC_OPCODE_PPC
-#define PPCCOM	PPC_OPCODE_PPC | PPC_OPCODE_COMMON
+#define PPCCOM  PPC_OPCODE_PPC | PPC_OPCODE_COMMON
 #define PPC64   PPC_OPCODE_64 | PPC_OPCODE_PPC
-#define	COM     PPC_OPCODE_POWER | PPC_OPCODE_PPC | PPC_OPCODE_COMMON
-#define	COM32   PPC_OPCODE_POWER | PPC_OPCODE_PPC | PPC_OPCODE_COMMON | PPC_OPCODE_32
+#define COM     PPC_OPCODE_POWER | PPC_OPCODE_PPC | PPC_OPCODE_COMMON
+#define COM32   PPC_OPCODE_POWER | PPC_OPCODE_PPC | PPC_OPCODE_COMMON | PPC_OPCODE_32
 
 /* The opcode table.
 
    The format of the opcode table is:
 
-   NAME	     OPCODE	MASK		FLAGS		{ OPERANDS }
+   NAME      OPCODE MASK        FLAGS       { OPERANDS }
 
    NAME is the name of the instruction.
    OPCODE is the instruction opcode.
@@ -924,80 +924,80 @@ insert_rbs (unsigned long insn,
 
 static const struct powerpc_opcode powerpc_opcodes[] = {
 
-{ "cmplwi",  OPL(10,0),	OPL_MASK,	PPCCOM,		{ OBF, RA, UI } },
-{ "cmpwi",   OPL(11,0),	OPL_MASK,	PPCCOM,		{ OBF, RA, SI } },
-{ "cmpw",    XOPL(31,0,0), XCMPL_MASK,	PPCCOM,		{ OBF, RA, RB } },
-{ "cmplw",   XOPL(31,32,0), XCMPL_MASK, PPCCOM,	{ OBF, RA, RB } },
-{ "fcmpu",   X(63,0),	X_MASK|(3<<21),	COM,		{ BF, FRA, FRB } },
+{ "cmplwi",  OPL(10,0), OPL_MASK,   PPCCOM,     { OBF, RA, UI } },
+{ "cmpwi",   OPL(11,0), OPL_MASK,   PPCCOM,     { OBF, RA, SI } },
+{ "cmpw",    XOPL(31,0,0), XCMPL_MASK,  PPCCOM,     { OBF, RA, RB } },
+{ "cmplw",   XOPL(31,32,0), XCMPL_MASK, PPCCOM, { OBF, RA, RB } },
+{ "fcmpu",   X(63,0),   X_MASK|(3<<21), COM,        { BF, FRA, FRB } },
 
-{ "li",	     OP(14),	DRA_MASK,	PPCCOM,		{ RT, SI } },
-{ "lis",     OP(15),	DRA_MASK,	PPCCOM,		{ RT, SI } },
+{ "li",      OP(14),    DRA_MASK,   PPCCOM,     { RT, SI } },
+{ "lis",     OP(15),    DRA_MASK,   PPCCOM,     { RT, SI } },
 
-{ "addi",    OP(14),	OP_MASK,	PPCCOM,		{ RT, RA0, SI } },
-{ "addis",   OP(15),	OP_MASK,	PPCCOM,		{ RT,RA0,SI } },
-{ "blt-",    BBOCB(16,BOT,CBLT,0,0), BBOATCB_MASK, PPCCOM,	{ CR, BDM } },
-{ "bc",	     B(16,0,0),	B_MASK,		COM,		{ BO, BI, BD } },
-{ "bcl",     B(16,0,1),	B_MASK,		COM,		{ BO, BI, BD } },
-{ "b",	     B(18,0,0),	B_MASK,		COM,		{ LI } },
-{ "bl",      B(18,0,1),	B_MASK,		COM,		{ LI } },
-{ "blr",     XLO(19,BOU,16,0), XLBOBIBB_MASK, PPCCOM,	{ 0 } },
-{ "bctr",    XLO(19,BOU,528,0), XLBOBIBB_MASK, COM,	{ 0 } },
-{ "bctrl",   XLO(19,BOU,528,1), XLBOBIBB_MASK, COM,	{ 0 } },
+{ "addi",    OP(14),    OP_MASK,    PPCCOM,     { RT, RA0, SI } },
+{ "addis",   OP(15),    OP_MASK,    PPCCOM,     { RT,RA0,SI } },
+{ "blt-",    BBOCB(16,BOT,CBLT,0,0), BBOATCB_MASK, PPCCOM,  { CR, BDM } },
+{ "bc",      B(16,0,0), B_MASK,     COM,        { BO, BI, BD } },
+{ "bcl",     B(16,0,1), B_MASK,     COM,        { BO, BI, BD } },
+{ "b",       B(18,0,0), B_MASK,     COM,        { LI } },
+{ "bl",      B(18,0,1), B_MASK,     COM,        { LI } },
+{ "blr",     XLO(19,BOU,16,0), XLBOBIBB_MASK, PPCCOM,   { 0 } },
+{ "bctr",    XLO(19,BOU,528,0), XLBOBIBB_MASK, COM, { 0 } },
+{ "bctrl",   XLO(19,BOU,528,1), XLBOBIBB_MASK, COM, { 0 } },
 
-{ "rlwinm",  M(21,0),	M_MASK,		PPCCOM,		{ RA,RS,SH,MBE,ME } },
-{ "nop",     OP(24),	0xffffffff,	PPCCOM,		{ 0 } },
-{ "ori",     OP(24),	OP_MASK,	PPCCOM,		{ RA, RS, UI } },
-{ "xoris",   OP(27),	OP_MASK,	PPCCOM,		{ RA, RS, UI } },
-{ "ldx",     X(31,21),	X_MASK,		PPC64,		{ RT, RA0, RB } },
-{ "lwzx",    X(31,23),	X_MASK,		PPCCOM,		{ RT, RA0, RB } },
-{ "slw",     XRC(31,24,0), X_MASK,	PPCCOM,		{ RA, RS, RB } },
-{ "and",     XRC(31,28,0), X_MASK,	COM,		{ RA, RS, RB } },
-{ "sub",     XO(31,40,0,0), XO_MASK,	PPC,		{ RT, RB, RA } },
-{ "lbzx",    X(31,87),	X_MASK,		COM,		{ RT, RA0, RB } },
-{ "neg",     XO(31,104,0,0), XORB_MASK,	COM,		{ RT, RA } },
-{ "not",     XRC(31,124,0), X_MASK,	COM,		{ RA, RS, RBS } },
-{ "stwx",    X(31,151), X_MASK,		PPCCOM,		{ RS, RA0, RB } },
-{ "stbx",    X(31,215),	X_MASK,		COM,		{ RS, RA0, RB } },
-{ "mullw",   XO(31,235,0,0), XO_MASK,	PPCCOM,		{ RT, RA, RB } },
-{ "add",     XO(31,266,0,0), XO_MASK,	PPCCOM,		{ RT, RA, RB } },
-{ "lhzx",    X(31,279),	X_MASK,		COM,		{ RT, RA0, RB } },
-{ "xor",     XRC(31,316,0), X_MASK,	COM,		{ RA, RS, RB } },
-{ "mflr",    XSPR(31,339,8), XSPR_MASK, COM,		{ RT } },
-{ "sthx",    X(31,407),	X_MASK,		COM,		{ RS, RA0, RB } },
-{ "mr",	     XRC(31,444,0), X_MASK,	COM,		{ RA, RS, RBS } },
-{ "or",      XRC(31,444,0), X_MASK,	COM,		{ RA, RS, RB } },
-{ "divwu",   XO(31,459,0,0), XO_MASK,	PPC,		{ RT, RA, RB } },
-{ "mtlr",    XSPR(31,467,8), XSPR_MASK, COM,		{ RS } },
-{ "mtctr",   XSPR(31,467,9), XSPR_MASK, COM,		{ RS } },
-{ "divw",    XO(31,491,0,0), XO_MASK,	PPC,		{ RT, RA, RB } },
-{ "lfsx",    X(31,535),	X_MASK,		COM,		{ FRT, RA0, RB } },
-{ "srw",     XRC(31,536,0), X_MASK,	PPCCOM,		{ RA, RS, RB } },
-{ "stfsx",   X(31,663), X_MASK,		COM,		{ FRS, RA0, RB } },
-{ "sraw",    XRC(31,792,0), X_MASK,	PPCCOM,		{ RA, RS, RB } },
-{ "extsh",   XRC(31,922,0), XRB_MASK,	PPCCOM,		{ RA, RS } },
-{ "extsb",   XRC(31,954,0), XRB_MASK,	PPC,		{ RA, RS} },
+{ "rlwinm",  M(21,0),   M_MASK,     PPCCOM,     { RA,RS,SH,MBE,ME } },
+{ "nop",     OP(24),    0xffffffff, PPCCOM,     { 0 } },
+{ "ori",     OP(24),    OP_MASK,    PPCCOM,     { RA, RS, UI } },
+{ "xoris",   OP(27),    OP_MASK,    PPCCOM,     { RA, RS, UI } },
+{ "ldx",     X(31,21),  X_MASK,     PPC64,      { RT, RA0, RB } },
+{ "lwzx",    X(31,23),  X_MASK,     PPCCOM,     { RT, RA0, RB } },
+{ "slw",     XRC(31,24,0), X_MASK,  PPCCOM,     { RA, RS, RB } },
+{ "and",     XRC(31,28,0), X_MASK,  COM,        { RA, RS, RB } },
+{ "sub",     XO(31,40,0,0), XO_MASK,    PPC,        { RT, RB, RA } },
+{ "lbzx",    X(31,87),  X_MASK,     COM,        { RT, RA0, RB } },
+{ "neg",     XO(31,104,0,0), XORB_MASK, COM,        { RT, RA } },
+{ "not",     XRC(31,124,0), X_MASK, COM,        { RA, RS, RBS } },
+{ "stwx",    X(31,151), X_MASK,     PPCCOM,     { RS, RA0, RB } },
+{ "stbx",    X(31,215), X_MASK,     COM,        { RS, RA0, RB } },
+{ "mullw",   XO(31,235,0,0), XO_MASK,   PPCCOM,     { RT, RA, RB } },
+{ "add",     XO(31,266,0,0), XO_MASK,   PPCCOM,     { RT, RA, RB } },
+{ "lhzx",    X(31,279), X_MASK,     COM,        { RT, RA0, RB } },
+{ "xor",     XRC(31,316,0), X_MASK, COM,        { RA, RS, RB } },
+{ "mflr",    XSPR(31,339,8), XSPR_MASK, COM,        { RT } },
+{ "sthx",    X(31,407), X_MASK,     COM,        { RS, RA0, RB } },
+{ "mr",      XRC(31,444,0), X_MASK, COM,        { RA, RS, RBS } },
+{ "or",      XRC(31,444,0), X_MASK, COM,        { RA, RS, RB } },
+{ "divwu",   XO(31,459,0,0), XO_MASK,   PPC,        { RT, RA, RB } },
+{ "mtlr",    XSPR(31,467,8), XSPR_MASK, COM,        { RS } },
+{ "mtctr",   XSPR(31,467,9), XSPR_MASK, COM,        { RS } },
+{ "divw",    XO(31,491,0,0), XO_MASK,   PPC,        { RT, RA, RB } },
+{ "lfsx",    X(31,535), X_MASK,     COM,        { FRT, RA0, RB } },
+{ "srw",     XRC(31,536,0), X_MASK, PPCCOM,     { RA, RS, RB } },
+{ "stfsx",   X(31,663), X_MASK,     COM,        { FRS, RA0, RB } },
+{ "sraw",    XRC(31,792,0), X_MASK, PPCCOM,     { RA, RS, RB } },
+{ "extsh",   XRC(31,922,0), XRB_MASK,   PPCCOM,     { RA, RS } },
+{ "extsb",   XRC(31,954,0), XRB_MASK,   PPC,        { RA, RS} },
 
-{ "lwz",     OP(32),	OP_MASK,	PPCCOM,		{ RT, D, RA0 } },
-{ "lbz",     OP(34),	OP_MASK,	COM,		{ RT, D, RA0 } },
-{ "stw",     OP(36),	OP_MASK,	PPCCOM,		{ RS, D, RA0 } },
-{ "stwu",    OP(37),	OP_MASK,	PPCCOM,		{ RS, D, RAS } },
-{ "stb",     OP(38),	OP_MASK,	COM,		{ RS, D, RA0 } },
-{ "lhz",     OP(40),	OP_MASK,	COM,		{ RT, D, RA0 } },
-{ "sth",     OP(44),	OP_MASK,	COM,		{ RS, D, RA0 } },
-{ "lfs",     OP(48),	OP_MASK,	COM,		{ FRT, D, RA0 } },
-{ "lfd",     OP(50),	OP_MASK,	COM,		{ FRT, D, RA0 } },
-{ "stfs",    OP(52),	OP_MASK,	COM,		{ FRS, D, RA0 } },
-{ "stfd",    OP(54),	OP_MASK,	COM,		{ FRS, D, RA0 } },
-{ "ld",      DSO(58,0),	DS_MASK,	PPC64,		{ RT, DS, RA0 } },
+{ "lwz",     OP(32),    OP_MASK,    PPCCOM,     { RT, D, RA0 } },
+{ "lbz",     OP(34),    OP_MASK,    COM,        { RT, D, RA0 } },
+{ "stw",     OP(36),    OP_MASK,    PPCCOM,     { RS, D, RA0 } },
+{ "stwu",    OP(37),    OP_MASK,    PPCCOM,     { RS, D, RAS } },
+{ "stb",     OP(38),    OP_MASK,    COM,        { RS, D, RA0 } },
+{ "lhz",     OP(40),    OP_MASK,    COM,        { RT, D, RA0 } },
+{ "sth",     OP(44),    OP_MASK,    COM,        { RS, D, RA0 } },
+{ "lfs",     OP(48),    OP_MASK,    COM,        { FRT, D, RA0 } },
+{ "lfd",     OP(50),    OP_MASK,    COM,        { FRT, D, RA0 } },
+{ "stfs",    OP(52),    OP_MASK,    COM,        { FRS, D, RA0 } },
+{ "stfd",    OP(54),    OP_MASK,    COM,        { FRS, D, RA0 } },
+{ "ld",      DSO(58,0), DS_MASK,    PPC64,      { RT, DS, RA0 } },
 
-{ "fdivs",   A(59,18,0), AFRC_MASK,	PPC,		{ FRT, FRA, FRB } },
-{ "fsubs",   A(59,20,0), AFRC_MASK,	PPC,		{ FRT, FRA, FRB } },
-{ "fadds",   A(59,21,0), AFRC_MASK,	PPC,		{ FRT, FRA, FRB } },
-{ "fmuls",   A(59,25,0), AFRB_MASK,	PPC,		{ FRT, FRA, FRC } },
-{ "std",     DSO(62,0),	DS_MASK,	PPC64,		{ RS, DS, RA0 } },
-{ "stdu",    DSO(62,1),	DS_MASK,	PPC64,		{ RS, DS, RAS } },
-{ "frsp",    XRC(63,12,0), XRA_MASK,	COM,		{ FRT, FRB } },
-{ "fctiwz",  XRC(63,15,0), XRA_MASK,	PPCCOM,		{ FRT, FRB } },
-{ "fsub",    A(63,20,0), AFRC_MASK,	PPCCOM,		{ FRT, FRA, FRB } },
-{ "fneg",    XRC(63,40,0), XRA_MASK,	COM,		{ FRT, FRB } },
+{ "fdivs",   A(59,18,0), AFRC_MASK, PPC,        { FRT, FRA, FRB } },
+{ "fsubs",   A(59,20,0), AFRC_MASK, PPC,        { FRT, FRA, FRB } },
+{ "fadds",   A(59,21,0), AFRC_MASK, PPC,        { FRT, FRA, FRB } },
+{ "fmuls",   A(59,25,0), AFRB_MASK, PPC,        { FRT, FRA, FRC } },
+{ "std",     DSO(62,0), DS_MASK,    PPC64,      { RS, DS, RA0 } },
+{ "stdu",    DSO(62,1), DS_MASK,    PPC64,      { RS, DS, RAS } },
+{ "frsp",    XRC(63,12,0), XRA_MASK,    COM,        { FRT, FRB } },
+{ "fctiwz",  XRC(63,15,0), XRA_MASK,    PPCCOM,     { FRT, FRB } },
+{ "fsub",    A(63,20,0), AFRC_MASK, PPCCOM,     { FRT, FRA, FRB } },
+{ "fneg",    XRC(63,40,0), XRA_MASK,    COM,        { FRT, FRB } },
 };

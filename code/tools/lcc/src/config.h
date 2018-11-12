@@ -1,24 +1,24 @@
 typedef struct {
-	unsigned char max_unaligned_load;
-	Symbol (*rmap)(int);
+    unsigned char max_unaligned_load;
+    Symbol (*rmap)(int);
 
-	void (*blkfetch)(int size, int off, int reg, int tmp);
-	void (*blkstore)(int size, int off, int reg, int tmp);
-	void (*blkloop)(int dreg, int doff,
-	                 int sreg, int soff,
-	                 int size, int tmps[]);
-	void (*_label)(Node);
-	int (*_rule)(void*, int);
-	short **_nts;
-	void (*_kids)(Node, int, Node*);
-	char **_string;
-	char **_templates;
-	char *_isinstruction;
-	char **_ntname;
-	void (*emit2)(Node);
-	void (*doarg)(Node);
-	void (*target)(Node);
-	void (*clobber)(Node);
+    void (*blkfetch)(int size, int off, int reg, int tmp);
+    void (*blkstore)(int size, int off, int reg, int tmp);
+    void (*blkloop)(int dreg, int doff,
+                     int sreg, int soff,
+                     int size, int tmps[]);
+    void (*_label)(Node);
+    int (*_rule)(void*, int);
+    short **_nts;
+    void (*_kids)(Node, int, Node*);
+    char **_string;
+    char **_templates;
+    char *_isinstruction;
+    char **_ntname;
+    void (*emit2)(Node);
+    void (*doarg)(Node);
+    void (*target)(Node);
+    void (*clobber)(Node);
 } Xinterface;
 extern int     askregvar(Symbol, Symbol);
 extern void    blkcopy(int, int, int, int, int, int[]);
@@ -47,40 +47,40 @@ extern int      offset, maxoffset;
 extern int      swap;
 extern unsigned tmask[], vmask[];
 typedef struct {
-	unsigned listed:1;
-	unsigned registered:1;
-	unsigned emitted:1;
-	unsigned copy:1;
-	unsigned equatable:1;
-	unsigned spills:1;
-	unsigned mayrecalc:1;
-	void *state;
-	short inst;
-	Node kids[3];
-	Node prev, next;
-	Node prevuse;
-	short argno;
+    unsigned listed:1;
+    unsigned registered:1;
+    unsigned emitted:1;
+    unsigned copy:1;
+    unsigned equatable:1;
+    unsigned spills:1;
+    unsigned mayrecalc:1;
+    void *state;
+    short inst;
+    Node kids[3];
+    Node prev, next;
+    Node prevuse;
+    short argno;
 } Xnode;
 typedef struct {
-	Symbol vbl;
-	short set;
-	short number;
-	unsigned mask;
+    Symbol vbl;
+    short set;
+    short number;
+    unsigned mask;
 } *Regnode;
 enum { IREG=0, FREG=1 };
 typedef struct {
-	char *name;
-	unsigned int eaddr;  /* omit */
-	int offset;
-	Node lastuse;
-	int usecount;
-	Regnode regnode;
-	Symbol *wildcard;
+    char *name;
+    unsigned int eaddr;  /* omit */
+    int offset;
+    Node lastuse;
+    int usecount;
+    Regnode regnode;
+    Symbol *wildcard;
 } Xsymbol;
 enum { RX=2 };
 typedef struct {
-	int offset;
-	unsigned freemask[2];
+    int offset;
+    unsigned freemask[2];
 } Env;
 
 #define LBURG_MAX SHRT_MAX

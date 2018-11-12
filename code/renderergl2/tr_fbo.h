@@ -29,27 +29,27 @@ struct shaderProgram_s;
 
 typedef struct FBO_s
 {
-	char            name[MAX_QPATH];
+    char            name[MAX_QPATH];
 
-	int             index;
+    int             index;
 
-	uint32_t        frameBuffer;
+    uint32_t        frameBuffer;
 
-	uint32_t        colorBuffers[16];
-	int             colorFormat;
-	struct image_s  *colorImage[16];
+    uint32_t        colorBuffers[16];
+    int             colorFormat;
+    struct image_s  *colorImage[16];
 
-	uint32_t        depthBuffer;
-	int             depthFormat;
+    uint32_t        depthBuffer;
+    int             depthFormat;
 
-	uint32_t        stencilBuffer;
-	int             stencilFormat;
+    uint32_t        stencilBuffer;
+    int             stencilFormat;
 
-	uint32_t        packedDepthStencilBuffer;
-	int             packedDepthStencilFormat;
+    uint32_t        packedDepthStencilBuffer;
+    int             packedDepthStencilFormat;
 
-	int             width;
-	int             height;
+    int             width;
+    int             height;
 } FBO_t;
 
 void FBO_AttachImage(FBO_t *fbo, image_t *image, GLenum attachment, GLuint cubemapside);

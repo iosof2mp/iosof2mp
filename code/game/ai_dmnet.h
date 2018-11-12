@@ -22,15 +22,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 /*****************************************************************************
- * name:		ai_dmnet.h
+ * name:        ai_dmnet.h
  *
- * desc:		Quake3 bot AI
+ * desc:        Quake3 bot AI
  *
  * $Archive: /source/code/botai/ai_chat.c $
  *
  *****************************************************************************/
 
-#define MAX_NODESWITCHES	50
+#define MAX_NODESWITCHES    50
 
 void AIEnter_Intermission(bot_state_t *bs, char *s);
 void AIEnter_Observer(bot_state_t *bs, char *s);

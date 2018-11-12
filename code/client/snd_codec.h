@@ -29,24 +29,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef struct snd_info_s
 {
-	int rate;
-	int width;
-	int channels;
-	int samples;
-	int size;
-	int dataofs;
+    int rate;
+    int width;
+    int channels;
+    int samples;
+    int size;
+    int dataofs;
 } snd_info_t;
 
 typedef struct snd_codec_s snd_codec_t;
 
 typedef struct snd_stream_s
 {
-	snd_codec_t *codec;
-	fileHandle_t file;
-	snd_info_t info;
-	int length;
-	int pos;
-	void *ptr;
+    snd_codec_t *codec;
+    fileHandle_t file;
+    snd_info_t info;
+    int length;
+    int pos;
+    void *ptr;
 } snd_stream_t;
 
 // Codec functions
@@ -58,12 +58,12 @@ typedef void (*CODEC_CLOSE)(snd_stream_t *stream);
 // Codec data structure
 struct snd_codec_s
 {
-	char *ext;
-	CODEC_LOAD load;
-	CODEC_OPEN open;
-	CODEC_READ read;
-	CODEC_CLOSE close;
-	snd_codec_t *next;
+    char *ext;
+    CODEC_LOAD load;
+    CODEC_OPEN open;
+    CODEC_READ read;
+    CODEC_CLOSE close;
+    snd_codec_t *next;
 };
 
 // Codec management
