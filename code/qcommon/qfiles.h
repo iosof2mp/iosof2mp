@@ -310,10 +310,10 @@ typedef struct {
 */
 
 
-#define BSP_IDENT   (('P'<<24)+('S'<<16)+('B'<<8)+'I')
-        // little-endian "IBSP"
+#define BSP_IDENT   (('P'<<24)+('S'<<16)+('B'<<8)+'R')
+        // little-endian "RBSP"
 
-#define BSP_VERSION         46
+#define BSP_VERSION         1
 
 
 // there shouldn't be any problem with increasing these values at the
@@ -334,8 +334,8 @@ typedef struct {
 #define MAX_MAP_LEAFBRUSHES 0x40000
 #define MAX_MAP_PORTALS     0x20000
 #define MAX_MAP_LIGHTING    0x800000
-#define MAX_MAP_LIGHTGRID   0x800000
-#define MAX_MAP_VISIBILITY  0x200000
+#define MAX_MAP_LIGHTGRID   0xffff
+#define MAX_MAP_VISIBILITY  0x600000
 
 #define MAX_MAP_DRAW_SURFS  0x20000
 #define MAX_MAP_DRAW_VERTS  0x80000
@@ -381,7 +381,8 @@ typedef struct {
 #define LUMP_LIGHTMAPS      14
 #define LUMP_LIGHTGRID      15
 #define LUMP_VISIBILITY     16
-#define HEADER_LUMPS        17
+#define LUMP_LIGHTARRAY     17
+#define HEADER_LUMPS        18
 
 typedef struct {
     int         ident;
@@ -433,6 +434,7 @@ typedef struct {
 typedef struct {
     int         planeNum;           // positive plane side faces out of the leaf
     int         shaderNum;
+    int         drawSurfNum;
 } dbrushside_t;
 
 typedef struct {
@@ -447,12 +449,15 @@ typedef struct {
     int         visibleSide;    // the brush side that ray tests need to clip against (-1 == none)
 } dfog_t;
 
+// Light Style Constants
+#define MAXLIGHTMAPS    4
+
 typedef struct {
     vec3_t      xyz;
     float       st[2];
-    float       lightmap[2];
+    float       lightmap[MAXLIGHTMAPS][2];
     vec3_t      normal;
-    byte        color[4];
+    byte        color[MAXLIGHTMAPS][4];
 } drawVert_t;
 
 #define drawVert_t_cleared(x) drawVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
@@ -476,8 +481,9 @@ typedef struct {
     int         firstIndex;
     int         numIndexes;
 
-    int         lightmapNum;
-    int         lightmapX, lightmapY;
+    byte        lightmapStyles[MAXLIGHTMAPS], vertexStyles[MAXLIGHTMAPS];
+    int         lightmapNum[MAXLIGHTMAPS];
+    int         lightmapX[MAXLIGHTMAPS], lightmapY[MAXLIGHTMAPS];
     int         lightmapWidth, lightmapHeight;
 
     vec3_t      lightmapOrigin;
@@ -486,6 +492,5 @@ typedef struct {
     int         patchWidth;
     int         patchHeight;
 } dsurface_t;
-
 
 #endif
