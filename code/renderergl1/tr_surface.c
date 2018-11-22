@@ -221,7 +221,7 @@ RB_SurfaceTriangles
 =============
 */
 static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
-    int         i;
+    int         i, j;
     drawVert_t  *dv;
     float       *xyz, *normal, *texCoords;
     byte        *color;
@@ -261,8 +261,12 @@ static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
         texCoords[0] = dv->st[0];
         texCoords[1] = dv->st[1];
 
-        texCoords[2] = dv->lightmap[0];
-        texCoords[3] = dv->lightmap[1];
+        for(j = 0; j < MAXLIGHTMAPS; j++){
+            if(tess.shader->lightmapIndex[j] >= 0){
+                texCoords[2 + (j * 2)] = dv->lightmap[j][0];
+                texCoords[3 + (j * 2)] = dv->lightmap[j][1];
+            }
+        }
 
         *(int *)color = *(int *)dv->color;
     }
@@ -860,7 +864,7 @@ Just copy the grid of points and triangulate
 =============
 */
 static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
-    int     i, j;
+    int     i, j, k;
     float   *xyz;
     float   *texCoords;
     float   *normal;
@@ -954,8 +958,13 @@ static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
                 xyz[2] = dv->xyz[2];
                 texCoords[0] = dv->st[0];
                 texCoords[1] = dv->st[1];
-                texCoords[2] = dv->lightmap[0];
-                texCoords[3] = dv->lightmap[1];
+
+                for ( k = 0; k < MAXLIGHTMAPS ; k++ ) {
+                    texCoords[2 + (k * 2)] = dv->lightmap[k][0];
+                    texCoords[3 + (k * 2)] = dv->lightmap[k][1];
+                }
+                texCoords += NUM_TEX_COORDS * 2;
+
                 if ( needsNormal ) {
                     normal[0] = dv->normal[0];
                     normal[1] = dv->normal[1];

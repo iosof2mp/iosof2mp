@@ -269,9 +269,12 @@ static  void R_LoadVisibility( lump_t *l ) {
 ShaderForShaderNum
 ===============
 */
-static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
+static shader_t *ShaderForShaderNum( int shaderNum, const int *lightmapNum, const byte *lightmapStyles, const byte *vertexStyles ) {
     shader_t    *shader;
     dshader_t   *dsh;
+    const byte  *styles;
+
+    styles = lightmapStyles;
 
     int _shaderNum = LittleLong( shaderNum );
     if ( _shaderNum < 0 || _shaderNum >= s_worldData.numShaders ) {
@@ -279,15 +282,20 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
     }
     dsh = &s_worldData.shaders[ _shaderNum ];
 
+    if(lightmapNum[0] == LIGHTMAP_BY_VERTEX){
+        styles = vertexStyles;
+    }
+
     if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
-        lightmapNum = LIGHTMAP_BY_VERTEX;
+        lightmapNum = lightmapsVertex;
+        styles = vertexStyles;
     }
 
     if ( r_fullbright->integer ) {
-        lightmapNum = LIGHTMAP_WHITEIMAGE;
+        lightmapNum = lightmapsFullBright;
     }
 
-    shader = R_FindShader( dsh->shader, lightmapNum, qtrue );
+    shader = R_FindShader( dsh->shader, lightmapNum, styles, qtrue );
 
     // if the shader had errors, just use default shader
     if ( shader->defaultShader ) {
@@ -303,19 +311,21 @@ ParseFace
 ===============
 */
 static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes  ) {
-    int         i, j;
+    int         i, j, k;
     srfSurfaceFace_t    *cv;
     int         numPoints, numIndexes;
-    int         lightmapNum;
+    int         lightmapNum[MAXLIGHTMAPS];
     int         sfaceSize, ofsIndexes;
 
-    lightmapNum = LittleLong( ds->lightmapNum );
+    for ( i = 0 ; i < MAXLIGHTMAPS ; i++ ) {
+        lightmapNum[i] = LittleLong( ds->lightmapNum[i] );
+    }
 
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader value
-    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -347,9 +357,14 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
         }
         for ( j = 0 ; j < 2 ; j++ ) {
             cv->points[i][3+j] = LittleFloat( verts[i].st[j] );
-            cv->points[i][5+j] = LittleFloat( verts[i].lightmap[j] );
+            for ( k = 0 ; k < MAXLIGHTMAPS ; k++ ) {
+                cv->points[i][VERTEX_LM + j + (k * 2)] = LittleFloat(verts[i].lightmap[k][j]);
+            }
         }
-        R_ColorShiftLightingBytes( verts[i].color, (byte *)&cv->points[i][7] );
+
+        for ( k = 0 ; k < MAXLIGHTMAPS ; k++ ) {
+            R_ColorShiftLightingBytes(verts[i].color[k], (byte *)&cv->points[i][VERTEX_COLOR + k]);
+        }
     }
 
     indexes += LittleLong( ds->firstIndex );
@@ -376,21 +391,23 @@ ParseMesh
 */
 static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
     srfGridMesh_t   *grid;
-    int             i, j;
+    int             i, j, k;
     int             width, height, numPoints;
     drawVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE];
-    int             lightmapNum;
+    int             lightmapNum[MAXLIGHTMAPS];
     vec3_t          bounds[2];
     vec3_t          tmpVec;
     static surfaceType_t    skipData = SF_SKIP;
 
-    lightmapNum = LittleLong( ds->lightmapNum );
+    for ( i = 0 ; i < MAXLIGHTMAPS ; i++ ) {
+        lightmapNum[i] = LittleLong( ds->lightmapNum[i] );
+    }
 
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader value
-    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -414,9 +431,14 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
         }
         for ( j = 0 ; j < 2 ; j++ ) {
             points[i].st[j] = LittleFloat( verts[i].st[j] );
-            points[i].lightmap[j] = LittleFloat( verts[i].lightmap[j] );
+            for ( k = 0 ; k < MAXLIGHTMAPS ; k++ ) {
+                points[i].lightmap[k][j] = LittleFloat( verts[i].lightmap[k][j] );
+            }
         }
-        R_ColorShiftLightingBytes( verts[i].color, points[i].color );
+
+        for ( k = 0 ; k < MAXLIGHTMAPS ; k++ ) {
+            R_ColorShiftLightingBytes( verts[i].color[k], points[i].color[k] );
+        }
     }
 
     // pre-tesseleate
@@ -443,14 +465,14 @@ ParseTriSurf
 */
 static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
     srfTriangles_t  *tri;
-    int             i, j;
+    int             i, j, k;
     int             numVerts, numIndexes;
 
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader
-    surf->shader = ShaderForShaderNum( ds->shaderNum, LIGHTMAP_BY_VERTEX );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapsVertex, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -479,10 +501,14 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
         AddPointToBounds( tri->verts[i].xyz, tri->bounds[0], tri->bounds[1] );
         for ( j = 0 ; j < 2 ; j++ ) {
             tri->verts[i].st[j] = LittleFloat( verts[i].st[j] );
-            tri->verts[i].lightmap[j] = LittleFloat( verts[i].lightmap[j] );
+            for ( k = 0 ; k < MAXLIGHTMAPS ; k++ ) {
+                tri->verts[i].lightmap[k][j] = LittleFloat( verts[i].lightmap[k][j] );
+            }
         }
 
-        R_ColorShiftLightingBytes( verts[i].color, tri->verts[i].color );
+        for ( k = 0 ; k < MAXLIGHTMAPS ; k++ ) {
+            R_ColorShiftLightingBytes( verts[i].color[k], tri->verts[i].color[k] );
+        }
     }
 
     // copy indexes
@@ -508,7 +534,7 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader
-    surf->shader = ShaderForShaderNum( ds->shaderNum, LIGHTMAP_BY_VERTEX );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapsVertex, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -1611,7 +1637,7 @@ static  void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
         out->bounds[1][2] = s_worldData.planes[ planeNum ].dist;
 
         // get information from the shader for fog parameters
-        shader = R_FindShader( fogs->shader, LIGHTMAP_NONE, qtrue );
+        shader = R_FindShader( fogs->shader, lightmapsNone, stylesDefault, qtrue );
 
         out->parms = shader->fogParms;
 

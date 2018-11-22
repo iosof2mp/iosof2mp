@@ -123,10 +123,10 @@ image_t     *R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags
 image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, imgFlags_t flags, int internalFormat );
 
 void R_IssuePendingRenderCommands( void );
-qhandle_t        RE_RegisterShaderLightMap( const char *name, int lightmapIndex );
+qhandle_t        RE_RegisterShaderLightMap( const char *name, const int *lightmapIndex, const byte *styles );
 qhandle_t        RE_RegisterShader( const char *name );
 qhandle_t        RE_RegisterShaderNoMip( const char *name );
-qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, qboolean mipRawImage);
+qhandle_t RE_RegisterShaderFromImage(const char *name, const int *lightmapIndex, const byte *styles, image_t *image, qboolean mipRawImage);
 
 // font stuff
 void R_InitFreeType( void );
@@ -166,5 +166,16 @@ void        GLimp_SetGamma( unsigned char red[256],
         unsigned char green[256],
         unsigned char blue[256] );
 
+/*
+====================================================================
+
+LIGHTSTYLE CONSTANTS
+
+====================================================================
+*/
+
+#define LS_NORMAL       0x00
+#define LS_UNUSED       0xfe
+#define LS_NONE         0xff
 
 #endif

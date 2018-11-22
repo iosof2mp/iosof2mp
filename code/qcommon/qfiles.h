@@ -460,7 +460,7 @@ typedef struct {
     byte        color[MAXLIGHTMAPS][4];
 } drawVert_t;
 
-#define drawVert_t_cleared(x) drawVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
+#define drawVert_t_cleared(x) drawVert_t (x) = {{0, 0, 0}, {0, 0}, {{0, 0}, {0, 0}, {0, 0}, {0, 0}}, {0, 0, 0}, {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}}
 
 typedef enum {
     MST_BAD,

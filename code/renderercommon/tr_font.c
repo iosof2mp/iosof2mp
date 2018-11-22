@@ -499,7 +499,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
 
             //Com_sprintf (name, sizeof(name), "fonts/fontImage_%i_%i", imageNumber++, pointSize);
             image = R_CreateImage(name, imageBuff, 256, 256, IMGTYPE_COLORALPHA, IMGFLAG_CLAMPTOEDGE, 0 );
-            h = RE_RegisterShaderFromImage(name, LIGHTMAP_2D, image, qfalse);
+            h = RE_RegisterShaderFromImage(name, lightmaps2D, stylesDefault, image, qfalse);
             for (j = lastStart; j < i; j++) {
                 font->glyphs[j].glyph = h;
                 Q_strncpyz(font->glyphs[j].shaderName, name, sizeof(font->glyphs[j].shaderName));

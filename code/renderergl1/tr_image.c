@@ -1552,9 +1552,10 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 
     // If not a .skin file, load as a single shader
     if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
+        // FIXME BOE
         skin->numSurfaces = 1;
         skin->surfaces = ri.Hunk_Alloc( sizeof( skinSurface_t ), h_low );
-        skin->surfaces[0].shader = R_FindShader( name, LIGHTMAP_NONE, qtrue );
+        skin->surfaces[0].shader = R_FindShader( name, lightmapsNone, stylesDefault, qtrue );
         return hSkin;
     }
 
@@ -1591,7 +1592,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
         if ( skin->numSurfaces < MAX_SKIN_SURFACES ) {
             surf = &parseSurfaces[skin->numSurfaces];
             Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
-            surf->shader = R_FindShader( token, LIGHTMAP_NONE, qtrue );
+            surf->shader = R_FindShader( token, lightmapsNone, stylesDefault, qtrue );
             skin->numSurfaces++;
         }
 

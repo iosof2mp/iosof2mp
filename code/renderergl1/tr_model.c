@@ -478,11 +478,12 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
         }
 
         // register the shaders
+        // FIXME BOE
         shader = (md3Shader_t *) ( (byte *)surf + surf->ofsShaders );
         for ( j = 0 ; j < surf->numShaders ; j++, shader++ ) {
             shader_t    *sh;
 
-            sh = R_FindShader( shader->name, LIGHTMAP_NONE, qtrue );
+            sh = R_FindShader( shader->name, lightmapsNone, stylesDefault, qtrue );
             if ( sh->defaultShader ) {
                 shader->shaderIndex = 0;
             } else {
@@ -747,7 +748,8 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
             Q_strlwr( surf->name );
 
             // register the shaders
-            sh = R_FindShader(surf->shader, LIGHTMAP_NONE, qtrue);
+            // FIXME BOE
+            sh = R_FindShader(surf->shader, lightmapsNone, stylesDefault, qtrue);
             if ( sh->defaultShader ) {
                 surf->shaderIndex = 0;
             } else {
