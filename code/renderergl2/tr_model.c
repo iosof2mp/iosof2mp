@@ -532,7 +532,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
         {
             shader_t       *sh;
 
-            sh = R_FindShader(md3Shader->name, LIGHTMAP_NONE, qtrue);
+            sh = R_FindShader(md3Shader->name, lightmapsNone, stylesDefault, qtrue);
             if(sh->defaultShader)
             {
                 *shaderIndex = 0;
@@ -1037,7 +1037,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
             Q_strlwr( surf->name );
 
             // register the shaders
-            sh = R_FindShader(surf->shader, LIGHTMAP_NONE, qtrue);
+            sh = R_FindShader(surf->shader, lightmapsNone, stylesDefault, qtrue);
             if ( sh->defaultShader ) {
                 surf->shaderIndex = 0;
             } else {

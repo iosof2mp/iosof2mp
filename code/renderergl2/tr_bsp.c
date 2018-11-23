@@ -136,10 +136,11 @@ R_ColorShiftLightingFloats
 
 ===============
 */
-static void R_ColorShiftLightingFloats(float in[4], float out[4])
+static void R_ColorShiftLightingFloats(float in[4], float out[4], float scale)
 {
     float   r, g, b;
-    float   scale = (1 << (r_mapOverBrightBits->integer - tr.overbrightBits)) / 255.0f;
+
+    scale *= powf(2.0f, r_mapOverBrightBits->integer - tr.overbrightBits);
 
     r = in[0] * scale;
     g = in[1] * scale;
@@ -231,12 +232,17 @@ static  void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
     {
         tr.worldDeluxeMapping = qtrue;
         for( i = 0, surf = (dsurface_t *)(fileBase + surfs->fileofs);
-            i < surfs->filelen / sizeof(dsurface_t); i++, surf++ ) {
-            int lightmapNum = LittleLong( surf->lightmapNum );
+            tr.worldDeluxeMapping && i < surfs->filelen / sizeof(dsurface_t);
+            i++, surf++ )
+        {
+            for ( j = 0; j < MAXLIGHTMAPS; j++ )
+            {
+                int lightmapNum = LittleLong( surf->lightmapNum[j] );
 
-            if ( lightmapNum >= 0 && (lightmapNum & 1) != 0 ) {
-                tr.worldDeluxeMapping = qfalse;
-                break;
+                if ( lightmapNum >= 0 && (lightmapNum & 1) != 0 ) {
+                    tr.worldDeluxeMapping = qfalse;
+                    break;
+                }
             }
         }
     }
@@ -386,7 +392,7 @@ static  void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 #endif
                     color[3] = 1.0f;
 
-                    R_ColorShiftLightingFloats(color, color);
+                    R_ColorShiftLightingFloats(color, color, 1.0f / 255.0f);
 
                     ColorToRGB16(color, (uint16_t *)(&image[j * 8]));
                     ((uint16_t *)(&image[j * 8]))[3] = 65535;
@@ -411,7 +417,7 @@ static  void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
                     }
                     color[3] = 1.0f;
 
-                    R_ColorShiftLightingFloats(color, color);
+                    R_ColorShiftLightingFloats(color, color, 1.0f / 255.0f);
 
                     ColorToRGB16(color, (uint16_t *)(&image[j * 8]));
                     ((uint16_t *)(&image[j * 8]))[3] = 65535;
@@ -598,9 +604,10 @@ static  void R_LoadVisibility( lump_t *l ) {
 ShaderForShaderNum
 ===============
 */
-static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
+static shader_t *ShaderForShaderNum( int shaderNum, const int *lightmapNum, const byte *lightmapStyles, const byte *vertexStyles ) {
     shader_t    *shader;
     dshader_t   *dsh;
+    const byte  *styles = lightmapStyles;
 
     int _shaderNum = LittleLong( shaderNum );
     if ( _shaderNum < 0 || _shaderNum >= s_worldData.numShaders ) {
@@ -608,15 +615,20 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
     }
     dsh = &s_worldData.shaders[ _shaderNum ];
 
+    if(lightmapNum[0] == LIGHTMAP_BY_VERTEX){
+        styles = vertexStyles;
+    }
+
     if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
-        lightmapNum = LIGHTMAP_BY_VERTEX;
+        lightmapNum = lightmapsVertex;
+        styles = vertexStyles;
     }
 
     if ( r_fullbright->integer ) {
-        lightmapNum = LIGHTMAP_WHITEIMAGE;
+        lightmapNum = lightmapsFullBright;
     }
 
-    shader = R_FindShader( dsh->shader, lightmapNum, qtrue );
+    shader = R_FindShader( dsh->shader, lightmapNum, styles, qtrue );
 
     // if the shader had errors, just use default shader
     if ( shader->defaultShader ) {
@@ -626,9 +638,10 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
     return shader;
 }
 
-void LoadDrawVertToSrfVert(srfVert_t *s, drawVert_t *d, int realLightmapNum, float hdrVertColors[3], vec3_t *bounds)
+void LoadDrawVertToSrfVert(srfVert_t *s, drawVert_t *d, const int *lightmapNum, const int *realLightmapNum, float hdrVertColors[3], vec3_t *bounds)
 {
-    vec4_t v;
+    int     i;
+    vec4_t  v;
 
     s->xyz[0] = LittleFloat(d->xyz[0]);
     s->xyz[1] = LittleFloat(d->xyz[1]);
@@ -640,50 +653,59 @@ void LoadDrawVertToSrfVert(srfVert_t *s, drawVert_t *d, int realLightmapNum, flo
     s->st[0] = LittleFloat(d->st[0]);
     s->st[1] = LittleFloat(d->st[1]);
 
-    if (realLightmapNum >= 0)
-    {
-        s->lightmap[0] = FatPackU(LittleFloat(d->lightmap[0]), realLightmapNum);
-        s->lightmap[1] = FatPackV(LittleFloat(d->lightmap[1]), realLightmapNum);
-    }
-    else
-    {
-        s->lightmap[0] = LittleFloat(d->lightmap[0]);
-        s->lightmap[1] = LittleFloat(d->lightmap[1]);
-    }
+    // FIXME BOE
+    //for(i = 0; i < MAXLIGHTMAPS; i++){
+    for(i = 0; i < 1; i++){
+        if(realLightmapNum[i] >= 0){
+            // FIXME BOE
+            //s->lightmap[i][0] = FatPackU(LittleFloat(d->lightmap[i][0]), lightmapNum[i]);
+            //s->lightmap[i][1] = FatPackV(LittleFloat(d->lightmap[i][1]), lightmapNum[i]);
+            s->lightmap[0] = FatPackU(LittleFloat(d->lightmap[i][0]), lightmapNum[i]);
+            s->lightmap[1] = FatPackV(LittleFloat(d->lightmap[i][1]), lightmapNum[i]);
+        }else{
+            // FIXME BOE
+            //s->lightmap[i][0] = LittleFloat(d->lightmap[i][0]);
+            //s->lightmap[i][1] = LittleFloat(d->lightmap[i][1]);
+            s->lightmap[0] = LittleFloat(d->lightmap[i][0]);
+            s->lightmap[1] = LittleFloat(d->lightmap[i][1]);
+        }
 
-    v[0] = LittleFloat(d->normal[0]);
-    v[1] = LittleFloat(d->normal[1]);
-    v[2] = LittleFloat(d->normal[2]);
+        v[0] = LittleFloat(d->normal[0]);
+        v[1] = LittleFloat(d->normal[1]);
+        v[2] = LittleFloat(d->normal[2]);
 
-    R_VaoPackNormal(s->normal, v);
+        R_VaoPackNormal(s->normal, v);
 
-    if (hdrVertColors)
-    {
-        v[0] = hdrVertColors[0];
-        v[1] = hdrVertColors[1];
-        v[2] = hdrVertColors[2];
-    }
-    else
-    {
-        //hack: convert LDR vertex colors to HDR
-        if (r_hdr->integer)
+        if (hdrVertColors)
         {
-            v[0] = MAX(d->color[0], 0.499f);
-            v[1] = MAX(d->color[1], 0.499f);
-            v[2] = MAX(d->color[2], 0.499f);
+            v[0] = hdrVertColors[0];
+            v[1] = hdrVertColors[1];
+            v[2] = hdrVertColors[2];
         }
         else
         {
-            v[0] = d->color[0];
-            v[1] = d->color[1];
-            v[2] = d->color[2];
+            //hack: convert LDR vertex colors to HDR
+            if (r_hdr->integer)
+            {
+                v[0] = MAX(d->color[i][0], 0.499f);
+                v[1] = MAX(d->color[i][1], 0.499f);
+                v[2] = MAX(d->color[i][2], 0.499f);
+            }
+            else
+            {
+                v[0] = d->color[i][0];
+                v[1] = d->color[i][1];
+                v[2] = d->color[i][2];
+            }
+
         }
+        v[3] = d->color[i][3] / 255.0f;
 
+        // FIXME BOE
+        R_ColorShiftLightingFloats(v, v, 1.0f / 255.0f);
+        //R_ColorShiftLightingFloats(v, s->color[i], 1.0f / 255.0f);
+        R_VaoPackColor(s->color, v);
     }
-    v[3] = d->color[3] / 255.0f;
-
-    R_ColorShiftLightingFloats(v, v);
-    R_VaoPackColor(s->color, v);
 }
 
 
@@ -693,19 +715,21 @@ ParseFace
 ===============
 */
 static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, msurface_t *surf, int *indexes  ) {
-    int         i, j;
+    int             i, j;
     srfBspSurface_t *cv;
-    glIndex_t  *tri;
-    int         numVerts, numIndexes, badTriangles;
-    int realLightmapNum;
+    glIndex_t       *tri;
+    int             numVerts, numIndexes, badTriangles;
+    int             realLightmapNum[MAXLIGHTMAPS];
 
-    realLightmapNum = LittleLong( ds->lightmapNum );
+    for ( i = 0 ; i < MAXLIGHTMAPS ; i++ ) {
+        realLightmapNum[i] = FatLightmap(LittleLong(ds->lightmapNum[i]));
+    }
 
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader value
-    surf->shader = ShaderForShaderNum( ds->shaderNum, FatLightmap(realLightmapNum) );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, realLightmapNum, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -734,7 +758,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
     ClearBounds(surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
     verts += LittleLong(ds->firstVert);
     for(i = 0; i < numVerts; i++)
-        LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], realLightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, surf->cullinfo.bounds);
+        LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], ds->lightmapNum, realLightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, surf->cullinfo.bounds);
 
     // copy triangles
     badTriangles = 0;
@@ -797,22 +821,24 @@ ParseMesh
 ===============
 */
 static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, msurface_t *surf ) {
-    srfBspSurface_t *grid = (srfBspSurface_t *)surf->data;
-    int             i;
-    int             width, height, numPoints;
-    srfVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE];
-    vec3_t          bounds[2];
-    vec3_t          tmpVec;
+    srfBspSurface_t         *grid = (srfBspSurface_t *)surf->data;
+    int                     i;
+    int                     width, height, numPoints;
+    srfVert_t               points[MAX_PATCH_SIZE*MAX_PATCH_SIZE];
+    vec3_t                  bounds[2];
+    vec3_t                  tmpVec;
     static surfaceType_t    skipData = SF_SKIP;
-    int realLightmapNum;
+    int                     realLightmapNum[MAXLIGHTMAPS];
 
-    realLightmapNum = LittleLong( ds->lightmapNum );
+    for ( i = 0 ; i < MAXLIGHTMAPS ; i++ ) {
+        realLightmapNum[i] = FatLightmap(LittleLong(ds->lightmapNum[i]));
+    }
 
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader value
-    surf->shader = ShaderForShaderNum( ds->shaderNum, FatLightmap(realLightmapNum) );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, realLightmapNum, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -833,7 +859,7 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors,
     verts += LittleLong( ds->firstVert );
     numPoints = width * height;
     for(i = 0; i < numPoints; i++)
-        LoadDrawVertToSrfVert(&points[i], &verts[i], realLightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, NULL);
+        LoadDrawVertToSrfVert(&points[i], &verts[i], ds->lightmapNum, realLightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, NULL);
 
     // pre-tesseleate
     R_SubdividePatchToGrid( grid, width, height, points );
@@ -864,15 +890,20 @@ ParseTriSurf
 */
 static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, msurface_t *surf, int *indexes ) {
     srfBspSurface_t *cv;
-    glIndex_t  *tri;
+    glIndex_t       *tri;
     int             i, j;
     int             numVerts, numIndexes, badTriangles;
+    int             realLightmapNum[MAXLIGHTMAPS];
+
+    for ( i = 0 ; i < MAXLIGHTMAPS ; i++ ) {
+        realLightmapNum[i] = FatLightmap(LittleLong(ds->lightmapNum[i]));
+    }
 
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader
-    surf->shader = ShaderForShaderNum( ds->shaderNum, LIGHTMAP_BY_VERTEX );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapsVertex, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -897,7 +928,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
     ClearBounds(surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
     verts += LittleLong(ds->firstVert);
     for(i = 0; i < numVerts; i++)
-        LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], -1, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, surf->cullinfo.bounds);
+        LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], ds->lightmapNum, realLightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, surf->cullinfo.bounds);
 
     // copy triangles
     badTriangles = 0;
@@ -955,7 +986,7 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader
-    surf->shader = ShaderForShaderNum( ds->shaderNum, LIGHTMAP_BY_VERTEX );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapsVertex, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -2130,7 +2161,7 @@ static  void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
         out->bounds[1][2] = s_worldData.planes[ planeNum ].dist;
 
         // get information from the shader for fog parameters
-        shader = R_FindShader( fogs->shader, LIGHTMAP_NONE, qtrue );
+        shader = R_FindShader( fogs->shader, lightmapsNone, stylesDefault, qtrue );
 
         out->parms = shader->fogParms;
 
@@ -2234,7 +2265,7 @@ void R_LoadLightGrid( lump_t *l ) {
                 c[2] = hdrLightGrid[i * 6 + 2];
                 c[3] = 1.0f;
 
-                R_ColorShiftLightingFloats(c, c);
+                R_ColorShiftLightingFloats(c, c, 1.0f / 255.0f);
                 ColorToRGB16(c, &w->lightGrid16[i * 6]);
 
                 c[0] = hdrLightGrid[i * 6 + 3];
@@ -2242,7 +2273,7 @@ void R_LoadLightGrid( lump_t *l ) {
                 c[2] = hdrLightGrid[i * 6 + 5];
                 c[3] = 1.0f;
 
-                R_ColorShiftLightingFloats(c, c);
+                R_ColorShiftLightingFloats(c, c, 1.0f / 255.0f);
                 ColorToRGB16(c, &w->lightGrid16[i * 6 + 3]);
             }
         }

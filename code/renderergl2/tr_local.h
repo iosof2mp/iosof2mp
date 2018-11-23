@@ -439,8 +439,9 @@ typedef struct {
 
 
 typedef struct shader_s {
-    char        name[MAX_QPATH];        // game path, including extension
-    int         lightmapIndex;          // for a shader to match, both name and lightmapIndex must match
+    char        name[MAX_QPATH];                // game path, including extension
+    int         lightmapIndex[MAXLIGHTMAPS];    // for a shader to match, both name and lightmapIndex must match
+    byte        styles[MAXLIGHTMAPS];
 
     int         index;                  // this shader == tr.shaders[index]
     int         sortedIndex;            // this shader == tr.sortedShaders[sortedIndex]
@@ -1980,7 +1981,13 @@ const void *RB_TakeVideoFrameCmd( const void *data );
 //
 // tr_shader.c
 //
-shader_t    *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage );
+extern const int    lightmapsNone[MAXLIGHTMAPS];
+extern const int    lightmaps2D[MAXLIGHTMAPS];
+extern const int    lightmapsVertex[MAXLIGHTMAPS];
+extern const int    lightmapsFullBright[MAXLIGHTMAPS];
+extern const byte   stylesDefault[MAXLIGHTMAPS];
+
+shader_t    *R_FindShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage );
 shader_t    *R_GetShaderByHandle( qhandle_t hShader );
 shader_t    *R_GetShaderByState( int index, long *cycleTime );
 shader_t *R_FindShaderByName( const char *name );
