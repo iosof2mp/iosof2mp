@@ -903,18 +903,18 @@ typedef struct
 {
     vec3_t          xyz;
     vec2_t          st;
-    vec2_t          lightmap;
+    vec2_t          lightmap[MAXLIGHTMAPS];
     int16_t         normal[4];
     int16_t         tangent[4];
     int16_t         lightdir[4];
-    uint16_t        color[4];
+    uint16_t        color[MAXLIGHTMAPS][4];
 
 #if DEBUG_OPTIMIZEVERTICES
     unsigned int    id;
 #endif
 } srfVert_t;
 
-#define srfVert_t_cleared(x) srfVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
+#define srfVert_t_cleared(x) srfVert_t (x) = {{0, 0, 0}, {0, 0}, {{0, 0}, {0, 0}, {0, 0}, {0, 0}}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}}
 
 // srfBspSurface_t covers SF_GRID, SF_TRIANGLES, and SF_POLY
 typedef struct srfBspSurface_s

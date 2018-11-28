@@ -136,11 +136,10 @@ R_ColorShiftLightingFloats
 
 ===============
 */
-static void R_ColorShiftLightingFloats(float in[4], float out[4], float scale)
+static void R_ColorShiftLightingFloats(float in[4], float out[4])
 {
     float   r, g, b;
-
-    scale *= powf(2.0f, r_mapOverBrightBits->integer - tr.overbrightBits);
+    float   scale = (1 << (r_mapOverBrightBits->integer - tr.overbrightBits)) / 255.0f;
 
     r = in[0] * scale;
     g = in[1] * scale;
@@ -392,7 +391,7 @@ static  void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 #endif
                     color[3] = 1.0f;
 
-                    R_ColorShiftLightingFloats(color, color, 1.0f / 255.0f);
+                    R_ColorShiftLightingFloats(color, color);
 
                     ColorToRGB16(color, (uint16_t *)(&image[j * 8]));
                     ((uint16_t *)(&image[j * 8]))[3] = 65535;
@@ -417,7 +416,7 @@ static  void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
                     }
                     color[3] = 1.0f;
 
-                    R_ColorShiftLightingFloats(color, color, 1.0f / 255.0f);
+                    R_ColorShiftLightingFloats(color, color);
 
                     ColorToRGB16(color, (uint16_t *)(&image[j * 8]));
                     ((uint16_t *)(&image[j * 8]))[3] = 65535;
@@ -638,7 +637,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, const int *lightmapNum, cons
     return shader;
 }
 
-void LoadDrawVertToSrfVert(srfVert_t *s, drawVert_t *d, const int *lightmapNum, const int *realLightmapNum, float hdrVertColors[3], vec3_t *bounds)
+void LoadDrawVertToSrfVert(srfVert_t *s, drawVert_t *d, const int *lightmapNum, float hdrVertColors[3], vec3_t *bounds)
 {
     int     i;
     vec4_t  v;
@@ -653,21 +652,13 @@ void LoadDrawVertToSrfVert(srfVert_t *s, drawVert_t *d, const int *lightmapNum, 
     s->st[0] = LittleFloat(d->st[0]);
     s->st[1] = LittleFloat(d->st[1]);
 
-    // FIXME BOE
-    //for(i = 0; i < MAXLIGHTMAPS; i++){
-    for(i = 0; i < 1; i++){
-        if(realLightmapNum[i] >= 0){
-            // FIXME BOE
-            //s->lightmap[i][0] = FatPackU(LittleFloat(d->lightmap[i][0]), lightmapNum[i]);
-            //s->lightmap[i][1] = FatPackV(LittleFloat(d->lightmap[i][1]), lightmapNum[i]);
-            s->lightmap[0] = FatPackU(LittleFloat(d->lightmap[i][0]), lightmapNum[i]);
-            s->lightmap[1] = FatPackV(LittleFloat(d->lightmap[i][1]), lightmapNum[i]);
+    for(i = 0; i < MAXLIGHTMAPS; i++){
+        if(lightmapNum[i] >= 0){
+            s->lightmap[i][0] = FatPackU(LittleFloat(d->lightmap[i][0]), lightmapNum[i]);
+            s->lightmap[i][1] = FatPackV(LittleFloat(d->lightmap[i][1]), lightmapNum[i]);
         }else{
-            // FIXME BOE
-            //s->lightmap[i][0] = LittleFloat(d->lightmap[i][0]);
-            //s->lightmap[i][1] = LittleFloat(d->lightmap[i][1]);
-            s->lightmap[0] = LittleFloat(d->lightmap[i][0]);
-            s->lightmap[1] = LittleFloat(d->lightmap[i][1]);
+            s->lightmap[i][0] = LittleFloat(d->lightmap[i][0]);
+            s->lightmap[i][1] = LittleFloat(d->lightmap[i][1]);
         }
 
         v[0] = LittleFloat(d->normal[0]);
@@ -701,10 +692,8 @@ void LoadDrawVertToSrfVert(srfVert_t *s, drawVert_t *d, const int *lightmapNum, 
         }
         v[3] = d->color[i][3] / 255.0f;
 
-        // FIXME BOE
-        R_ColorShiftLightingFloats(v, v, 1.0f / 255.0f);
-        //R_ColorShiftLightingFloats(v, s->color[i], 1.0f / 255.0f);
-        R_VaoPackColor(s->color, v);
+        R_ColorShiftLightingFloats(v, v);
+        R_VaoPackColor(s->color[i], v);
     }
 }
 
@@ -758,7 +747,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
     ClearBounds(surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
     verts += LittleLong(ds->firstVert);
     for(i = 0; i < numVerts; i++)
-        LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], ds->lightmapNum, realLightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, surf->cullinfo.bounds);
+        LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], ds->lightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, surf->cullinfo.bounds);
 
     // copy triangles
     badTriangles = 0;
@@ -859,7 +848,7 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors,
     verts += LittleLong( ds->firstVert );
     numPoints = width * height;
     for(i = 0; i < numPoints; i++)
-        LoadDrawVertToSrfVert(&points[i], &verts[i], ds->lightmapNum, realLightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, NULL);
+        LoadDrawVertToSrfVert(&points[i], &verts[i], ds->lightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, NULL);
 
     // pre-tesseleate
     R_SubdividePatchToGrid( grid, width, height, points );
@@ -903,7 +892,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader
-    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapsVertex, ds->lightmapStyles, ds->vertexStyles );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, realLightmapNum, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -928,7 +917,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
     ClearBounds(surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
     verts += LittleLong(ds->firstVert);
     for(i = 0; i < numVerts; i++)
-        LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], ds->lightmapNum, realLightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, surf->cullinfo.bounds);
+        LoadDrawVertToSrfVert(&cv->verts[i], &verts[i], ds->lightmapNum, hdrVertColors ? hdrVertColors + (ds->firstVert + i) * 3 : NULL, surf->cullinfo.bounds);
 
     // copy triangles
     badTriangles = 0;
@@ -2218,6 +2207,8 @@ void R_LoadLightGrid( lump_t *l ) {
         w->lightGridBounds[i] = (maxs[i] - w->lightGridOrigin[i])/w->lightGridSize[i] + 1;
     }
 
+// FIXME BOE
+#if 0
     numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
 
     if ( l->filelen != numGridPoints * 8 ) {
@@ -2225,6 +2216,9 @@ void R_LoadLightGrid( lump_t *l ) {
         w->lightGridData = NULL;
         return;
     }
+#else
+    numGridPoints = l->filelen / sizeof(*w->lightGridData);
+#endif
 
     w->lightGridData = ri.Hunk_Alloc( l->filelen, h_low );
     Com_Memcpy( w->lightGridData, (void *)(fileBase + l->fileofs), l->filelen );
@@ -2265,7 +2259,7 @@ void R_LoadLightGrid( lump_t *l ) {
                 c[2] = hdrLightGrid[i * 6 + 2];
                 c[3] = 1.0f;
 
-                R_ColorShiftLightingFloats(c, c, 1.0f / 255.0f);
+                R_ColorShiftLightingFloats(c, c);
                 ColorToRGB16(c, &w->lightGrid16[i * 6]);
 
                 c[0] = hdrLightGrid[i * 6 + 3];
@@ -2273,7 +2267,7 @@ void R_LoadLightGrid( lump_t *l ) {
                 c[2] = hdrLightGrid[i * 6 + 5];
                 c[3] = 1.0f;
 
-                R_ColorShiftLightingFloats(c, c, 1.0f / 255.0f);
+                R_ColorShiftLightingFloats(c, c);
                 ColorToRGB16(c, &w->lightGrid16[i * 6 + 3]);
             }
         }

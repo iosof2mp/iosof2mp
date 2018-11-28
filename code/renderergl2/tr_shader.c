@@ -2276,7 +2276,7 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
         defs |= LIGHTDEF_USE_LIGHT_VERTEX;
     }
 
-    if (r_deluxeMapping->integer && tr.worldDeluxeMapping && lightmap && shader.lightmapIndex >= 0)
+    if (r_deluxeMapping->integer && tr.worldDeluxeMapping && lightmap && shader.lightmapIndex[0] >= 0) // FIXME BOE
     {
         //ri.Printf(PRINT_ALL, ", deluxemap");
         diffuse->bundle[TB_DELUXEMAP] = lightmap->bundle[0];
@@ -3130,7 +3130,7 @@ static shader_t *FinishShader( void ) {
     //
     stage = CollapseStagesToGLSL();
 
-    if ( shader.lightmapIndex >= 0 && !hasLightmapStage ) {
+    if ( shader.lightmapIndex[0] >= 0 && !hasLightmapStage ) {
         if (vertexLightmap) {
             ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name );
         } else {
@@ -3692,7 +3692,7 @@ void    R_ShaderList_f (void) {
 
         ri.Printf( PRINT_ALL, "%i ", shader->numUnfoggedPasses );
 
-        if (shader->lightmapIndex >= 0 ) {
+        if (shader->lightmapIndex[0] >= 0 ) {
             ri.Printf (PRINT_ALL, "L ");
         } else {
             ri.Printf (PRINT_ALL, "  ");

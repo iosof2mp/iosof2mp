@@ -372,7 +372,7 @@ static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIn
         dv = verts;
         lightCoords = tess.lightCoords[ tess.numVertexes ];
         for ( i = 0 ; i < numVerts ; i++, dv++, lightCoords+=2 )
-            VectorCopy2(dv->lightmap, lightCoords);
+            VectorCopy2(dv->lightmap[0], lightCoords);
     }
 
     if ( tess.shader->vertexAttribs & ATTR_COLOR )
@@ -380,7 +380,7 @@ static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIn
         dv = verts;
         color = tess.color[ tess.numVertexes ];
         for ( i = 0 ; i < numVerts ; i++, dv++, color+=4 )
-            VectorCopy4(dv->color, color);
+            VectorCopy4(dv->color[0], color);
     }
 
     if ( tess.shader->vertexAttribs & ATTR_LIGHTDIRECTION )
@@ -1068,13 +1068,13 @@ static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
 
                 if ( tess.shader->vertexAttribs & ATTR_LIGHTCOORD )
                 {
-                    VectorCopy2(dv->lightmap, lightCoords);
+                    VectorCopy2(dv->lightmap[0], lightCoords);
                     lightCoords += 2;
                 }
 
                 if ( tess.shader->vertexAttribs & ATTR_COLOR )
                 {
-                    VectorCopy4(dv->color, color);
+                    VectorCopy4(dv->color[0], color);
                     color += 4;
                 }
 
