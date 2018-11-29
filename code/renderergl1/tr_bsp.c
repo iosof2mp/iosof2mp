@@ -1673,9 +1673,9 @@ R_LoadLightGrid
 ================
 */
 void R_LoadLightGrid( lump_t *l ) {
-    int     i;
+    int     i, j;
     vec3_t  maxs;
-    int     numGridPoints;
+    int     numGridDataElements;
     world_t *w;
     float   *wMins, *wMaxs;
 
@@ -1694,22 +1694,42 @@ void R_LoadLightGrid( lump_t *l ) {
         w->lightGridBounds[i] = (maxs[i] - w->lightGridOrigin[i])/w->lightGridSize[i] + 1;
     }
 
-    numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
-
-    if ( l->filelen != numGridPoints * 8 ) {
-        ri.Printf( PRINT_WARNING, "WARNING: light grid mismatch\n" );
-        w->lightGridData = NULL;
-        return;
-    }
+    numGridDataElements = l->filelen / sizeof(*w->lightGridData);
 
     w->lightGridData = ri.Hunk_Alloc( l->filelen, h_low );
     Com_Memcpy( w->lightGridData, (void *)(fileBase + l->fileofs), l->filelen );
 
     // deal with overbright bits
-    for ( i = 0 ; i < numGridPoints ; i++ ) {
-        R_ColorShiftLightingBytes( &w->lightGridData[i*8], &w->lightGridData[i*8] );
-        R_ColorShiftLightingBytes( &w->lightGridData[i*8+3], &w->lightGridData[i*8+3] );
+    for ( i = 0 ; i < numGridDataElements ; i++ ) {
+        for ( j = 0 ; j < MAXLIGHTMAPS ; j++ ) {
+            R_ColorShiftLightingBytes(
+                    w->lightGridData[i].ambientLight[j], w->lightGridData[i].ambientLight[j] );
+            R_ColorShiftLightingBytes(
+                    w->lightGridData[i].ambientLight[j], w->lightGridData[i].ambientLight[j] );
+        }
     }
+}
+
+/*
+================
+R_LoadLightArray
+
+================
+*/
+void R_LoadLightArray( lump_t *l ) {
+    world_t *w;
+
+    w = &s_worldData;
+    w->numLightArrayElements = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
+
+    if((unsigned int)l->filelen != w->numLightArrayElements * sizeof(*w->lightArray)){
+        ri.Printf( PRINT_WARNING, "WARNING: light grid mismatch\n" );
+        w->lightGridData = NULL;
+        return;
+    }
+
+    w->lightArray = (uint16_t *)ri.Hunk_Alloc(l->filelen, h_low);
+    Com_Memcpy(w->lightArray, (void *)(fileBase + l->fileofs), l->filelen);
 }
 
 /*
@@ -1885,6 +1905,7 @@ void RE_LoadWorldMap( const char *name ) {
     R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
     R_LoadEntities( &header->lumps[LUMP_ENTITIES] );
     R_LoadLightGrid( &header->lumps[LUMP_LIGHTGRID] );
+    R_LoadLightArray( &header->lumps[LUMP_LIGHTARRAY] );
 
     s_worldData.dataSize = (byte *)ri.Hunk_Alloc(0, h_low) - startMarker;
 

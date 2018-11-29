@@ -124,14 +124,14 @@ R_SetupEntityLightingGrid
 =================
 */
 static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
-    vec3_t  lightOrigin;
-    int     pos[3];
-    int     i, j;
-    byte    *gridData;
-    float   frac[3];
-    int     gridStep[3];
-    vec3_t  direction;
-    float   totalFactor;
+    vec3_t      lightOrigin;
+    int         pos[3];
+    int         i, j;
+    float       frac[3];
+    int         gridStep[3];
+    vec3_t      direction;
+    float       totalFactor;
+    uint16_t    *startGridPos;
 
     if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
         // separate lightOrigins are needed so an object that is
@@ -163,28 +163,28 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
     assert( tr.world->lightGridData ); // NULL with -nolight maps
 
     // trilerp the light value
-    gridStep[0] = 8;
-    gridStep[1] = 8 * tr.world->lightGridBounds[0];
-    gridStep[2] = 8 * tr.world->lightGridBounds[0] * tr.world->lightGridBounds[1];
-    gridData = tr.world->lightGridData + pos[0] * gridStep[0]
-        + pos[1] * gridStep[1] + pos[2] * gridStep[2];
+    gridStep[0]     = 1;
+    gridStep[1]     = 1 * tr.world->lightGridBounds[0];
+    gridStep[2]     = 1 * tr.world->lightGridBounds[0] * tr.world->lightGridBounds[1];
+    startGridPos    = tr.world->lightArray + (pos[0] * gridStep[0] + pos[1] * gridStep[1] + pos[2] * gridStep[2]);
 
-    totalFactor = 0;
+    totalFactor     = 0;
     for ( i = 0 ; i < 8 ; i++ ) {
-        float   factor;
-        byte    *data;
-        int     lat, lng;
-        vec3_t  normal;
+        float       factor;
+        mgrid_t     *data;
+        uint16_t    *gridPos;
+        int         lat, lng;
+        vec3_t      normal;
+
         #if idppc
         float d0, d1, d2, d3, d4, d5;
         #endif
+
         factor = 1.0;
-        data = gridData;
+        gridPos = startGridPos;
+
         for ( j = 0 ; j < 3 ; j++ ) {
             if ( i & (1<<j) ) {
-                if ( pos[j] + 1 > tr.world->lightGridBounds[j] - 1 ) {
-                    break; // ignore values outside lightgrid
-                }
                 factor *= frac[j];
                 data += gridStep[j];
             } else {
@@ -192,12 +192,15 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
             }
         }
 
-        if ( j != 3 ) {
-            continue;
+        if(gridPos >= tr.world->lightArray + tr.world->numLightArrayElements){
+            continue;       // we've gone off the array somehow
         }
-        if ( !(data[0]+data[1]+data[2]) ) {
-            continue;   // ignore samples in walls
+
+        data = tr.world->lightGridData + *gridPos;
+        if(data->styles[0] == LS_NONE){
+            continue;       // ignore samples in walls
         }
+
         totalFactor += factor;
         #if idppc
         d0 = data[0]; d1 = data[1]; d2 = data[2];
@@ -211,16 +214,24 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
         ent->directedLight[1] += factor * d4;
         ent->directedLight[2] += factor * d5;
         #else
-        ent->ambientLight[0] += factor * data[0];
-        ent->ambientLight[1] += factor * data[1];
-        ent->ambientLight[2] += factor * data[2];
+        for(j = 0; j < MAXLIGHTMAPS; j++){
+            byte style = data->styles[j];
 
-        ent->directedLight[0] += factor * data[3];
-        ent->directedLight[1] += factor * data[4];
-        ent->directedLight[2] += factor * data[5];
+            if(style != LS_NONE){
+                ent->ambientLight[0] += factor * data->ambientLight[j][0] * styleColors[style][0] / 255.0f;
+                ent->ambientLight[1] += factor * data->ambientLight[j][1] * styleColors[style][1] / 255.0f;
+                ent->ambientLight[2] += factor * data->ambientLight[j][2] * styleColors[style][2] / 255.0f;
+
+                ent->directedLight[0] += factor * data->directLight[j][0] * styleColors[style][0] / 255.0f;
+                ent->directedLight[1] += factor * data->directLight[j][1] * styleColors[style][1] / 255.0f;
+                ent->directedLight[2] += factor * data->directLight[j][2] * styleColors[style][2] / 255.0f;
+            }else{
+                break;
+            }
+        }
         #endif
-        lat = data[7];
-        lng = data[6];
+        lat = data->latLong[1];
+        lng = data->latLong[0];
         lat *= (FUNCTABLE_SIZE/256);
         lng *= (FUNCTABLE_SIZE/256);
 

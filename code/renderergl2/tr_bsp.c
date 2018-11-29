@@ -2286,6 +2286,7 @@ void R_LoadLightGrid( lump_t *l ) {
             ri.FS_FreeFile(hdrLightGrid);
     }
 }
+
 /*
 ================
 R_LoadLightArray

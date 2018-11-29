@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   This file deals with applying shaders to surface data in the tess struct.
 */
 
+color4ub_t  styleColors[MAX_LIGHT_STYLES];
+
 /*
 ================
 R_ArrayElementDiscrete
