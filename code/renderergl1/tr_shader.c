@@ -667,7 +667,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
             else if ( !Q_stricmp( token, "$lightmap" ) )
             {
                 stage->bundle[0].isLightmap = qtrue;
-                if ( shader.lightmapIndex < 0 || !tr.lightmaps ) {
+                if ( shader.lightmapIndex[0] < 0 || !tr.lightmaps ) {
                     stage->bundle[0].image[0] = tr.whiteImage;
                 } else {
                     stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex[0]];
@@ -2398,7 +2398,7 @@ static shader_t *FinishShader( void ) {
         stage--;
     }
 
-    if ( shader.lightmapIndex >= 0 && !hasLightmapStage ) {
+    if ( shader.lightmapIndex[0] >= 0 && !hasLightmapStage ) {
         if (vertexLightmap) {
             ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name );
         } else {

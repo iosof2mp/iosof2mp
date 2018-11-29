@@ -243,11 +243,11 @@ static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
     dv = srf->verts;
     xyz = tess.xyz[ tess.numVertexes ];
     normal = tess.normal[ tess.numVertexes ];
-    texCoords = tess.texCoords[ tess.numVertexes ][0];
+    texCoords = tess.texCoords[ tess.numVertexes ][ 0 ];
     color = tess.vertexColors[ tess.numVertexes ];
     needsNormal = tess.shader->needsNormal;
 
-    for ( i = 0 ; i < srf->numVerts ; i++, dv++, xyz += 4, normal += 4, texCoords += 4, color += 4 ) {
+    for ( i = 0 ; i < srf->numVerts ; i++, dv++, xyz += 4, normal += 4, texCoords += NUM_TEX_COORDS * 2, color += 4 ) {
         xyz[0] = dv->xyz[0];
         xyz[1] = dv->xyz[1];
         xyz[2] = dv->xyz[2];
@@ -265,7 +265,11 @@ static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
             if(tess.shader->lightmapIndex[j] >= 0){
                 texCoords[2 + (j * 2)] = dv->lightmap[j][0];
                 texCoords[3 + (j * 2)] = dv->lightmap[j][1];
+            }else{
+                // Can't have an empty slot in the middle, so we are done.
+                break;
             }
+
         }
 
         *(int *)color = *(int *)dv->color;
@@ -777,7 +781,7 @@ RB_SurfaceFace
 ==============
 */
 static void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
-    int         i;
+    int         i, j;
     unsigned    *indices;
     glIndex_t   *tessIndexes;
     float       *v;
@@ -815,9 +819,15 @@ static void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
         VectorCopy( v, tess.xyz[ndx]);
         tess.texCoords[ndx][0][0] = v[3];
         tess.texCoords[ndx][0][1] = v[4];
-        tess.texCoords[ndx][1][0] = v[5];
-        tess.texCoords[ndx][1][1] = v[6];
-        * ( unsigned int * ) &tess.vertexColors[ndx] = * ( unsigned int * ) &v[7];
+        for(j = 0; j < MAXLIGHTMAPS; j++){
+            if(tess.shader->lightmapIndex[j] >= 0){
+                tess.texCoords[ndx][j + 1][0] = v[VERTEX_LM + (j * 2)];
+                tess.texCoords[ndx][j + 1][1] = v[VERTEX_LM + (j * 2) + 1];
+            }else{
+                break;
+            }
+        }
+        * ( unsigned int * ) &tess.vertexColors[ndx] = * ( unsigned int * ) &v[VERTEX_COLOR];
         tess.vertexDlightBits[ndx] = dlightBits;
     }
 
@@ -963,7 +973,6 @@ static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
                     texCoords[2 + (k * 2)] = dv->lightmap[k][0];
                     texCoords[3 + (k * 2)] = dv->lightmap[k][1];
                 }
-                texCoords += NUM_TEX_COORDS * 2;
 
                 if ( needsNormal ) {
                     normal[0] = dv->normal[0];
@@ -974,7 +983,7 @@ static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
                 *vDlightBits++ = dlightBits;
                 xyz += 4;
                 normal += 4;
-                texCoords += 4;
+                texCoords += NUM_TEX_COORDS * 2;
                 color += 4;
             }
         }
