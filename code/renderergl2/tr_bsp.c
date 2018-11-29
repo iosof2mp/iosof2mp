@@ -2186,9 +2186,9 @@ R_LoadLightGrid
 ================
 */
 void R_LoadLightGrid( lump_t *l ) {
-    int     i;
+    int     i, j;
     vec3_t  maxs;
-    int     numGridPoints;
+    int     numGridDataElements;
     world_t *w;
     float   *wMins, *wMaxs;
 
@@ -2207,26 +2207,19 @@ void R_LoadLightGrid( lump_t *l ) {
         w->lightGridBounds[i] = (maxs[i] - w->lightGridOrigin[i])/w->lightGridSize[i] + 1;
     }
 
-// FIXME BOE
-#if 0
-    numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
-
-    if ( l->filelen != numGridPoints * 8 ) {
-        ri.Printf( PRINT_WARNING, "WARNING: light grid mismatch\n" );
-        w->lightGridData = NULL;
-        return;
-    }
-#else
-    numGridPoints = l->filelen / sizeof(*w->lightGridData);
-#endif
+    numGridDataElements = l->filelen / sizeof(*w->lightGridData);
 
     w->lightGridData = ri.Hunk_Alloc( l->filelen, h_low );
     Com_Memcpy( w->lightGridData, (void *)(fileBase + l->fileofs), l->filelen );
 
     // deal with overbright bits
-    for ( i = 0 ; i < numGridPoints ; i++ ) {
-        R_ColorShiftLightingBytes( &w->lightGridData[i*8], &w->lightGridData[i*8] );
-        R_ColorShiftLightingBytes( &w->lightGridData[i*8+3], &w->lightGridData[i*8+3] );
+    for ( i = 0 ; i < numGridDataElements ; i++ ) {
+        for ( j = 0 ; j < MAXLIGHTMAPS ; j++ ) {
+            R_ColorShiftLightingBytes(
+                    w->lightGridData[i].ambientLight[j], w->lightGridData[i].ambientLight[j] );
+            R_ColorShiftLightingBytes(
+                    w->lightGridData[i].ambientLight[j], w->lightGridData[i].ambientLight[j] );
+        }
     }
 
     // load hdr lightgrid
@@ -2245,12 +2238,12 @@ void R_LoadLightGrid( lump_t *l ) {
         {
             //ri.Printf(PRINT_ALL, "found!\n");
 
-            if (size != sizeof(float) * 6 * numGridPoints)
-                ri.Error(ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, (int)(sizeof(float)) * 6 * numGridPoints);
+            if (size != sizeof(float) * 6 * numGridDataElements)
+                ri.Error(ERR_DROP, "Bad size for %s (%i, expected %i)!", filename, size, (int)(sizeof(float)) * 6 * numGridDataElements);
 
-            w->lightGrid16 = ri.Hunk_Alloc(sizeof(w->lightGrid16) * 6 * numGridPoints, h_low);
+            w->lightGrid16 = ri.Hunk_Alloc(sizeof(w->lightGrid16) * 6 * numGridDataElements, h_low);
 
-            for (i = 0; i < numGridPoints ; i++)
+            for (i = 0; i < numGridDataElements ; i++)
             {
                 vec4_t c;
 
@@ -2271,6 +2264,7 @@ void R_LoadLightGrid( lump_t *l ) {
                 ColorToRGB16(c, &w->lightGrid16[i * 6 + 3]);
             }
         }
+#if 0
         else if (0)
         {
             // promote 8-bit lightgrid to 16-bit
@@ -2286,10 +2280,32 @@ void R_LoadLightGrid( lump_t *l ) {
                 w->lightGrid16[i * 6 + 5] = w->lightGridData[i * 8 + 5] * 257;
             }
         }
+#endif
 
         if (hdrLightGrid)
             ri.FS_FreeFile(hdrLightGrid);
     }
+}
+/*
+================
+R_LoadLightArray
+
+================
+*/
+void R_LoadLightArray( lump_t *l ) {
+    world_t *w;
+
+    w = &s_worldData;
+    w->numLightArrayElements = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
+
+    if((unsigned int)l->filelen != w->numLightArrayElements * sizeof(*w->lightArray)){
+        ri.Printf( PRINT_WARNING, "WARNING: light grid mismatch\n" );
+        w->lightGridData = NULL;
+        return;
+    }
+
+    w->lightArray = (uint16_t *)ri.Hunk_Alloc(l->filelen, h_low);
+    Com_Memcpy(w->lightArray, (void *)(fileBase + l->fileofs), l->filelen);
 }
 
 /*
@@ -2809,6 +2825,7 @@ void RE_LoadWorldMap( const char *name ) {
     R_LoadSubmodels (&header->lumps[LUMP_MODELS]);
     R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
     R_LoadLightGrid( &header->lumps[LUMP_LIGHTGRID] );
+    R_LoadLightArray( &header->lumps[LUMP_LIGHTARRAY] );
 
     // determine vertex light directions
     R_CalcVertexLightDirs();

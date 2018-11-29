@@ -1135,6 +1135,13 @@ typedef struct {
 } bmodel_t;
 
 typedef struct {
+    byte        ambientLight[MAXLIGHTMAPS][3];
+    byte        directLight[MAXLIGHTMAPS][3];
+    byte        styles[MAXLIGHTMAPS];
+    byte        latLong[2];
+} mgrid_t;
+
+typedef struct {
     char        name[MAX_QPATH];        // ie: maps/tim_dm2.bsp
     char        baseName[MAX_QPATH];    // ie: tim_dm2
 
@@ -1171,9 +1178,10 @@ typedef struct {
     vec3_t      lightGridSize;
     vec3_t      lightGridInverseSize;
     int         lightGridBounds[3];
-    byte        *lightGridData;
+    mgrid_t     *lightGridData;
     uint16_t    *lightGrid16;
-
+    uint16_t    *lightArray;
+    int         numLightArrayElements;
 
     int         numClusters;
     int         clusterBytes;
@@ -2059,6 +2067,7 @@ typedef struct shaderCommands_s
 } shaderCommands_t;
 
 extern  shaderCommands_t    tess;
+extern  color4ub_t          styleColors[MAX_LIGHT_STYLES];
 
 void RB_BeginSurface(shader_t *shader, int fogNum, int cubemapIndex );
 void RB_EndSurface(void);
