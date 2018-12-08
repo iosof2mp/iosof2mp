@@ -613,12 +613,21 @@ ComputeColors
 */
 static void ComputeColors( shaderStage_t *pStage )
 {
-    int     i;
+    int         i;
+    color4ub_t  *colors     = tess.svars.colors;
+    int         forceRGBGen = pStage->rgbGen;
+
+    //
+    // Check for night vision.
+    //
+    if(tr.visualOverlay == VO_NIGHTVISION && !backEnd.projection2D){
+        forceRGBGen = CGEN_VISUALOVERLAY;
+    }
 
     //
     // rgbGen
     //
-    switch ( pStage->rgbGen )
+    switch ( forceRGBGen )
     {
         case CGEN_IDENTITY:
             Com_Memset( tess.svars.colors, 0xff, tess.numVertexes * 4 );
@@ -694,6 +703,40 @@ static void ComputeColors( shaderStage_t *pStage )
         case CGEN_ONE_MINUS_ENTITY:
             RB_CalcColorFromOneMinusEntity( ( unsigned char * ) tess.svars.colors );
             break;
+        case CGEN_LIGHTMAP0:
+            Com_Memset( tess.svars.colors, 0xff, tess.numVertexes * 4 );
+            break;
+        case CGEN_LIGHTMAP1:
+            for(i = 0; i < tess.numVertexes; i++){
+                *(unsigned int *)&colors[i] = *(unsigned int *)styleColors[pStage->lightmapStyle];
+            }
+            break;
+        case CGEN_LIGHTMAP2:
+            for(i = 0; i < tess.numVertexes; i++){
+                *(unsigned int *)&colors[i] = *(unsigned int *)styleColors[pStage->lightmapStyle];
+            }
+            break;
+        case CGEN_LIGHTMAP3:
+            for(i = 0; i < tess.numVertexes; i++){
+                *(unsigned int *)&colors[i] = *(unsigned int *)styleColors[pStage->lightmapStyle];
+            }
+            break;
+        case CGEN_UNKNOWN16:
+            if(tess.numVertexes){
+                for(i = 0; i < tess.numVertexes; i++){
+                    // FIXME BOE
+                }
+            }
+            break;
+        case CGEN_VISUALOVERLAY:
+            if(backEnd.currentEntity == &tr.worldEntity){
+                Com_Memset(tess.svars.colors, 0x32, tess.numVertexes * 4);
+            }else if(0){ // FIXME BOE
+                Com_Memset(tess.svars.colors, 0xFF, tess.numVertexes * 4);
+            }else{
+                Com_Memset(tess.svars.colors, 0xAA, tess.numVertexes * 4);
+            }
+            break;
     }
 
     //
@@ -704,9 +747,9 @@ static void ComputeColors( shaderStage_t *pStage )
     case AGEN_SKIP:
         break;
     case AGEN_IDENTITY:
-        if ( pStage->rgbGen != CGEN_IDENTITY ) {
-            if ( ( pStage->rgbGen == CGEN_VERTEX && tr.identityLight != 1 ) ||
-                 pStage->rgbGen != CGEN_VERTEX ) {
+        if ( forceRGBGen != CGEN_IDENTITY ) {
+            if ( ( forceRGBGen == CGEN_VERTEX && tr.identityLight != 1 ) ||
+                 forceRGBGen != CGEN_VERTEX ) {
                 for ( i = 0; i < tess.numVertexes; i++ ) {
                     tess.svars.colors[i][3] = 0xff;
                 }
@@ -714,7 +757,7 @@ static void ComputeColors( shaderStage_t *pStage )
         }
         break;
     case AGEN_CONST:
-        if ( pStage->rgbGen != CGEN_CONST ) {
+        if ( forceRGBGen != CGEN_CONST ) {
             for ( i = 0; i < tess.numVertexes; i++ ) {
                 tess.svars.colors[i][3] = pStage->constantColor[3];
             }
@@ -733,7 +776,7 @@ static void ComputeColors( shaderStage_t *pStage )
         RB_CalcAlphaFromOneMinusEntity( ( unsigned char * ) tess.svars.colors );
         break;
     case AGEN_VERTEX:
-        if ( pStage->rgbGen != CGEN_VERTEX ) {
+        if ( forceRGBGen != CGEN_VERTEX ) {
             for ( i = 0; i < tess.numVertexes; i++ ) {
                 tess.svars.colors[i][3] = tess.vertexColors[i][3];
             }
@@ -776,6 +819,13 @@ static void ComputeColors( shaderStage_t *pStage )
             }
         }
         break;
+    case AGEN_BLEND:
+        if(forceRGBGen != CGEN_VERTEX){
+            for(i = 0; i < tess.numVertexes; i++){
+                colors[i][3] = tess.vertexAlphas[i][pStage->index];
+            }
+        }
+        break;
     }
 
     //
@@ -796,6 +846,17 @@ static void ComputeColors( shaderStage_t *pStage )
             break;
         case ACFF_NONE:
             break;
+        }
+    }
+
+    //
+    // Check for thermal goggles.
+    //
+    if(tr.visualOverlay == VO_INFRARED && forceRGBGen != CGEN_UNKNOWN16){
+        if(!backEnd.projection2D && tess.numVertexes){
+            for(i = 0; i < tess.numVertexes; i++){
+                // FIXME BOE
+            }
         }
     }
 

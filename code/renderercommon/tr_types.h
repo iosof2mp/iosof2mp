@@ -216,4 +216,10 @@ typedef struct {
     qboolean                smpActive;      // UNUSED, present for compatibility
 } glconfig_t;
 
+typedef enum {
+    VO_NONE,
+    VO_NIGHTVISION,                         // parm1 = visible distance, parm2 = not used
+    VO_INFRARED                             // parm1 = distance to see heat, parm2 = distance you can see them through walls
+} visual_t;
+
 #endif  // __TR_TYPES_H
