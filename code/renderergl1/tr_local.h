@@ -287,8 +287,7 @@ typedef struct {
 
 typedef struct {
     qboolean        active;
-    int             index;
-
+    byte            index;
     byte            lightmapStyle;
 
     textureBundle_t bundle[NUM_TEXTURE_BUNDLES];
