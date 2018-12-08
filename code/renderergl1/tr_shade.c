@@ -916,6 +916,24 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
                 tess.svars.texcoords[b][i][1] = tess.texCoords[i][1][1];
             }
             break;
+        case TCGEN_LIGHTMAP1:
+            for ( i = 0 ; i < tess.numVertexes ; i++ ) {
+                tess.svars.texcoords[b][i][0] = tess.texCoords[i][2][0];
+                tess.svars.texcoords[b][i][1] = tess.texCoords[i][2][1];
+            }
+            break;
+        case TCGEN_LIGHTMAP2:
+            for ( i = 0 ; i < tess.numVertexes ; i++ ) {
+                tess.svars.texcoords[b][i][0] = tess.texCoords[i][3][0];
+                tess.svars.texcoords[b][i][1] = tess.texCoords[i][3][1];
+            }
+            break;
+        case TCGEN_LIGHTMAP3:
+            for ( i = 0 ; i < tess.numVertexes ; i++ ) {
+                tess.svars.texcoords[b][i][0] = tess.texCoords[i][4][0];
+                tess.svars.texcoords[b][i][1] = tess.texCoords[i][4][1];
+            }
+            break;
         case TCGEN_VECTOR:
             for ( i = 0 ; i < tess.numVertexes ; i++ ) {
                 tess.svars.texcoords[b][i][0] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[0] );
