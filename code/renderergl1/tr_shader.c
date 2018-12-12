@@ -1812,62 +1812,6 @@ static void ComputeStageIteratorFunc( void )
         shader.optimalStageIteratorFunc = RB_StageIteratorSky;
         return;
     }
-
-    if ( r_ignoreFastPath->integer )
-    {
-        return;
-    }
-
-    //
-    // see if this can go into the vertex lit fast path
-    //
-    if ( shader.numUnfoggedPasses == 1 )
-    {
-        if ( stages[0].rgbGen == CGEN_LIGHTING_DIFFUSE )
-        {
-            if ( stages[0].alphaGen == AGEN_IDENTITY )
-            {
-                if ( stages[0].bundle[0].tcGen == TCGEN_TEXTURE )
-                {
-                    if ( !shader.polygonOffset )
-                    {
-                        if ( !shader.multitextureEnv )
-                        {
-                            if ( !shader.numDeforms )
-                            {
-                                shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    //
-    // see if this can go into an optimized LM, multitextured path
-    //
-    if ( shader.numUnfoggedPasses == 1 )
-    {
-        if ( ( stages[0].rgbGen == CGEN_IDENTITY ) && ( stages[0].alphaGen == AGEN_IDENTITY ) )
-        {
-            if ( stages[0].bundle[0].tcGen == TCGEN_TEXTURE &&
-                stages[0].bundle[1].tcGen == TCGEN_LIGHTMAP )
-            {
-                if ( !shader.polygonOffset )
-                {
-                    if ( !shader.numDeforms )
-                    {
-                        if ( shader.multitextureEnv )
-                        {
-                            shader.optimalStageIteratorFunc = RB_StageIteratorLightmappedMultitexture;
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 typedef struct {
@@ -3127,10 +3071,6 @@ void    R_ShaderList_f (void) {
             ri.Printf( PRINT_ALL, "gen " );
         } else if ( shader->optimalStageIteratorFunc == RB_StageIteratorSky ) {
             ri.Printf( PRINT_ALL, "sky " );
-        } else if ( shader->optimalStageIteratorFunc == RB_StageIteratorLightmappedMultitexture ) {
-            ri.Printf( PRINT_ALL, "lmmt" );
-        } else if ( shader->optimalStageIteratorFunc == RB_StageIteratorVertexLitTexture ) {
-            ri.Printf( PRINT_ALL, "vlt " );
         } else {
             ri.Printf( PRINT_ALL, "    " );
         }

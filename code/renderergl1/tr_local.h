@@ -1012,7 +1012,6 @@ extern cvar_t   *r_railSegmentLength;
 
 extern cvar_t   *r_ignore;              // used for debugging anything
 extern cvar_t   *r_verbose;             // used for verbose debug spew
-extern cvar_t   *r_ignoreFastPath;      // allows us to ignore our Tess fast paths
 
 extern cvar_t   *r_znear;               // near Z clip plane
 extern cvar_t   *r_zproj;               // z distance of projection plane
@@ -1292,8 +1291,6 @@ void RB_CheckOverflow( int verts, int indexes );
 
 void RB_StageIteratorGeneric( void );
 void RB_StageIteratorSky( void );
-void RB_StageIteratorVertexLitTexture( void );
-void RB_StageIteratorLightmappedMultitexture( void );
 
 void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color );
 void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 );
