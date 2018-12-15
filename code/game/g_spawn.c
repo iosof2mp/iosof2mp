@@ -552,7 +552,169 @@ qboolean G_ParseSpawnVars( void ) {
     return qtrue;
 }
 
-
+static char *defaultStyles[32][3] =
+{
+    {    // 0 normal
+        "z",
+        "z",
+        "z"
+    },
+    {    // 1 FLICKER (first variety)
+        "mmnmmommommnonmmonqnmmo",
+        "mmnmmommommnonmmonqnmmo",
+        "mmnmmommommnonmmonqnmmo"
+    },
+    {    // 2 SLOW STRONG PULSE
+        "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcb",
+        "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcb",
+        "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcb"
+    },
+    {    // 3 CANDLE (first variety)
+        "mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
+        "mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
+        "mmmmmaaaaammmmmaaaaaabcdefgabcdefg"
+    },
+    {    // 4 FAST STROBE
+        "mamamamamama",
+        "mamamamamama",
+        "mamamamamama"
+    },
+    {    // 5 GENTLE PULSE 1
+        "jklmnopqrstuvwxyzyxwvutsrqponmlkj",
+        "jklmnopqrstuvwxyzyxwvutsrqponmlkj",
+        "jklmnopqrstuvwxyzyxwvutsrqponmlkj"
+    },
+    {    // 6 FLICKER (second variety)
+        "nmonqnmomnmomomno",
+        "nmonqnmomnmomomno",
+        "nmonqnmomnmomomno"
+    },
+    {    // 7 CANDLE (second variety)
+        "mmmaaaabcdefgmmmmaaaammmaamm",
+        "mmmaaaabcdefgmmmmaaaammmaamm",
+        "mmmaaaabcdefgmmmmaaaammmaamm"
+    },
+    {    // 8 CANDLE (third variety)
+        "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa",
+        "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa",
+        "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa"
+    },
+    {    // 9 SLOW STROBE (fourth variety)
+        "aaaaaaaazzzzzzzz",
+        "aaaaaaaazzzzzzzz",
+        "aaaaaaaazzzzzzzz"
+    },
+    {    // 10 FLUORESCENT FLICKER
+        "mmamammmmammamamaaamammma",
+        "mmamammmmammamamaaamammma",
+        "mmamammmmammamamaaamammma"
+    },
+    {    // 11 SLOW PULSE NOT FADE TO BLACK
+        "abcdefghijklmnopqrrqponmlkjihgfedcba",
+        "abcdefghijklmnopqrrqponmlkjihgfedcba",
+        "abcdefghijklmnopqrrqponmlkjihgfedcba"
+    },
+    {    // 12 FAST PULSE FOR JEREMY
+        "mkigegik",
+        "mkigegik",
+        "mkigegik"
+    },
+    {    // 13 Test Blending
+        "abcdefghijklmqrstuvwxyz",
+        "zyxwvutsrqmlkjihgfedcba",
+        "aammbbzzccllcckkffyyggp"
+    },
+    {    // 14
+        "",
+        "",
+        ""
+    },
+    {    // 15
+        "",
+        "",
+        ""
+    },
+    {    // 16
+        "",
+        "",
+        ""
+    },
+    {    // 17
+        "",
+        "",
+        ""
+    },
+    {    // 18
+        "",
+        "",
+        ""
+    },
+    {    // 19
+        "",
+        "",
+        ""
+    },
+    {    // 20
+        "",
+        "",
+        ""
+    },
+    {    // 21
+        "",
+        "",
+        ""
+    },
+    {    // 22
+        "",
+        "",
+        ""
+    },
+    {    // 23
+        "",
+        "",
+        ""
+    },
+    {    // 24
+        "",
+        "",
+        ""
+    },
+    {    // 25
+        "",
+        "",
+        ""
+    },
+    {    // 26
+        "",
+        "",
+        ""
+    },
+    {    // 27
+        "",
+        "",
+        ""
+    },
+    {    // 28
+        "",
+        "",
+        ""
+    },
+    {    // 29
+        "",
+        "",
+        ""
+    },
+    {    // 30
+        "",
+        "",
+        ""
+    },
+    {    // 31
+        "",
+        "",
+        ""
+    }
+};
 
 /*QUAKED worldspawn (0 0 0) ?
 
@@ -562,7 +724,11 @@ Every map should have exactly one worldspawn.
 "message"   Text to print during connection process
 */
 void SP_worldspawn( void ) {
+    char    *text;
+    char    temp[32];
     char    *s;
+    int     i;
+    int     lengthRed, lengthBlue, lengthGreen;
 
     G_SpawnString( "classname", "", &s );
     if ( Q_stricmp( s, "worldspawn" ) ) {
@@ -610,6 +776,31 @@ void SP_worldspawn( void ) {
         G_LogPrintf( "Warmup:\n" );
     }
 
+    trap_SetConfigstring(CS_LIGHT_STYLES + (LS_STYLES_START * 3) + 0, defaultStyles[0][0]);
+    trap_SetConfigstring(CS_LIGHT_STYLES + (LS_STYLES_START * 3) + 1, defaultStyles[0][1]);
+    trap_SetConfigstring(CS_LIGHT_STYLES + (LS_STYLES_START * 3) + 2, defaultStyles[0][2]);
+
+    for(i = 1; i < LS_NUM_STYLES; i++){
+        Com_sprintf(temp, sizeof(temp), "ls_%dr", i);
+        G_SpawnString(temp, defaultStyles[i][0], &text);
+        lengthRed = strlen(text);
+        trap_SetConfigstring(CS_LIGHT_STYLES + ((i + LS_STYLES_START) * 3) + 0, text);
+
+        Com_sprintf(temp, sizeof(temp), "ls_%dg", i);
+        G_SpawnString(temp, defaultStyles[i][1], &text);
+        lengthGreen = strlen(text);
+        trap_SetConfigstring(CS_LIGHT_STYLES + ((i + LS_STYLES_START) * 3) + 1, text);
+
+        Com_sprintf(temp, sizeof(temp), "ls_%db", i);
+        G_SpawnString(temp, defaultStyles[i][2], &text);
+        lengthBlue = strlen(text);
+        trap_SetConfigstring(CS_LIGHT_STYLES + ((i + LS_STYLES_START) * 3) + 2, text);
+
+        if(lengthRed != lengthGreen || lengthGreen != lengthBlue){
+            Com_Error(ERR_DROP, "Style %d has inconsistent lengths: R %d, G %d, B %d",
+            i, lengthRed, lengthGreen, lengthBlue);
+        }
+    }
 }
 
 

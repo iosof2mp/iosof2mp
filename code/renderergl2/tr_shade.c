@@ -33,6 +33,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 color4ub_t  styleColors[MAX_LIGHT_STYLES];
 
 /*
+===================
+RE_GetLightStyle
+
+===================
+*/
+
+void RE_GetLightStyle(int style, color4ub_t color)
+{
+    if(style >= MAX_LIGHT_STYLES){
+        ri.Error(ERR_FATAL, "RE_GetLightStyle: %d is out of range", style);
+    }
+
+    *(int *)color = *(int *)styleColors[style];
+}
+
+/*
+===================
+RE_SetLightStyle
+
+===================
+*/
+
+void RE_SetLightStyle(int style, int color)
+{
+    if(style >= MAX_LIGHT_STYLES){
+        ri.Error(ERR_FATAL, "RE_SetLightStyle: %d is out of range", style);
+    }
+
+    if(*(int*)styleColors[style] != color){
+        *(int *)styleColors[style] = color;
+    }
+}
+
+/*
 ==================
 R_DrawElements
 

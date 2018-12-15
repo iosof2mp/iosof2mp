@@ -170,6 +170,8 @@ typedef enum {
     CG_STARTCAMERA,
     CG_GETCAMERAINFO,
 */
+    CG_R_GET_LIGHT_STYLE,
+    CG_R_SET_LIGHT_STYLE,
 
     CG_MEMSET = 100,
     CG_MEMCPY,

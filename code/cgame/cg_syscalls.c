@@ -105,6 +105,14 @@ int trap_FS_Seek( fileHandle_t f, long offset, int origin ) {
     return syscall( CG_FS_SEEK, f, offset, origin );
 }
 
+void trap_R_GetLightStyle( int style, color4ub_t color ) {
+    syscall( CG_R_GET_LIGHT_STYLE, style, color );
+}
+
+void trap_R_SetLightStyle( int style, int color ) {
+    syscall( CG_R_SET_LIGHT_STYLE, style, color );
+}
+
 void    trap_SendConsoleCommand( const char *text ) {
     syscall( CG_SENDCONSOLECOMMAND, text );
 }

@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // be a valid snapshot this frame
 
 #include "cg_local.h"
+#include "cg_lights.h"
+
 #ifdef MISSIONPACK
 #include "../../ui/menudef.h"
 
@@ -352,9 +354,10 @@ static void CG_ConfigStringModified( void ) {
             cgs.flagStatus = str[0] - '0';
         }
 #endif
-    }
-    else if ( num == CS_SHADERSTATE ) {
+    } else if ( num == CS_SHADERSTATE ) {
         CG_ShaderStateChanged();
+    } else if ( num >= CS_LIGHT_STYLES && num < CS_LIGHT_STYLES + (MAX_LIGHT_STYLES * 3) ) {
+        CG_SetLightstyle(num - CS_LIGHT_STYLES);
     }
 
 }

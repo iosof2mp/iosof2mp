@@ -1603,6 +1603,9 @@ int         trap_R_LerpTag( orientation_t *tag, clipHandle_t mod, int startFrame
 void        trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 qboolean    trap_R_inPVS( const vec3_t p1, const vec3_t p2 );
 
+void        trap_R_GetLightStyle        ( int style, color4ub_t color);
+void        trap_R_SetLightStyle        ( int style, int color);
+
 // The glconfig_t will not change during the life of a cgame.
 // If it needs to change, the entire cgame will be restarted, because
 // all the qhandle_t are then invalid.

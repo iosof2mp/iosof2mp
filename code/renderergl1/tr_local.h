@@ -1243,8 +1243,6 @@ TESSELATOR/SHADER DECLARATIONS
 */
 #define NUM_TEX_COORDS  (MAXLIGHTMAPS + 1)
 
-typedef byte color4ub_t[4];
-
 typedef struct stageVars
 {
     color4ub_t  colors[SHADER_MAX_VERTEXES];
@@ -1283,6 +1281,9 @@ typedef struct shaderCommands_s
 
 extern  shaderCommands_t    tess;
 extern  color4ub_t          styleColors[MAX_LIGHT_STYLES];
+
+void    RE_GetLightStyle    ( int style, color4ub_t color );
+void    RE_SetLightStyle    ( int style, int color );
 
 void RB_BeginSurface(shader_t *shader, int fogNum );
 void RB_EndSurface(void);

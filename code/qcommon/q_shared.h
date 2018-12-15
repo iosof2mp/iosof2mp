@@ -281,6 +281,9 @@ typedef enum {
 //
 #define MAX_MAP_AREA_BYTES      32      // bit vector of area visibility
 
+#define LS_STYLES_START         0
+#define LS_NUM_STYLES           32
+#define MAX_LIGHT_STYLES        64
 
 // print levels from renderer (FIXME: set up for game / cgame?)
 typedef enum {

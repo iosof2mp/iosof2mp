@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // cg_main.c -- initialization and primary entry point for cgame
 #include "cg_local.h"
+#include "cg_lights.h"
 
 #ifdef MISSIONPACK
 #include "../ui/ui_shared.h"
@@ -1935,6 +1936,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
     CG_SetConfigValues();
 
     CG_StartMusic();
+
+    CG_LoadingString( "clearing light styles" );
+    CG_ClearLightStyles();
 
     CG_LoadingString( "" );
 

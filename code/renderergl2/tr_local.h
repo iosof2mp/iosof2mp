@@ -848,7 +848,6 @@ SURFACES
 
 ==============================================================================
 */
-typedef byte color4ub_t[4];
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
 typedef enum {
@@ -2068,6 +2067,9 @@ typedef struct shaderCommands_s
 
 extern  shaderCommands_t    tess;
 extern  color4ub_t          styleColors[MAX_LIGHT_STYLES];
+
+void    RE_GetLightStyle    ( int style, color4ub_t color );
+void    RE_SetLightStyle    ( int style, int color );
 
 void RB_BeginSurface(shader_t *shader, int fogNum, int cubemapIndex );
 void RB_EndSurface(void);
