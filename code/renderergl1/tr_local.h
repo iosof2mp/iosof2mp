@@ -204,6 +204,14 @@ typedef enum {
     ACFF_MODULATE_ALPHA
 } acff_t;
 
+typedef enum {
+    GLFOGOVERRIDE_NONE,
+    GLFOGOVERRIDE_BLACK,
+    GLFOGOVERRIDE_WHITE,
+
+    GLFOGOVERRIDE_MAX
+} EGLFogOverride;
+
 typedef struct {
     genFunc_t   func;
 
@@ -303,6 +311,7 @@ typedef struct {
     unsigned        stateBits;                  // GLS_xxxx mask
 
     acff_t          adjustColorsForFog;
+    EGLFogOverride  mGLFogColorOverride;
 
     qboolean        isDetail;
 } shaderStage_t;
