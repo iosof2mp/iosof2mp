@@ -3853,7 +3853,7 @@ static void ScanAndLoadShaderFiles( void )
         // look for a .mtr file first
         {
             char *ext;
-            Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+            Com_sprintf( filename, sizeof( filename ), "scripts/%s", q3ShaderFiles[i-numShaderFiles] );
             if ( (ext = strrchr(filename, '.')) )
             {
                 strcpy(ext, ".mtr");
@@ -3861,7 +3861,7 @@ static void ScanAndLoadShaderFiles( void )
 
             if ( ri.FS_ReadFile( filename, NULL ) <= 0 )
             {
-                Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+                Com_sprintf( filename, sizeof( filename ), "scripts/%s", q3ShaderFiles[i-numShaderFiles] );
             }
         }
 
