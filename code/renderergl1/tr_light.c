@@ -164,8 +164,8 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 
     // trilerp the light value
     gridStep[0]     = 1;
-    gridStep[1]     = 1 * tr.world->lightGridBounds[0];
-    gridStep[2]     = 1 * tr.world->lightGridBounds[0] * tr.world->lightGridBounds[1];
+    gridStep[1]     = tr.world->lightGridBounds[0];
+    gridStep[2]     = tr.world->lightGridBounds[0] * tr.world->lightGridBounds[1];
     startGridPos    = tr.world->lightArray + (pos[0] * gridStep[0] + pos[1] * gridStep[1] + pos[2] * gridStep[2]);
 
     totalFactor     = 0;
