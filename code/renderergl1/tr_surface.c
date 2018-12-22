@@ -214,6 +214,46 @@ static void RB_SurfacePolychain( srfPoly_t *p ) {
     tess.numVertexes = numv;
 }
 
+/*
+=============
+RB_ComputeFinalVertexColor
+=============
+*/
+static ID_INLINE ulong RB_ComputeFinalVertexColor(const byte *colors)
+{
+    int     i;
+    byte    result[4];
+    byte    *styleColor;
+    ulong   r, g, b;
+
+    *(int *)result = *(int *)colors;
+    if(tess.shader->lightmapIndex[0] != LIGHTMAP_BY_VERTEX /* || r_fullbright->integer || tr.refdef.doFullbright*/){ // FIXME BOE
+        result[0] = 255;
+        result[1] = 255;
+        result[2] = 255;
+        return *(ulong *)result;
+    }
+
+    r = g = b = 0;
+    for(i = 0; i < MAXLIGHTMAPS; i++){
+        if(tess.shader->styles[i] < LS_UNUSED){
+            styleColor = styleColors[tess.shader->styles[i]];
+
+            r += (ulong)(*colors++) * (ulong)(*styleColor++);
+            g += (ulong)(*colors++) * (ulong)(*styleColor++);
+            b += (ulong)(*colors++) * (ulong)(*styleColor);
+            colors++;
+        }else{
+            break;
+        }
+    }
+
+    result[0] = Com_Clamp(0, 255, r >> 8);
+    result[1] = Com_Clamp(0, 255, g >> 8);
+    result[2] = Com_Clamp(0, 255, b >> 8);
+
+    return *(ulong *)result;
+}
 
 /*
 =============
@@ -272,7 +312,7 @@ static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 
         }
 
-        *(int *)color = *(int *)dv->color;
+        *(unsigned int *)color = RB_ComputeFinalVertexColor((byte *)dv->color);
     }
 
     for ( i = 0 ; i < srf->numVerts ; i++ ) {
@@ -827,7 +867,7 @@ static void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
                 break;
             }
         }
-        * ( unsigned int * ) &tess.vertexColors[ndx] = * ( unsigned int * ) &v[VERTEX_COLOR];
+        * ( unsigned int * ) &tess.vertexColors[ndx] = RB_ComputeFinalVertexColor((byte *)&v[VERTEX_COLOR]);
         tess.vertexDlightBits[ndx] = dlightBits;
     }
 
@@ -979,7 +1019,7 @@ static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
                     normal[1] = dv->normal[1];
                     normal[2] = dv->normal[2];
                 }
-                * ( unsigned int * ) color = * ( unsigned int * ) dv->color;
+                * ( unsigned int * ) color = RB_ComputeFinalVertexColor((byte *)dv->color);
                 *vDlightBits++ = dlightBits;
                 xyz += 4;
                 normal += 4;
