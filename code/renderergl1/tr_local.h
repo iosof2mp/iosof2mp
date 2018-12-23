@@ -363,6 +363,8 @@ typedef struct shader_s {
     int         surfaceFlags;           // if explicitlyDefined, this will have SURF_* flags
     int         contentFlags;
 
+    vec3_t      lightColor;
+
     qboolean    entityMergable;         // merge across entites optimizable (smoke, blood)
 
     qboolean    isSky;
