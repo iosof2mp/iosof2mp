@@ -1441,7 +1441,7 @@ void ParseSort( char **text ) {
         shader.sort = SS_ENVIRONMENT;
     } else if ( !Q_stricmp( token, "opaque" ) ) {
         shader.sort = SS_OPAQUE;
-    }else if ( !Q_stricmp( token, "decal" ) ) {
+    } else if ( !Q_stricmp( token, "decal" ) ) {
         shader.sort = SS_DECAL;
     } else if ( !Q_stricmp( token, "seeThrough" ) ) {
         shader.sort = SS_SEE_THROUGH;
@@ -1453,6 +1453,16 @@ void ParseSort( char **text ) {
         shader.sort = SS_NEAREST;
     } else if ( !Q_stricmp( token, "underwater" ) ) {
         shader.sort = SS_UNDERWATER;
+    } else if ( !Q_stricmp( token, "inside" ) ) {
+        shader.sort = SS_INSIDE;
+    } else if ( !Q_stricmp( token, "mid_inside" ) ) {
+        shader.sort = SS_MID_INSIDE;
+    } else if ( !Q_stricmp( token, "middle" ) ) {
+        shader.sort = SS_MIDDLE;
+    } else if ( !Q_stricmp( token, "mid_outside" ) ) {
+        shader.sort = SS_MID_OUTSIDE;
+    } else if ( !Q_stricmp( token, "outside" ) ) {
+        shader.sort = SS_OUTSIDE;
     } else {
         shader.sort = atof( token );
     }
