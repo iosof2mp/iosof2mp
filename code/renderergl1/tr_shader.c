@@ -688,6 +688,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
                 if (!shader.noPicMip)
                     flags |= IMGFLAG_PICMIP;
 
+                if (shader.noTC)
+                    flags |= IMGFLAG_NO_COMPRESSION;
+
                 stage->bundle[0].image[0] = R_FindImageFile( token, type, flags );
 
                 if ( !stage->bundle[0].image[0] )
@@ -717,6 +720,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
             if (!shader.noPicMip)
                 flags |= IMGFLAG_PICMIP;
+
+            if (shader.noTC)
+                flags |= IMGFLAG_NO_COMPRESSION;
 
             stage->bundle[0].image[0] = R_FindImageFile( token, type, flags );
             if ( !stage->bundle[0].image[0] )
@@ -757,6 +763,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
                     if (!shader.noPicMip)
                         flags |= IMGFLAG_PICMIP;
+
+                    if (shader.noTC)
+                        flags |= IMGFLAG_NO_COMPRESSION;
 
                     stage->bundle[0].image[num] = R_FindImageFile( token, IMGTYPE_COLORALPHA, flags );
                     if ( !stage->bundle[0].image[num] )
@@ -1709,11 +1718,9 @@ static qboolean ParseShader( char **text )
             shader.polygonOffset = qtrue;
             continue;
         }
-        // no texture compression on e.g. skies
+        // no texture compression
         else if ( !Q_stricmp( token, "noTC" ) ) {
-            // FIXME BOE
-            //shader.noTC = qtrue;
-            ri.Printf( PRINT_WARNING, "WARNING: Skipping noTC on shader '%s'\n", shader.name );
+            shader.noTC = qtrue;
             continue;
         }
         // entityMergable, allowing sprite surfaces from multiple entities
