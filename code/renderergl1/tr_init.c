@@ -1034,7 +1034,8 @@ void R_Register( void )
     r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
     r_ext_multisample = ri.Cvar_Get( "r_ext_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH );
     ri.Cvar_CheckRange( r_ext_multisample, 0, 4, qtrue );
-    r_overBrightBits = ri.Cvar_Get ("r_overBrightBits", "1", CVAR_ARCHIVE | CVAR_LATCH );
+    r_overBrightBits = ri.Cvar_Get ("r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH );
+    ri.Cvar_CheckRange(r_overBrightBits, 0, 1, qtrue);
     r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH);
     r_mode = ri.Cvar_Get( "r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH );
     r_fullscreen = ri.Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE );
@@ -1056,7 +1057,8 @@ void R_Register( void )
     r_displayRefresh = ri.Cvar_Get( "r_displayRefresh", "0", CVAR_LATCH );
     ri.Cvar_CheckRange( r_displayRefresh, 0, 200, qtrue );
     r_fullbright = ri.Cvar_Get ("r_fullbright", "0", CVAR_LATCH|CVAR_CHEAT );
-    r_mapOverBrightBits = ri.Cvar_Get ("r_mapOverBrightBits", "2", CVAR_LATCH );
+    r_mapOverBrightBits = ri.Cvar_Get ("r_mapOverBrightBits", "1", CVAR_LATCH );
+    ri.Cvar_CheckRange(r_mapOverBrightBits, 0, 1, qtrue);
     r_intensity = ri.Cvar_Get ("r_intensity", "1", CVAR_LATCH );
     r_singleShader = ri.Cvar_Get ("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH );
 
