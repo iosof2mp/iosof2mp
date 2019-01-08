@@ -174,6 +174,8 @@ LIGHTSTYLE CONSTANTS
 ====================================================================
 */
 
+#define NUM_TEX_COORDS      ( MAXLIGHTMAPS + 1 )
+
 #define LS_NORMAL           0x00
 #define LS_UNUSED           0xfe
 #define LS_NONE             0xff

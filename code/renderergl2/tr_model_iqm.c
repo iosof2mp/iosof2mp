@@ -1385,10 +1385,10 @@ void RB_IQMSurfaceAnim( surfaceType_t *surface ) {
     float       *texCoords;
     byte        *color;
     vec4_t      *outXYZ;
-    int16_t *outNormal;
-    int16_t *outTangent;
-    vec2_t      *outTexCoord;
-    uint16_t *outColor;
+    int16_t     *outNormal;
+    int16_t     *outTangent;
+    vec2_t      (*outTexCoord)[NUM_TEX_COORDS];
+    uint16_t    *outColor;
 
     int frame = data->num_frames ? backEnd.currentEntity->e.frame % data->num_frames : 0;
     int oldframe = data->num_frames ? backEnd.currentEntity->e.oldframe % data->num_frames : 0;
@@ -1507,8 +1507,8 @@ void RB_IQMSurfaceAnim( surfaceType_t *surface ) {
             float *vtxMat = &influenceVtxMat[12*influence];
             float *nrmMat = &influenceNrmMat[9*influence];
 
-            (*outTexCoord)[0] = texCoords[0];
-            (*outTexCoord)[1] = texCoords[1];
+            (*outTexCoord)[0][0] = texCoords[0];
+            (*outTexCoord)[0][1] = texCoords[1];
 
             (*outXYZ)[0] =
                 vtxMat[ 0] * xyz[0] +
@@ -1549,8 +1549,8 @@ void RB_IQMSurfaceAnim( surfaceType_t *surface ) {
         for( i = 0; i < surf->num_vertexes;
              i++, xyz+=3, normal+=3, tangent+=4, texCoords+=2,
              outXYZ++, outNormal+=4, outTangent+=4, outTexCoord++ ) {
-            (*outTexCoord)[0] = texCoords[0];
-            (*outTexCoord)[1] = texCoords[1];
+            (*outTexCoord)[0][0] = texCoords[0];
+            (*outTexCoord)[0][1] = texCoords[1];
 
             (*outXYZ)[0] = xyz[0];
             (*outXYZ)[1] = xyz[1];

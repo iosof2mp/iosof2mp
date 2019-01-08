@@ -1260,7 +1260,6 @@ TESSELATOR/SHADER DECLARATIONS
 
 ====================================================================
 */
-#define NUM_TEX_COORDS  (MAXLIGHTMAPS + 1)
 
 typedef struct stageVars
 {
