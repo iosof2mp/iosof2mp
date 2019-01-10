@@ -242,6 +242,7 @@ typedef enum {
     AGEN_WAVEFORM,
     AGEN_PORTAL,
     AGEN_CONST,
+    AGEN_BLEND
 } alphaGen_t;
 
 typedef enum {
@@ -258,7 +259,13 @@ typedef enum {
     CGEN_WAVEFORM,          // programmatically generated
     CGEN_LIGHTING_DIFFUSE,
     CGEN_FOG,               // standard fog
-    CGEN_CONST              // fixed color
+    CGEN_CONST,             // fixed color
+    CGEN_LIGHTMAP0,
+    CGEN_LIGHTMAP1,
+    CGEN_LIGHTMAP2,
+    CGEN_LIGHTMAP3,
+    CGEN_UNKNOWN16,         // FIXME BOE
+    CGEN_VISUALOVERLAY      // nightvision or thermal goggles
 } colorGen_t;
 
 typedef enum {
@@ -387,6 +394,8 @@ typedef enum
 
 typedef struct {
     qboolean        active;
+    byte            index;
+    byte            lightmapStyle;
 
     textureBundle_t bundle[NUM_TEXTURE_BUNDLES];
 
@@ -424,7 +433,8 @@ typedef enum {
 typedef enum {
     FP_NONE,        // surface is translucent and will just be adjusted properly
     FP_EQUAL,       // surface is opaque but possibly alpha tested
-    FP_LE           // surface is trnaslucent, but still needs a fog pass (fog surface)
+    FP_LE,          // surface is trnaslucent, but still needs a fog pass (fog surface)
+    FP_GLFOG
 } fogPass_t;
 
 typedef struct {
@@ -1658,6 +1668,8 @@ typedef struct {
     float                   sawToothTable[FUNCTABLE_SIZE];
     float                   inverseSawToothTable[FUNCTABLE_SIZE];
     float                   fogTable[FOG_TABLE_SIZE];
+
+    visual_t                visualOverlay;      // Visual overlay support for nightvision and thermal goggles.
 } trGlobals_t;
 
 extern backEndState_t   backEnd;
@@ -2035,6 +2047,7 @@ typedef struct shaderCommands_s
     vec2_t      texCoords[SHADER_MAX_VERTEXES][NUM_TEX_COORDS] QALIGN(16);
     uint16_t    color[SHADER_MAX_VERTEXES][4] QALIGN(16);
     int16_t     lightdir[SHADER_MAX_VERTEXES][4] QALIGN(16);
+    byte        vertexAlphas[SHADER_MAX_VERTEXES][4] QALIGN(16);
     //int           vertexDlightBits[SHADER_MAX_VERTEXES] QALIGN(16);
 
     void *attribPointers[ATTR_INDEX_COUNT];

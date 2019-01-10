@@ -680,9 +680,6 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
             {
                 stage->bundle[0].isLightmap = qtrue;
                 if ( shader.lightmapIndex[0] < 0 || shader.lightmapIndex[0] >= tr.numLightmaps ) {
-#ifndef FINAL_BUILD
-                    ri.Printf(PRINT_ALL, S_COLOR_RED "Lightmap requested but none avilable for shader '%s'\n", shader.name);
-#endif // FINAL_BUILD
                     stage->bundle[0].image[0] = tr.whiteImage;
                 } else {
                     stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex[0]];
@@ -881,6 +878,10 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
             else if ( !Q_stricmp( token, "equal" ) )
             {
                 depthFuncBits = GLS_DEPTHFUNC_EQUAL;
+            }
+            else if ( !Q_stricmp( token, "disable" ) )
+            {
+                depthFuncBits = GLS_DEPTHTEST_DISABLE;
             }
             else
             {
@@ -1305,6 +1306,11 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
             {
                 stage->alphaGen = AGEN_LIGHTING_SPECULAR;
             }
+            else if ( !Q_stricmp( token, "blend" ) )
+            {
+                stage->alphaGen = AGEN_BLEND; // FIXME BOE: Weird, SOF2 claims to be skipping this but still sets it (?)
+                ri.Printf(PRINT_WARNING, "alphaGen-type 'blend' is only used by SOF2 glass, skipping... (shader: %s)\n", shader.name);
+            }
             else if ( !Q_stricmp( token, "oneMinusVertex" ) )
             {
                 stage->alphaGen = AGEN_ONE_MINUS_VERTEX;
@@ -1395,6 +1401,66 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
             continue;
         }
+        else if ( !Q_stricmp( token, "surfaceSprites" ) )
+        {
+            char buffer[1024] = "";
+
+            while ( 1 )
+            {
+                token = COM_ParseExt( text, qfalse );
+                if ( token[0] == 0 )
+                    break;
+                Q_strcat( buffer, sizeof (buffer), token );
+                Q_strcat( buffer, sizeof (buffer), " " );
+            }
+
+            //ParseSurfaceSprites( buffer, stage ); // FIXME BOE: VERTIGON system.
+            ri.Printf(PRINT_WARNING, "WARNING: VERTIGON system not yet implemented (in shader '%s')\n", shader.name);
+
+            continue;
+        }
+        //
+        // ssFademax <fademax>
+        // ssFadescale <fadescale>
+        // ssVariance <varwidth> <varheight>
+        // ssHangdown
+        // ssSpurt <???>
+        // ssNoOffset <???>
+        // ssFaceflat <???>
+        // ssSpurtflat <???>
+        // ssAnyangle
+        // ssFaceup
+        // ssWind <wind>
+        // ssWindIdle <windidle>
+        // ssVertSkew <???>
+        // ssFXDuration <duration>
+        // ssFXGrow <growwidth> <growheight>
+        // ssFXAlphaRange <???>
+        // ssFXWeather <???>
+        // ssGore <???>
+        // ssGoreCentral <???>
+        //
+        else if ( !Q_stricmpn( token, "ss", 2 ) )
+        {
+            char buffer[1024] = "";
+            char param[128] = "";
+
+            Q_strncpyz(param, token, sizeof(param));
+
+            while ( 1 )
+            {
+                token = COM_ParseExt( text, qfalse );
+                if ( token[0] == 0 )
+                    break;
+                Q_strcat( buffer, sizeof (buffer), token );
+                Q_strcat( buffer, sizeof (buffer), " " );
+            }
+
+            //ParseSurfaceSpritesOptional( param, buffer, stage ); // FIXME BOE: VERTIGON system.
+            ri.Printf(PRINT_WARNING, "WARNING: VERTIGON system not yet implemented (in shader '%s')\n", shader.name);
+
+            continue;
+        }
         else
         {
             ri.Printf( PRINT_WARNING, "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name );
@@ -1406,9 +1472,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
     // if cgen isn't explicitly specified, use either identity or identitylighting
     //
     if ( stage->rgbGen == CGEN_BAD ) {
-        if ( blendSrcBits == 0 ||
-            blendSrcBits == GLS_SRCBLEND_ONE ||
-            blendSrcBits == GLS_SRCBLEND_SRC_ALPHA ) {
+        if (blendSrcBits == GLS_SRCBLEND_ONE || blendSrcBits == GLS_SRCBLEND_SRC_ALPHA ) {
             stage->rgbGen = CGEN_IDENTITY_LIGHTING;
         } else {
             stage->rgbGen = CGEN_IDENTITY;
@@ -1427,7 +1491,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
     }
 
     // decide which agens we can skip
-    if ( stage->alphaGen == AGEN_IDENTITY ) {
+    if ( stage->alphaGen == AGEN_ENTITY ) {
         if ( stage->rgbGen == CGEN_IDENTITY
             || stage->rgbGen == CGEN_LIGHTING_DIFFUSE ) {
             stage->alphaGen = AGEN_SKIP;

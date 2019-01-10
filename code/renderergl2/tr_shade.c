@@ -434,16 +434,22 @@ static void ProjectDlightTexture( void ) {
 
 static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t vertColor, int blend )
 {
-    qboolean isBlend = ((blend & GLS_SRCBLEND_BITS) == GLS_SRCBLEND_DST_COLOR)
+    int         forceRGBGen = pStage->rgbGen;
+    qboolean    is2DDraw    = backEnd.currentEntity == &backEnd.entity2D;
+    qboolean    isBlend     = ((blend & GLS_SRCBLEND_BITS) == GLS_SRCBLEND_DST_COLOR)
         || ((blend & GLS_SRCBLEND_BITS) == GLS_SRCBLEND_ONE_MINUS_DST_COLOR)
         || ((blend & GLS_DSTBLEND_BITS) == GLS_DSTBLEND_SRC_COLOR)
         || ((blend & GLS_DSTBLEND_BITS) == GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 
-    qboolean is2DDraw = backEnd.currentEntity == &backEnd.entity2D;
+    float       overbright  = (isBlend || is2DDraw) ? 1.0f : (float)(1 << tr.overbrightBits);
+    fog_t       *fog;
 
-    float overbright = (isBlend || is2DDraw) ? 1.0f : (float)(1 << tr.overbrightBits);
-
-    fog_t *fog;
+    //
+    // Check for night vision.
+    //
+    if(tr.visualOverlay == VO_NIGHTVISION && !backEnd.projection2D){
+        forceRGBGen = CGEN_VISUALOVERLAY;
+    }
 
     baseColor[0] =
     baseColor[1] =
@@ -458,7 +464,7 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
     //
     // rgbGen
     //
-    switch ( pStage->rgbGen )
+    switch ( forceRGBGen )
     {
         case CGEN_EXACT_VERTEX:
         case CGEN_EXACT_VERTEX_LIT:
@@ -532,9 +538,40 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
             break;
         case CGEN_IDENTITY:
         case CGEN_LIGHTING_DIFFUSE:
+        case CGEN_LIGHTMAP0:
             baseColor[0] =
             baseColor[1] =
             baseColor[2] = overbright;
+            break;
+        case CGEN_LIGHTMAP1:
+            VectorScale4(styleColors[pStage->lightmapStyle], 1.0f / 255.0f, baseColor);
+            break;
+        case CGEN_LIGHTMAP2:
+            VectorScale4(styleColors[pStage->lightmapStyle], 1.0f / 255.0f, baseColor);
+            break;
+        case CGEN_LIGHTMAP3:
+            VectorScale4(styleColors[pStage->lightmapStyle], 1.0f / 255.0f, baseColor);
+            break;
+        case CGEN_UNKNOWN16:
+            /*if(tess.numVertexes){
+                for(i = 0; i < tess.numVertexes; i++){
+                    // FIXME BOE
+                }
+            }*/
+            break;
+        case CGEN_VISUALOVERLAY:
+            if(backEnd.currentEntity == &tr.worldEntity){
+                baseColor[0] =
+                baseColor[1] =
+                baseColor[2] =
+                baseColor[3] = 0x32 / 255.0f;
+            //}else if(!0){ // FIXME BOE: Inverse OpenGL1 check. 0xFF is default.
+            }else{
+                baseColor[0] =
+                baseColor[1] =
+                baseColor[2] =
+                baseColor[3] = 0xAA / 255.0f;
+            }
             break;
         case CGEN_IDENTITY_LIGHTING:
         case CGEN_BAD:
@@ -549,8 +586,10 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
         case AGEN_SKIP:
             break;
         case AGEN_CONST:
-            baseColor[3] = pStage->constantColor[3] / 255.0f;
-            vertColor[3] = 0.0f;
+            if ( forceRGBGen != CGEN_CONST ) {
+                baseColor[3] = pStage->constantColor[3] / 255.0f;
+                vertColor[3] = 0.0f;
+            }
             break;
         case AGEN_WAVEFORM:
             baseColor[3] = RB_CalcWaveAlphaSingle( &pStage->alphaWave );
@@ -577,6 +616,13 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
         case AGEN_ONE_MINUS_VERTEX:
             baseColor[3] = 1.0f;
             vertColor[3] = -1.0f;
+            break;
+        case AGEN_BLEND:
+            /*
+            // FIXME BOE
+            if(forceRGBGen != CGEN_VERTEX){
+                colors[i][3] = tess.vertexAlphas[i][pStage->index];
+            }*/
             break;
         case AGEN_IDENTITY:
         case AGEN_LIGHTING_SPECULAR:
