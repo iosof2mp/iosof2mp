@@ -586,10 +586,8 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
         case AGEN_SKIP:
             break;
         case AGEN_CONST:
-            if ( forceRGBGen != CGEN_CONST ) {
-                baseColor[3] = pStage->constantColor[3] / 255.0f;
-                vertColor[3] = 0.0f;
-            }
+            baseColor[3] = pStage->constantColor[3] / 255.0f;
+            vertColor[3] = 0.0f;
             break;
         case AGEN_WAVEFORM:
             baseColor[3] = RB_CalcWaveAlphaSingle( &pStage->alphaWave );
