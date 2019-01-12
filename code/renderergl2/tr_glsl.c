@@ -306,12 +306,18 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *
                      va("#ifndef tcGen_t\n"
                         "#define tcGen_t\n"
                         "#define TCGEN_LIGHTMAP %i\n"
+                        "#define TCGEN_LIGHTMAP1 %i\n"
+                        "#define TCGEN_LIGHTMAP2 %i\n"
+                        "#define TCGEN_LIGHTMAP3 %i\n"
                         "#define TCGEN_TEXTURE %i\n"
                         "#define TCGEN_ENVIRONMENT_MAPPED %i\n"
                         "#define TCGEN_FOG %i\n"
                         "#define TCGEN_VECTOR %i\n"
                         "#endif\n",
                         TCGEN_LIGHTMAP,
+                        TCGEN_LIGHTMAP1,
+                        TCGEN_LIGHTMAP2,
+                        TCGEN_LIGHTMAP3,
                         TCGEN_TEXTURE,
                         TCGEN_ENVIRONMENT_MAPPED,
                         TCGEN_FOG,
@@ -530,17 +536,20 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
     if(attribs & ATTR_POSITION)
         qglBindAttribLocation(program->program, ATTR_INDEX_POSITION, "attr_Position");
 
-    if(attribs & ATTR_TEXCOORD)
-        qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD, "attr_TexCoord0");
+    if(attribs & ATTR_TEXCOORD0)
+        qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
 
-    if(attribs & ATTR_LIGHTCOORD)
-        qglBindAttribLocation(program->program, ATTR_INDEX_LIGHTCOORD, "attr_TexCoord1");
+    if(attribs & ATTR_TEXCOORD1)
+        qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
 
-//  if(attribs & ATTR_TEXCOORD2)
-//      qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
+    if(attribs & ATTR_TEXCOORD2)
+        qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
 
-//  if(attribs & ATTR_TEXCOORD3)
-//      qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
+    if(attribs & ATTR_TEXCOORD3)
+        qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
+
+    if(attribs & ATTR_TEXCOORD4)
+        qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD4, "attr_TexCoord4");
 
     if(attribs & ATTR_TANGENT)
         qglBindAttribLocation(program->program, ATTR_INDEX_TANGENT, "attr_Tangent");
@@ -935,7 +944,7 @@ void GLSL_InitGPUShaders(void)
         if ((i & GENERICDEF_USE_BONE_ANIMATION) && !glRefConfig.glslMaxAnimatedBones)
             continue;
 
-        attribs = ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL | ATTR_COLOR;
+        attribs = ATTR_POSITION | ATTR_TEXCOORD0 | ATTR_TEXCOORD1 | ATTR_NORMAL | ATTR_COLOR;
         extradefines[0] = '\0';
 
         if (i & GENERICDEF_USE_DEFORM_VERTEXES)
@@ -980,7 +989,7 @@ void GLSL_InitGPUShaders(void)
     }
 
 
-    attribs = ATTR_POSITION | ATTR_TEXCOORD;
+    attribs = ATTR_POSITION | ATTR_TEXCOORD0;
 
     if (!GLSL_InitGPUShader(&tr.textureColorShader, "texturecolor", attribs, qtrue, extradefines, qtrue, fallbackShader_texturecolor_vp, fallbackShader_texturecolor_fp))
     {
@@ -1003,7 +1012,7 @@ void GLSL_InitGPUShaders(void)
         if ((i & FOGDEF_USE_BONE_ANIMATION) && !glRefConfig.glslMaxAnimatedBones)
             continue;
 
-        attribs = ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD;
+        attribs = ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD0;
         extradefines[0] = '\0';
 
         if (i & FOGDEF_USE_DEFORM_VERTEXES)
@@ -1034,7 +1043,7 @@ void GLSL_InitGPUShaders(void)
 
     for (i = 0; i < DLIGHTDEF_COUNT; i++)
     {
-        attribs = ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD;
+        attribs = ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD0;
         extradefines[0] = '\0';
 
         if (i & DLIGHTDEF_USE_DEFORM_VERTEXES)
@@ -1075,7 +1084,7 @@ void GLSL_InitGPUShaders(void)
         if ((i & LIGHTDEF_ENTITY_BONE_ANIMATION) && !glRefConfig.glslMaxAnimatedBones)
             continue;
 
-        attribs = ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR | ATTR_NORMAL;
+        attribs = ATTR_POSITION | ATTR_TEXCOORD0 | ATTR_COLOR | ATTR_NORMAL;
 
         extradefines[0] = '\0';
 
@@ -1098,7 +1107,7 @@ void GLSL_InitGPUShaders(void)
                     Q_strcat(extradefines, 1024, "#define USE_LIGHTMAP\n");
                     if (r_deluxeMapping->integer && !fastLight)
                         Q_strcat(extradefines, 1024, "#define USE_DELUXEMAP\n");
-                    attribs |= ATTR_LIGHTCOORD | ATTR_LIGHTDIRECTION;
+                    attribs |= ATTR_TEXCOORD1 | ATTR_LIGHTDIRECTION;
                     break;
                 case LIGHTDEF_USE_LIGHT_VECTOR:
                     Q_strcat(extradefines, 1024, "#define USE_LIGHT_VECTOR\n");
@@ -1212,7 +1221,7 @@ void GLSL_InitGPUShaders(void)
         if ((i & SHADOWMAPDEF_USE_BONE_ANIMATION) && !glRefConfig.glslMaxAnimatedBones)
             continue;
 
-        attribs = ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD;
+        attribs = ATTR_POSITION | ATTR_NORMAL | ATTR_TEXCOORD0;
 
         extradefines[0] = '\0';
 
@@ -1258,7 +1267,7 @@ void GLSL_InitGPUShaders(void)
     numEtcShaders++;
 
 
-    attribs = ATTR_POSITION | ATTR_TEXCOORD;
+    attribs = ATTR_POSITION | ATTR_TEXCOORD0;
     extradefines[0] = '\0';
 
     if (!GLSL_InitGPUShader(&tr.down4xShader, "down4x", attribs, qtrue, extradefines, qtrue, fallbackShader_down4x_vp, fallbackShader_down4x_fp))
@@ -1275,7 +1284,7 @@ void GLSL_InitGPUShaders(void)
     numEtcShaders++;
 
 
-    attribs = ATTR_POSITION | ATTR_TEXCOORD;
+    attribs = ATTR_POSITION | ATTR_TEXCOORD0;
     extradefines[0] = '\0';
 
     if (!GLSL_InitGPUShader(&tr.bokehShader, "bokeh", attribs, qtrue, extradefines, qtrue, fallbackShader_bokeh_vp, fallbackShader_bokeh_fp))
@@ -1292,7 +1301,7 @@ void GLSL_InitGPUShaders(void)
     numEtcShaders++;
 
 
-    attribs = ATTR_POSITION | ATTR_TEXCOORD;
+    attribs = ATTR_POSITION | ATTR_TEXCOORD0;
     extradefines[0] = '\0';
 
     if (!GLSL_InitGPUShader(&tr.tonemapShader, "tonemap", attribs, qtrue, extradefines, qtrue, fallbackShader_tonemap_vp, fallbackShader_tonemap_fp))
@@ -1312,7 +1321,7 @@ void GLSL_InitGPUShaders(void)
 
     for (i = 0; i < 2; i++)
     {
-        attribs = ATTR_POSITION | ATTR_TEXCOORD;
+        attribs = ATTR_POSITION | ATTR_TEXCOORD0;
         extradefines[0] = '\0';
 
         if (!i)
@@ -1333,7 +1342,7 @@ void GLSL_InitGPUShaders(void)
     }
 
 
-    attribs = ATTR_POSITION | ATTR_TEXCOORD;
+    attribs = ATTR_POSITION | ATTR_TEXCOORD0;
     extradefines[0] = '\0';
 
     if (r_shadowFilter->integer >= 1)
@@ -1367,7 +1376,7 @@ void GLSL_InitGPUShaders(void)
     numEtcShaders++;
 
 
-    attribs = ATTR_POSITION | ATTR_TEXCOORD;
+    attribs = ATTR_POSITION | ATTR_TEXCOORD0;
     extradefines[0] = '\0';
 
     if (!GLSL_InitGPUShader(&tr.ssaoShader, "ssao", attribs, qtrue, extradefines, qtrue, fallbackShader_ssao_vp, fallbackShader_ssao_fp))
@@ -1386,7 +1395,7 @@ void GLSL_InitGPUShaders(void)
 
     for (i = 0; i < 4; i++)
     {
-        attribs = ATTR_POSITION | ATTR_TEXCOORD;
+        attribs = ATTR_POSITION | ATTR_TEXCOORD0;
         extradefines[0] = '\0';
 
         if (i & 1)

@@ -209,48 +209,67 @@ vao_t *R_CreateVao2(const char *name, int numVertexes, srfVert_t *verts, int num
     vao->attribs[ATTR_INDEX_POSITION      ].enabled = 1;
     vao->attribs[ATTR_INDEX_NORMAL        ].enabled = 1;
     vao->attribs[ATTR_INDEX_TANGENT       ].enabled = 1;
-    vao->attribs[ATTR_INDEX_TEXCOORD      ].enabled = 1;
-    vao->attribs[ATTR_INDEX_LIGHTCOORD    ].enabled = 1;
+    vao->attribs[ATTR_INDEX_TEXCOORD0     ].enabled = 1;
+    vao->attribs[ATTR_INDEX_TEXCOORD1     ].enabled = 1;
+    vao->attribs[ATTR_INDEX_TEXCOORD2     ].enabled = 1;
+    vao->attribs[ATTR_INDEX_TEXCOORD3     ].enabled = 1;
+    vao->attribs[ATTR_INDEX_TEXCOORD4     ].enabled = 1;
+
     vao->attribs[ATTR_INDEX_COLOR         ].enabled = 1;
     vao->attribs[ATTR_INDEX_LIGHTDIRECTION].enabled = 1;
 
     vao->attribs[ATTR_INDEX_POSITION      ].count = 3;
     vao->attribs[ATTR_INDEX_NORMAL        ].count = 4;
     vao->attribs[ATTR_INDEX_TANGENT       ].count = 4;
-    vao->attribs[ATTR_INDEX_TEXCOORD      ].count = 2;
-    vao->attribs[ATTR_INDEX_LIGHTCOORD    ].count = 2;
+    vao->attribs[ATTR_INDEX_TEXCOORD0     ].count = 2;
+    vao->attribs[ATTR_INDEX_TEXCOORD1     ].count = 2;
+    vao->attribs[ATTR_INDEX_TEXCOORD2     ].count = 2;
+    vao->attribs[ATTR_INDEX_TEXCOORD3     ].count = 2;
+    vao->attribs[ATTR_INDEX_TEXCOORD4     ].count = 2;
     vao->attribs[ATTR_INDEX_COLOR         ].count = 4;
     vao->attribs[ATTR_INDEX_LIGHTDIRECTION].count = 4;
 
     vao->attribs[ATTR_INDEX_POSITION      ].type = GL_FLOAT;
     vao->attribs[ATTR_INDEX_NORMAL        ].type = GL_SHORT;
     vao->attribs[ATTR_INDEX_TANGENT       ].type = GL_SHORT;
-    vao->attribs[ATTR_INDEX_TEXCOORD      ].type = GL_FLOAT;
-    vao->attribs[ATTR_INDEX_LIGHTCOORD    ].type = GL_FLOAT;
+    vao->attribs[ATTR_INDEX_TEXCOORD0     ].type = GL_FLOAT;
+    vao->attribs[ATTR_INDEX_TEXCOORD1     ].type = GL_FLOAT;
+    vao->attribs[ATTR_INDEX_TEXCOORD2     ].type = GL_FLOAT;
+    vao->attribs[ATTR_INDEX_TEXCOORD3     ].type = GL_FLOAT;
+    vao->attribs[ATTR_INDEX_TEXCOORD4     ].type = GL_FLOAT;
     vao->attribs[ATTR_INDEX_COLOR         ].type = GL_UNSIGNED_SHORT;
     vao->attribs[ATTR_INDEX_LIGHTDIRECTION].type = GL_SHORT;
 
     vao->attribs[ATTR_INDEX_POSITION      ].normalized = GL_FALSE;
     vao->attribs[ATTR_INDEX_NORMAL        ].normalized = GL_TRUE;
     vao->attribs[ATTR_INDEX_TANGENT       ].normalized = GL_TRUE;
-    vao->attribs[ATTR_INDEX_TEXCOORD      ].normalized = GL_FALSE;
-    vao->attribs[ATTR_INDEX_LIGHTCOORD    ].normalized = GL_FALSE;
+    vao->attribs[ATTR_INDEX_TEXCOORD0     ].normalized = GL_FALSE;
+    vao->attribs[ATTR_INDEX_TEXCOORD1     ].normalized = GL_FALSE;
+    vao->attribs[ATTR_INDEX_TEXCOORD2     ].normalized = GL_FALSE;
+    vao->attribs[ATTR_INDEX_TEXCOORD3     ].normalized = GL_FALSE;
+    vao->attribs[ATTR_INDEX_TEXCOORD4     ].normalized = GL_FALSE;
     vao->attribs[ATTR_INDEX_COLOR         ].normalized = GL_TRUE;
     vao->attribs[ATTR_INDEX_LIGHTDIRECTION].normalized = GL_TRUE;
 
     vao->attribs[ATTR_INDEX_POSITION      ].offset = 0;        dataSize  = sizeof(verts[0].xyz);
     vao->attribs[ATTR_INDEX_NORMAL        ].offset = dataSize; dataSize += sizeof(verts[0].normal);
     vao->attribs[ATTR_INDEX_TANGENT       ].offset = dataSize; dataSize += sizeof(verts[0].tangent);
-    vao->attribs[ATTR_INDEX_TEXCOORD      ].offset = dataSize; dataSize += sizeof(verts[0].st);
-    vao->attribs[ATTR_INDEX_LIGHTCOORD    ].offset = dataSize; dataSize += sizeof(verts[0].lightmap);
+    vao->attribs[ATTR_INDEX_TEXCOORD0     ].offset = dataSize; dataSize += sizeof(verts[0].st);
+    vao->attribs[ATTR_INDEX_TEXCOORD1     ].offset = dataSize; dataSize += sizeof(verts[0].lightmap[0]);
+    vao->attribs[ATTR_INDEX_TEXCOORD2     ].offset = dataSize; dataSize += sizeof(verts[0].lightmap[0]);
+    vao->attribs[ATTR_INDEX_TEXCOORD3     ].offset = dataSize; dataSize += sizeof(verts[0].lightmap[0]);
+    vao->attribs[ATTR_INDEX_TEXCOORD4     ].offset = dataSize; dataSize += sizeof(verts[0].lightmap[0]);
     vao->attribs[ATTR_INDEX_COLOR         ].offset = dataSize; dataSize += sizeof(verts[0].color);
     vao->attribs[ATTR_INDEX_LIGHTDIRECTION].offset = dataSize; dataSize += sizeof(verts[0].lightdir);
 
     vao->attribs[ATTR_INDEX_POSITION      ].stride = dataSize;
     vao->attribs[ATTR_INDEX_NORMAL        ].stride = dataSize;
     vao->attribs[ATTR_INDEX_TANGENT       ].stride = dataSize;
-    vao->attribs[ATTR_INDEX_TEXCOORD      ].stride = dataSize;
-    vao->attribs[ATTR_INDEX_LIGHTCOORD    ].stride = dataSize;
+    vao->attribs[ATTR_INDEX_TEXCOORD0     ].stride = dataSize;
+    vao->attribs[ATTR_INDEX_TEXCOORD1     ].stride = dataSize;
+    vao->attribs[ATTR_INDEX_TEXCOORD2     ].stride = dataSize;
+    vao->attribs[ATTR_INDEX_TEXCOORD3     ].stride = dataSize;
+    vao->attribs[ATTR_INDEX_TEXCOORD4     ].stride = dataSize;
     vao->attribs[ATTR_INDEX_COLOR         ].stride = dataSize;
     vao->attribs[ATTR_INDEX_LIGHTDIRECTION].stride = dataSize;
 
@@ -429,7 +448,6 @@ void R_InitVaos(void)
     vertexesSize += sizeof(tess.tangent[0]);
     vertexesSize += sizeof(tess.color[0]);
     vertexesSize += sizeof(tess.texCoords[0]);
-    //vertexesSize += sizeof(tess.lightCoords[0]); // FIXME BOE
     vertexesSize += sizeof(tess.lightdir[0]);
     vertexesSize *= SHADER_MAX_VERTEXES;
 
@@ -442,56 +460,77 @@ void R_InitVaos(void)
     tess.vao->attribs[ATTR_INDEX_POSITION      ].enabled = 1;
     tess.vao->attribs[ATTR_INDEX_NORMAL        ].enabled = 1;
     tess.vao->attribs[ATTR_INDEX_TANGENT       ].enabled = 1;
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD      ].enabled = 1;
-    tess.vao->attribs[ATTR_INDEX_LIGHTCOORD    ].enabled = 1;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD0     ].enabled = 1;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD1     ].enabled = 1;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD2     ].enabled = 1;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD3     ].enabled = 1;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD4     ].enabled = 1;
     tess.vao->attribs[ATTR_INDEX_COLOR         ].enabled = 1;
     tess.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].enabled = 1;
 
     tess.vao->attribs[ATTR_INDEX_POSITION      ].count = 3;
     tess.vao->attribs[ATTR_INDEX_NORMAL        ].count = 4;
     tess.vao->attribs[ATTR_INDEX_TANGENT       ].count = 4;
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD      ].count = 2;
-    tess.vao->attribs[ATTR_INDEX_LIGHTCOORD    ].count = 2;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD0     ].count = 2;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD1     ].count = 2;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD2     ].count = 2;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD3     ].count = 2;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD4     ].count = 2;
     tess.vao->attribs[ATTR_INDEX_COLOR         ].count = 4;
     tess.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].count = 4;
 
     tess.vao->attribs[ATTR_INDEX_POSITION      ].type = GL_FLOAT;
     tess.vao->attribs[ATTR_INDEX_NORMAL        ].type = GL_SHORT;
     tess.vao->attribs[ATTR_INDEX_TANGENT       ].type = GL_SHORT;
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD      ].type = GL_FLOAT;
-    tess.vao->attribs[ATTR_INDEX_LIGHTCOORD    ].type = GL_FLOAT;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD0     ].type = GL_FLOAT;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD1     ].type = GL_FLOAT;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD2     ].type = GL_FLOAT;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD3     ].type = GL_FLOAT;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD4     ].type = GL_FLOAT;
     tess.vao->attribs[ATTR_INDEX_COLOR         ].type = GL_UNSIGNED_SHORT;
     tess.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].type = GL_SHORT;
 
     tess.vao->attribs[ATTR_INDEX_POSITION      ].normalized = GL_FALSE;
     tess.vao->attribs[ATTR_INDEX_NORMAL        ].normalized = GL_TRUE;
     tess.vao->attribs[ATTR_INDEX_TANGENT       ].normalized = GL_TRUE;
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD      ].normalized = GL_FALSE;
-    tess.vao->attribs[ATTR_INDEX_LIGHTCOORD    ].normalized = GL_FALSE;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD0     ].normalized = GL_FALSE;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD1     ].normalized = GL_FALSE;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD2     ].normalized = GL_FALSE;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD3     ].normalized = GL_FALSE;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD4     ].normalized = GL_FALSE;
     tess.vao->attribs[ATTR_INDEX_COLOR         ].normalized = GL_TRUE;
     tess.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].normalized = GL_TRUE;
 
-    tess.vao->attribs[ATTR_INDEX_POSITION      ].offset = offset; offset += sizeof(tess.xyz[0])         * SHADER_MAX_VERTEXES;
-    tess.vao->attribs[ATTR_INDEX_NORMAL        ].offset = offset; offset += sizeof(tess.normal[0])      * SHADER_MAX_VERTEXES;
-    tess.vao->attribs[ATTR_INDEX_TANGENT       ].offset = offset; offset += sizeof(tess.tangent[0])     * SHADER_MAX_VERTEXES;
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD      ].offset = offset; offset += sizeof(tess.texCoords[0])   * SHADER_MAX_VERTEXES;
-    //tess.vao->attribs[ATTR_INDEX_LIGHTCOORD    ].offset = offset; offset += sizeof(tess.lightCoords[0]) * SHADER_MAX_VERTEXES;
-    tess.vao->attribs[ATTR_INDEX_COLOR         ].offset = offset; offset += sizeof(tess.color[0])       * SHADER_MAX_VERTEXES;
+    tess.vao->attribs[ATTR_INDEX_POSITION      ].offset = offset; offset += sizeof(tess.xyz[0])          * SHADER_MAX_VERTEXES;
+    tess.vao->attribs[ATTR_INDEX_NORMAL        ].offset = offset; offset += sizeof(tess.normal[0])       * SHADER_MAX_VERTEXES;
+    tess.vao->attribs[ATTR_INDEX_TANGENT       ].offset = offset; offset += sizeof(tess.tangent[0])      * SHADER_MAX_VERTEXES;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD0     ].offset = offset; offset += sizeof(tess.texCoords[0][0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD1     ].offset = offset; offset += sizeof(tess.texCoords[0][1]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD2     ].offset = offset; offset += sizeof(tess.texCoords[0][2]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD3     ].offset = offset; offset += sizeof(tess.texCoords[0][3]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD4     ].offset = offset; offset += sizeof(tess.texCoords[0][4]) * SHADER_MAX_VERTEXES * NUM_TEX_COORDS;
+    tess.vao->attribs[ATTR_INDEX_COLOR         ].offset = offset; offset += sizeof(tess.color[0])        * SHADER_MAX_VERTEXES;
     tess.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].offset = offset;
 
     tess.vao->attribs[ATTR_INDEX_POSITION      ].stride = sizeof(tess.xyz[0]);
     tess.vao->attribs[ATTR_INDEX_NORMAL        ].stride = sizeof(tess.normal[0]);
     tess.vao->attribs[ATTR_INDEX_TANGENT       ].stride = sizeof(tess.tangent[0]);
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD      ].stride = sizeof(tess.texCoords[0]);
-    //tess.vao->attribs[ATTR_INDEX_LIGHTCOORD    ].stride = sizeof(tess.lightCoords[0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD0     ].stride = sizeof(tess.texCoords[0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD1     ].stride = sizeof(tess.texCoords[0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD2     ].stride = sizeof(tess.texCoords[0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD3     ].stride = sizeof(tess.texCoords[0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD4     ].stride = sizeof(tess.texCoords[0]);
     tess.vao->attribs[ATTR_INDEX_COLOR         ].stride = sizeof(tess.color[0]);
     tess.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].stride = sizeof(tess.lightdir[0]);
 
     tess.attribPointers[ATTR_INDEX_POSITION]       = tess.xyz;
     tess.attribPointers[ATTR_INDEX_NORMAL]         = tess.normal;
     tess.attribPointers[ATTR_INDEX_TANGENT]        = tess.tangent;
-    tess.attribPointers[ATTR_INDEX_TEXCOORD]       = tess.texCoords;
-    //tess.attribPointers[ATTR_INDEX_LIGHTCOORD]     = tess.lightCoords;
+    tess.attribPointers[ATTR_INDEX_TEXCOORD0]      = tess.texCoords;
+    tess.attribPointers[ATTR_INDEX_TEXCOORD1]      = tess.texCoords;
+    tess.attribPointers[ATTR_INDEX_TEXCOORD2]      = tess.texCoords;
+    tess.attribPointers[ATTR_INDEX_TEXCOORD3]      = tess.texCoords;
+    tess.attribPointers[ATTR_INDEX_TEXCOORD4]      = tess.texCoords;
     tess.attribPointers[ATTR_INDEX_COLOR]          = tess.color;
     tess.attribPointers[ATTR_INDEX_LIGHTDIRECTION] = tess.lightdir;
 
@@ -815,48 +854,66 @@ void VaoCache_Init(void)
     vc.vao = R_CreateVao("VaoCache", NULL, VAOCACHE_VERTEX_BUFFER_SIZE, NULL, VAOCACHE_INDEX_BUFFER_SIZE, VAO_USAGE_DYNAMIC);
 
     vc.vao->attribs[ATTR_INDEX_POSITION].enabled       = 1;
-    vc.vao->attribs[ATTR_INDEX_TEXCOORD].enabled       = 1;
-    vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].enabled     = 1;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD0].enabled      = 1;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD1].enabled      = 1;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD2].enabled      = 1;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD3].enabled      = 1;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD4].enabled      = 1;
     vc.vao->attribs[ATTR_INDEX_NORMAL].enabled         = 1;
     vc.vao->attribs[ATTR_INDEX_TANGENT].enabled        = 1;
     vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].enabled = 1;
     vc.vao->attribs[ATTR_INDEX_COLOR].enabled          = 1;
 
     vc.vao->attribs[ATTR_INDEX_POSITION].count       = 3;
-    vc.vao->attribs[ATTR_INDEX_TEXCOORD].count       = 2;
-    vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].count     = 2;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD0].count      = 2;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD1].count      = 2;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD2].count      = 2;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD3].count      = 2;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD4].count      = 2;
     vc.vao->attribs[ATTR_INDEX_NORMAL].count         = 4;
     vc.vao->attribs[ATTR_INDEX_TANGENT].count        = 4;
     vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].count = 4;
     vc.vao->attribs[ATTR_INDEX_COLOR].count          = 4;
 
     vc.vao->attribs[ATTR_INDEX_POSITION].type             = GL_FLOAT;
-    vc.vao->attribs[ATTR_INDEX_TEXCOORD].type             = GL_FLOAT;
-    vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].type           = GL_FLOAT;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD0].type            = GL_FLOAT;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD1].type            = GL_FLOAT;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD2].type            = GL_FLOAT;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD3].type            = GL_FLOAT;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD4].type            = GL_FLOAT;
     vc.vao->attribs[ATTR_INDEX_NORMAL].type               = GL_SHORT;
     vc.vao->attribs[ATTR_INDEX_TANGENT].type              = GL_SHORT;
     vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].type       = GL_SHORT;
     vc.vao->attribs[ATTR_INDEX_COLOR].type                = GL_UNSIGNED_SHORT;
 
     vc.vao->attribs[ATTR_INDEX_POSITION].normalized       = GL_FALSE;
-    vc.vao->attribs[ATTR_INDEX_TEXCOORD].normalized       = GL_FALSE;
-    vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].normalized     = GL_FALSE;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD0].normalized      = GL_FALSE;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD1].normalized      = GL_FALSE;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD2].normalized      = GL_FALSE;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD3].normalized      = GL_FALSE;
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD4].normalized      = GL_FALSE;
     vc.vao->attribs[ATTR_INDEX_NORMAL].normalized         = GL_TRUE;
     vc.vao->attribs[ATTR_INDEX_TANGENT].normalized        = GL_TRUE;
     vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].normalized = GL_TRUE;
     vc.vao->attribs[ATTR_INDEX_COLOR].normalized          = GL_TRUE;
 
     vc.vao->attribs[ATTR_INDEX_POSITION].offset       = offsetof(srfVert_t, xyz);
-    vc.vao->attribs[ATTR_INDEX_TEXCOORD].offset       = offsetof(srfVert_t, st);
-    vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].offset     = offsetof(srfVert_t, lightmap);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD0].offset      = offsetof(srfVert_t, st);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD1].offset      = offsetof(srfVert_t, lightmap[0]);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD2].offset      = offsetof(srfVert_t, lightmap[1]);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD3].offset      = offsetof(srfVert_t, lightmap[2]);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD4].offset      = offsetof(srfVert_t, lightmap[3]);
     vc.vao->attribs[ATTR_INDEX_NORMAL].offset         = offsetof(srfVert_t, normal);
     vc.vao->attribs[ATTR_INDEX_TANGENT].offset        = offsetof(srfVert_t, tangent);
     vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].offset = offsetof(srfVert_t, lightdir);
     vc.vao->attribs[ATTR_INDEX_COLOR].offset          = offsetof(srfVert_t, color);
 
     vc.vao->attribs[ATTR_INDEX_POSITION].stride       = sizeof(srfVert_t);
-    vc.vao->attribs[ATTR_INDEX_TEXCOORD].stride       = sizeof(srfVert_t);
-    vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].stride     = sizeof(srfVert_t);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD0].stride      = sizeof(srfVert_t);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD1].stride      = sizeof(srfVert_t);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD2].stride      = sizeof(srfVert_t);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD3].stride      = sizeof(srfVert_t);
+    vc.vao->attribs[ATTR_INDEX_TEXCOORD4].stride      = sizeof(srfVert_t);
     vc.vao->attribs[ATTR_INDEX_NORMAL].stride         = sizeof(srfVert_t);
     vc.vao->attribs[ATTR_INDEX_TANGENT].stride        = sizeof(srfVert_t);
     vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].stride = sizeof(srfVert_t);

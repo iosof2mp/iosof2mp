@@ -2182,7 +2182,7 @@ static void ComputeVertexAttribs(void)
 
     if (shader.defaultShader)
     {
-        shader.vertexAttribs |= ATTR_TEXCOORD;
+        shader.vertexAttribs |= ATTR_TEXCOORD0;
         return;
     }
 
@@ -2195,7 +2195,7 @@ static void ComputeVertexAttribs(void)
             switch (ds->deformation)
             {
                 case DEFORM_BULGE:
-                    shader.vertexAttribs |= ATTR_NORMAL | ATTR_TEXCOORD;
+                    shader.vertexAttribs |= ATTR_NORMAL | ATTR_TEXCOORD0;
                     break;
 
                 case DEFORM_AUTOSPRITE:
@@ -2264,10 +2264,16 @@ static void ComputeVertexAttribs(void)
             switch(pStage->bundle[i].tcGen)
             {
                 case TCGEN_TEXTURE:
-                    shader.vertexAttribs |= ATTR_TEXCOORD;
+                    shader.vertexAttribs |= ATTR_TEXCOORD0;
                     break;
                 case TCGEN_LIGHTMAP:
-                    shader.vertexAttribs |= ATTR_LIGHTCOORD;
+                case TCGEN_LIGHTMAP1:
+                case TCGEN_LIGHTMAP2:
+                case TCGEN_LIGHTMAP3:
+                    shader.vertexAttribs |= (
+                        ATTR_TEXCOORD1 | ATTR_TEXCOORD2 |
+                        ATTR_TEXCOORD3 | ATTR_TEXCOORD4
+                    );
                     break;
                 case TCGEN_ENVIRONMENT_MAPPED:
                     shader.vertexAttribs |= ATTR_NORMAL;
@@ -2454,7 +2460,11 @@ static int CollapseStagesToGLSL(void)
     {
         // if 2+ stages and first stage is lightmap, switch them
         // this makes it easier for the later bits to process
-        if (stages[0].active && stages[0].bundle[0].tcGen == TCGEN_LIGHTMAP && stages[1].active)
+        // FIXME BOE: Lightmap stages, add proper support.
+        if (stages[0].active
+                && stages[0].bundle[0].tcGen >= TCGEN_LIGHTMAP
+                && stages[0].bundle[0].tcGen <= TCGEN_LIGHTMAP3
+                && stages[1].active)
         {
             int blendBits = stages[1].stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 
@@ -2491,8 +2501,9 @@ static int CollapseStagesToGLSL(void)
                 break;
             }
 
-            if (pStage->bundle[0].tcGen == TCGEN_LIGHTMAP)
-            {
+            if (pStage->bundle[0].tcGen >= TCGEN_LIGHTMAP
+                && pStage->bundle[0].tcGen <= TCGEN_LIGHTMAP3
+            ){
                 int blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 
                 if (blendBits != (GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO)
@@ -2507,6 +2518,9 @@ static int CollapseStagesToGLSL(void)
             {
                 case TCGEN_TEXTURE:
                 case TCGEN_LIGHTMAP:
+                case TCGEN_LIGHTMAP1:
+                case TCGEN_LIGHTMAP2:
+                case TCGEN_LIGHTMAP3:
                 case TCGEN_ENVIRONMENT_MAPPED:
                 case TCGEN_VECTOR:
                     break;
@@ -2545,7 +2559,7 @@ static int CollapseStagesToGLSL(void)
                 continue;
 
             // skip lightmaps
-            if (pStage->bundle[0].tcGen == TCGEN_LIGHTMAP)
+            if (pStage->bundle[0].tcGen >= TCGEN_LIGHTMAP && pStage->bundle[0].tcGen <= TCGEN_LIGHTMAP3)
                 continue;
 
             diffuse  = pStage;
@@ -2587,7 +2601,7 @@ static int CollapseStagesToGLSL(void)
                         break;
 
                     case ST_COLORMAP:
-                        if (pStage2->bundle[0].tcGen == TCGEN_LIGHTMAP)
+                        if (pStage2->bundle[0].tcGen >= TCGEN_LIGHTMAP && pStage2->bundle[0].tcGen <= TCGEN_LIGHTMAP3)
                         {
                             int blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 
@@ -2609,7 +2623,7 @@ static int CollapseStagesToGLSL(void)
 
             tcgen = qfalse;
             if (diffuse->bundle[0].tcGen == TCGEN_ENVIRONMENT_MAPPED
-                || diffuse->bundle[0].tcGen == TCGEN_LIGHTMAP
+                || (diffuse->bundle[0].tcGen >= TCGEN_LIGHTMAP && diffuse->bundle[0].tcGen <= TCGEN_LIGHTMAP3)
                 || diffuse->bundle[0].tcGen == TCGEN_VECTOR)
             {
                 tcgen = qtrue;
@@ -2638,7 +2652,7 @@ static int CollapseStagesToGLSL(void)
             if (!pStage->active)
                 continue;
 
-            if (pStage->bundle[0].tcGen == TCGEN_LIGHTMAP)
+            if (pStage->bundle[0].tcGen >= TCGEN_LIGHTMAP && pStage->bundle[0].tcGen <= TCGEN_LIGHTMAP3)
             {
                 pStage->active = qfalse;
             }
@@ -2701,7 +2715,7 @@ static int CollapseStagesToGLSL(void)
             if (pStage->adjustColorsForFog)
                 continue;
 
-            if (pStage->bundle[TB_DIFFUSEMAP].tcGen == TCGEN_LIGHTMAP)
+            if (pStage->bundle[TB_DIFFUSEMAP].tcGen >= TCGEN_LIGHTMAP && pStage->bundle[TB_DIFFUSEMAP].tcGen <= TCGEN_LIGHTMAP3)
             {
                 pStage->glslShaderGroup = tr.lightallShader;
                 pStage->glslShaderIndex = LIGHTDEF_USE_LIGHTMAP;

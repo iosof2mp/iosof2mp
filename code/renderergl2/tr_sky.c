@@ -416,7 +416,7 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
     }
 
     // FIXME: A lot of this can probably be removed for speed, and refactored into a more convenient function
-    RB_UpdateTessVao(ATTR_POSITION | ATTR_TEXCOORD);
+    RB_UpdateTessVao(ATTR_POSITION | ATTR_TEXCOORD0);
 /*
     {
         shaderProgram_t *sp = &tr.textureColorShader;

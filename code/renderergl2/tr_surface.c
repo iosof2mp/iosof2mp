@@ -206,7 +206,7 @@ void RB_InstantQuad2(vec4_t quadVerts[4], vec2_t texCoords[4])
     tess.indexes[tess.numIndexes++] = 2;
     tess.indexes[tess.numIndexes++] = 3;
 
-    RB_UpdateTessVao(ATTR_POSITION | ATTR_TEXCOORD);
+    RB_UpdateTessVao(ATTR_POSITION | ATTR_TEXCOORD0);
 
     R_DrawElements(tess.numIndexes, tess.firstIndex);
 
@@ -359,7 +359,7 @@ static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIn
             VectorCopy4(dv->tangent, tangent);
     }
 
-    if ( tess.shader->vertexAttribs & ATTR_TEXCOORD )
+    if ( tess.shader->vertexAttribs & ATTR_TEXCOORD0 )
     {
         dv = verts;
         texCoords = tess.texCoords[ tess.numVertexes ][ 0 ];
@@ -369,8 +369,7 @@ static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIn
 
     for ( i = 0 ; i < MAXLIGHTMAPS ; i++ )
     {
-        if ( tess.shader->vertexAttribs & ATTR_LIGHTCOORD )
-        //if ( tess.shader->vertexAttribs & ( ATTR_LIGHTCOORD + i ) ) // FIXME BOE
+        if ( tess.shader->vertexAttribs & ( ATTR_TEXCOORD1 + i ) )
         {
             dv = verts;
             lightCoords = tess.texCoords[ tess.numVertexes ][ 1 + i ];
@@ -1066,7 +1065,7 @@ static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
                     tangent += 4;
                 }
 
-                if ( tess.shader->vertexAttribs & ATTR_TEXCOORD )
+                if ( tess.shader->vertexAttribs & ATTR_TEXCOORD0 )
                 {
                     VectorCopy2(dv->st, texCoords);
                     texCoords += NUM_TEX_COORDS * 2;
@@ -1074,8 +1073,7 @@ static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
 
                 for ( k = 0 ; k < MAXLIGHTMAPS ; k++ )
                 {
-                    if ( tess.shader->vertexAttribs & ATTR_LIGHTCOORD )
-                    //if ( tess.shader->vertexAttribs & ( ATTR_LIGHTCOORD + k ) ) // FIXME BOE
+                    if ( tess.shader->vertexAttribs & ( ATTR_TEXCOORD1 + k ) )
                     {
                         VectorCopy2(dv->lightmap[k], lightCoords[k]);
                         lightCoords[k] += NUM_TEX_COORDS * 2;
@@ -1294,7 +1292,7 @@ void RB_SurfaceVaoMdvMesh(srfVaoMdvMesh_t * surface)
 
         if (!glRefConfig.vertexArrayObject)
         {
-            attribIndex = ATTR_INDEX_TEXCOORD;
+            attribIndex = ATTR_INDEX_TEXCOORD0;
             vAtb = &surface->vao->attribs[attribIndex];
             qglVertexAttribPointer(attribIndex, vAtb->count, vAtb->type, vAtb->normalized, vAtb->stride, BUFFER_OFFSET(vAtb->offset));
         }

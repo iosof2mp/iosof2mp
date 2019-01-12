@@ -272,6 +272,9 @@ typedef enum {
     TCGEN_BAD,
     TCGEN_IDENTITY,         // clear to 0,0
     TCGEN_LIGHTMAP,
+    TCGEN_LIGHTMAP1,
+    TCGEN_LIGHTMAP2,
+    TCGEN_LIGHTMAP3,
     TCGEN_TEXTURE,
     TCGEN_ENVIRONMENT_MAPPED,
     TCGEN_FOG,
@@ -506,29 +509,35 @@ typedef struct shader_s {
 enum
 {
     ATTR_INDEX_POSITION       = 0,
-    ATTR_INDEX_TEXCOORD       = 1,
-    ATTR_INDEX_LIGHTCOORD     = 2,
-    ATTR_INDEX_TANGENT        = 3,
-    ATTR_INDEX_NORMAL         = 4,
-    ATTR_INDEX_COLOR          = 5,
-    ATTR_INDEX_PAINTCOLOR     = 6,
-    ATTR_INDEX_LIGHTDIRECTION = 7,
-    ATTR_INDEX_BONE_INDEXES   = 8,
-    ATTR_INDEX_BONE_WEIGHTS   = 9,
+    ATTR_INDEX_TEXCOORD0      = 1,
+    ATTR_INDEX_TEXCOORD1      = 2,
+    ATTR_INDEX_TEXCOORD2      = 3,
+    ATTR_INDEX_TEXCOORD3      = 4,
+    ATTR_INDEX_TEXCOORD4      = 5,
+    ATTR_INDEX_TANGENT        = 6,
+    ATTR_INDEX_NORMAL         = 7,
+    ATTR_INDEX_COLOR          = 8,
+    ATTR_INDEX_PAINTCOLOR     = 9,
+    ATTR_INDEX_LIGHTDIRECTION = 10,
+    ATTR_INDEX_BONE_INDEXES   = 11,
+    ATTR_INDEX_BONE_WEIGHTS   = 12,
 
     // GPU vertex animations
-    ATTR_INDEX_POSITION2      = 10,
-    ATTR_INDEX_TANGENT2       = 11,
-    ATTR_INDEX_NORMAL2        = 12,
+    ATTR_INDEX_POSITION2      = 13,
+    ATTR_INDEX_TANGENT2       = 14,
+    ATTR_INDEX_NORMAL2        = 15,
 
-    ATTR_INDEX_COUNT          = 13
+    ATTR_INDEX_COUNT          = 16
 };
 
 enum
 {
     ATTR_POSITION =       1 << ATTR_INDEX_POSITION,
-    ATTR_TEXCOORD =       1 << ATTR_INDEX_TEXCOORD,
-    ATTR_LIGHTCOORD =     1 << ATTR_INDEX_LIGHTCOORD,
+    ATTR_TEXCOORD0 =      1 << ATTR_INDEX_TEXCOORD0,
+    ATTR_TEXCOORD1 =      1 << ATTR_INDEX_TEXCOORD1,
+    ATTR_TEXCOORD2 =      1 << ATTR_INDEX_TEXCOORD2,
+    ATTR_TEXCOORD3 =      1 << ATTR_INDEX_TEXCOORD3,
+    ATTR_TEXCOORD4 =      1 << ATTR_INDEX_TEXCOORD4,
     ATTR_TANGENT =        1 << ATTR_INDEX_TANGENT,
     ATTR_NORMAL =         1 << ATTR_INDEX_NORMAL,
     ATTR_COLOR =          1 << ATTR_INDEX_COLOR,
@@ -544,8 +553,11 @@ enum
 
     ATTR_DEFAULT = ATTR_POSITION,
     ATTR_BITS = ATTR_POSITION |
-                ATTR_TEXCOORD |
-                ATTR_LIGHTCOORD |
+                ATTR_TEXCOORD0 |
+                ATTR_TEXCOORD1 |
+                ATTR_TEXCOORD2 |
+                ATTR_TEXCOORD3 |
+                ATTR_TEXCOORD4 |
                 ATTR_TANGENT |
                 ATTR_NORMAL |
                 ATTR_COLOR |
