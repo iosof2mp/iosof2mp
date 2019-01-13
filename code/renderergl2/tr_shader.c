@@ -3055,9 +3055,11 @@ from the current global working shader
 =========================
 */
 static shader_t *FinishShader( void ) {
-    int stage;
+    int             stage;
+    int             lmStage;
     qboolean        hasLightmapStage;
     qboolean        vertexLightmap;
+    shaderStage_t   *pStage;
 
     hasLightmapStage = qfalse;
     vertexLightmap = qfalse;
@@ -3076,11 +3078,75 @@ static shader_t *FinishShader( void ) {
         shader.sort = SS_DECAL;
     }
 
+    for(lmStage = 0; lmStage < MAX_SHADER_STAGES; lmStage++){
+        pStage = &stages[lmStage];
+
+        if(pStage->active && pStage->bundle[0].isLightmap){
+            break;
+        }
+    }
+
+    if(lmStage < MAX_SHADER_STAGES){
+        if(shader.lightmapIndex[0] == LIGHTMAP_BY_VERTEX){
+            if(lmStage < (MAX_SHADER_STAGES - 1)){
+                // Copy the rest down over the lightmap slot.
+                memmove(&stages[lmStage], &stages[lmStage + 1], sizeof(shaderStage_t) * (MAX_SHADER_STAGES - lmStage - 1));
+            }
+
+            Com_Memset(&stages[MAX_SHADER_STAGES - 1], 0, sizeof(shaderStage_t));
+            stages[lmStage].rgbGen      = CGEN_VERTEX;
+            stages[lmStage].alphaGen    = AGEN_SKIP;
+            stages[lmStage].stateBits   = GLS_DEFAULT;
+
+            // Skip the style checking below.
+            lmStage                     = MAX_SHADER_STAGES;
+        }
+    }
+
+    if(lmStage < MAX_SHADER_STAGES){
+        int numStyles;
+        int i;
+
+        for(numStyles = 0; numStyles < MAXLIGHTMAPS; numStyles++){
+            if(shader.styles[numStyles] >= LS_UNUSED){
+                break;
+            }
+        }
+        numStyles--;
+
+        if(numStyles > 0){
+            for(i = MAX_SHADER_STAGES - 1; i > lmStage + numStyles; i--){
+                stages[i] = stages[i - numStyles];
+            }
+
+            for(i = 0; i < numStyles; i++){
+                if(shader.lightmapIndex[i + 1] < 0){
+                    ri.Error(ERR_DROP, "FinishShader: Light style with no light map for shader \"%s\".\n", shader.name);
+                }
+
+                stages[lmStage + i + 1]                     = stages[lmStage];
+                stages[lmStage + i + 1].bundle[0].image[0]  = tr.lightmaps[shader.lightmapIndex[i + 1]];
+                stages[lmStage + i + 1].bundle[0].tcGen     = (texCoordGen_t)(TCGEN_LIGHTMAP1 + i);
+                stages[lmStage + i + 1].rgbGen              = (colorGen_t)(CGEN_LIGHTMAP1 + i);
+                stages[lmStage + i + 1].stateBits           &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+                stages[lmStage + i + 1].stateBits           |= GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE;
+            }
+
+            if(shader.fogPass == FP_GLFOG){
+                shader.fogPass = FP_EQUAL;
+            }
+        }
+
+        for(i = 0; i <= numStyles; i++){
+            stages[lmStage + i].lightmapStyle = shader.styles[i];
+        }
+    }
+
     //
     // set appropriate stage information
     //
     for ( stage = 0; stage < MAX_SHADER_STAGES; ) {
-        shaderStage_t *pStage = &stages[stage];
+        pStage = &stages[stage];
 
         if ( !pStage->active ) {
             break;
