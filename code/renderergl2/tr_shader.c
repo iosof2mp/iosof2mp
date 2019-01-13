@@ -2885,10 +2885,12 @@ static shader_t *GeneratePermanentShader( void ) {
 
     *newShader = shader;
 
-    if ( shader.sort <= SS_OPAQUE ) {
+    if ( shader.sort <= SS_SEE_THROUGH ) {
         newShader->fogPass = FP_EQUAL;
     } else if ( shader.contentFlags & CONTENTS_FOG ) {
         newShader->fogPass = FP_LE;
+    } else {
+        newShader->fogPass = FP_GLFOG;
     }
 
     tr.shaders[ tr.numShaders ] = newShader;
@@ -3057,6 +3059,8 @@ from the current global working shader
 static shader_t *FinishShader( void ) {
     int             stage;
     int             lmStage;
+    int             blendSrcBits;
+    int             blendDstBits;
     qboolean        hasLightmapStage;
     qboolean        vertexLightmap;
     shaderStage_t   *pStage;
@@ -3200,55 +3204,78 @@ static shader_t *FinishShader( void ) {
             }
         }
 
-
     // not a true lightmap but we want to leave existing
     // behaviour in place and not print out a warning
     //if (pStage->rgbGen == CGEN_VERTEX) {
     //  vertexLightmap = qtrue;
     //}
 
-
-
         //
         // determine sort order and fog color adjustment
         //
+        blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
+        blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
+
         if ( ( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) &&
              ( stages[0].stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) ) {
-            int blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
-            int blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
+            if(shader.fogPass != FP_NONE){
+                // fog color adjustment only works for blend modes that have a contribution
+                // that aproaches 0 as the modulate values aproach 0 --
+                // GL_ONE, GL_ONE
+                // GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+                // GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 
-            // fog color adjustment only works for blend modes that have a contribution
-            // that aproaches 0 as the modulate values aproach 0 --
-            // GL_ONE, GL_ONE
-            // GL_ZERO, GL_ONE_MINUS_SRC_COLOR
-            // GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-
-            // modulate, additive
-            if ( ( ( blendSrcBits == GLS_SRCBLEND_ONE ) && ( blendDstBits == GLS_DSTBLEND_ONE ) ) ||
-                ( ( blendSrcBits == GLS_SRCBLEND_ZERO ) && ( blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_COLOR ) ) ) {
-                pStage->adjustColorsForFog = ACFF_MODULATE_RGB;
-            }
-            // strict blend
-            else if ( ( blendSrcBits == GLS_SRCBLEND_SRC_ALPHA ) && ( blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA ) )
-            {
-                pStage->adjustColorsForFog = ACFF_MODULATE_ALPHA;
-            }
-            // premultiplied alpha
-            else if ( ( blendSrcBits == GLS_SRCBLEND_ONE ) && ( blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA ) )
-            {
-                pStage->adjustColorsForFog = ACFF_MODULATE_RGBA;
-            } else {
-                // we can't adjust this one correctly, so it won't be exactly correct in fog
-            }
-
-            // don't screw with sort order if this is a portal or environment
-            if ( !shader.sort ) {
-                // see through item, like a grill or grate
-                if ( pStage->stateBits & GLS_DEPTHMASK_TRUE ) {
-                    shader.sort = SS_SEE_THROUGH;
-                } else {
-                    shader.sort = SS_BLEND0;
+                // modulate, additive
+                if ( ( ( blendSrcBits == GLS_SRCBLEND_ONE ) && ( blendDstBits == GLS_DSTBLEND_ONE ) ) ||
+                    ( ( blendSrcBits == GLS_SRCBLEND_ZERO ) && ( blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_COLOR ) ) ) {
+                    pStage->adjustColorsForFog = ACFF_MODULATE_RGB;
                 }
+                // strict blend
+                else if ( ( blendSrcBits == GLS_SRCBLEND_SRC_ALPHA ) && ( blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA ) )
+                {
+                    pStage->adjustColorsForFog = ACFF_MODULATE_ALPHA;
+                }
+                // premultiplied alpha
+                else if ( ( blendSrcBits == GLS_SRCBLEND_ONE ) && ( blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA ) )
+                {
+                    pStage->adjustColorsForFog = ACFF_MODULATE_RGBA;
+                } else {
+                    // we can't adjust this one correctly, so it won't be exactly correct in fog
+                }
+
+                // don't screw with sort order if this is a portal or environment
+                if ( !shader.sort ) {
+                    // see through item, like a grill or grate
+                    if ( pStage->stateBits & GLS_DEPTHMASK_TRUE ) {
+                        shader.sort = SS_SEE_THROUGH;
+                    } else {
+                        shader.sort = SS_BLEND0;
+                    }
+                }
+            }
+        }
+
+        //
+        // Check for hardware fog.
+        //
+        if(!blendSrcBits && !blendDstBits) {
+            if(stage || (hasLightmapStage && stages[stage + 1].bundle[0].isLightmap)){
+                // Multiple light map blending.
+                pStage->mGLFogColorOverride = GLFOGOVERRIDE_WHITE;
+            }else{
+                pStage->mGLFogColorOverride = GLFOGOVERRIDE_NONE;
+            }
+        }else{
+            if((blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ONE)){
+                pStage->mGLFogColorOverride = GLFOGOVERRIDE_BLACK;
+            }else if(stage && pStage->alphaGen == AGEN_LIGHTING_SPECULAR
+                && (blendSrcBits == (GLS_SRCBLEND_ONE | GLS_SRCBLEND_DST_COLOR)) && (blendDstBits == GLS_DSTBLEND_ONE)
+            ){
+                pStage->mGLFogColorOverride = GLFOGOVERRIDE_BLACK;
+            }else if((blendSrcBits == GLS_SRCBLEND_ZERO) && (blendDstBits == GLS_DSTBLEND_ZERO)) {
+                pStage->mGLFogColorOverride = GLFOGOVERRIDE_WHITE;
+            }else if(blendSrcBits == (GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ZERO)){
+                pStage->mGLFogColorOverride = GLFOGOVERRIDE_WHITE;
             }
         }
 
