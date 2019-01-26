@@ -219,40 +219,63 @@ static void RB_SurfacePolychain( srfPoly_t *p ) {
 RB_ComputeFinalVertexColor
 =============
 */
-static ID_INLINE ulong RB_ComputeFinalVertexColor(const byte *colors)
+static ID_INLINE void RB_ComputeFinalVertexColor(const uint8_t *input, uint8_t *output, qboolean forceValidStyle)
 {
-    int     i;
-    byte    result[4];
-    byte    *styleColor;
-    ulong   r, g, b;
+    int         i;
+    uint8_t     *styleColor;
+    uint32_t    r, g, b;
 
-    *(int *)result = *(int *)colors;
     if(tess.shader->lightmapIndex[0] != LIGHTMAP_BY_VERTEX /* || r_fullbright->integer || tr.refdef.doFullbright*/){ // FIXME BOE
-        result[0] = 255;
-        result[1] = 255;
-        result[2] = 255;
-        return *(ulong *)result;
+        output[0] = 255;
+        output[1] = 255;
+        output[2] = 255;
+        output[3] = input[3];
+
+        return;
+    }
+
+    if(forceValidStyle){
+        if(tess.shader->styles[0] < LS_UNUSED){
+            if(tess.shader->styles[0] || tess.shader->styles[1] < LS_UNUSED){
+                // FIXME BOE
+                // Some surfaces in SP maps can take multiple colors depending on events currently happening.
+                // I need to check vanilla SoF2MP behavior.
+                // Below a little helper to point out which surfaces are missing this functionality, this turns them into green.
+                // For now, don't do anything with these surfaces.
+
+                //output[0] = 0;
+                //output[1] = 255;
+                //output[2] = 0;
+                //output[3] = input[3];
+                //return;
+            }
+        }else{
+            output[0] = input[0];
+            output[1] = input[1];
+            output[2] = input[2];
+            output[3] = input[3];
+
+            return;
+        }
     }
 
     r = g = b = 0;
-    for(i = 0; i < MAXLIGHTMAPS; i++){
+    for(i = 0; i < MAXLIGHTMAPS; i++, input += 4){
         if(tess.shader->styles[i] < LS_UNUSED){
             styleColor = styleColors[tess.shader->styles[i]];
 
-            r += (ulong)(*colors++) * (ulong)(*styleColor++);
-            g += (ulong)(*colors++) * (ulong)(*styleColor++);
-            b += (ulong)(*colors++) * (ulong)(*styleColor);
-            colors++;
+            r += (uint32_t)(input[0] * styleColor[0]);
+            g += (uint32_t)(input[1] * styleColor[1]);
+            b += (uint32_t)(input[2] * styleColor[2]);
         }else{
             break;
         }
     }
 
-    result[0] = Com_Clamp(0, 255, r >> 8);
-    result[1] = Com_Clamp(0, 255, g >> 8);
-    result[2] = Com_Clamp(0, 255, b >> 8);
-
-    return *(ulong *)result;
+    output[0] = Com_Clamp(0, 255, r >> 8);
+    output[1] = Com_Clamp(0, 255, g >> 8);
+    output[2] = Com_Clamp(0, 255, b >> 8);
+    output[3] = input[3];
 }
 
 /*
@@ -309,10 +332,9 @@ static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
                 // Can't have an empty slot in the middle, so we are done.
                 break;
             }
-
         }
 
-        *(unsigned int *)color = RB_ComputeFinalVertexColor((byte *)dv->color);
+        RB_ComputeFinalVertexColor((uint8_t *)&dv->color, color, qfalse);
     }
 
     for ( i = 0 ; i < srf->numVerts ; i++ ) {
@@ -867,7 +889,7 @@ static void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
                 break;
             }
         }
-        * ( unsigned int * ) &tess.vertexColors[ndx] = RB_ComputeFinalVertexColor((byte *)&v[VERTEX_COLOR]);
+        RB_ComputeFinalVertexColor((uint8_t *)&v[VERTEX_COLOR], tess.vertexColors[ndx], qtrue);
         tess.vertexDlightBits[ndx] = dlightBits;
     }
 
@@ -1019,7 +1041,7 @@ static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
                     normal[1] = dv->normal[1];
                     normal[2] = dv->normal[2];
                 }
-                * ( unsigned int * ) color = RB_ComputeFinalVertexColor((byte *)dv->color);
+                RB_ComputeFinalVertexColor((uint8_t *)&dv->color, color, qfalse);
                 *vDlightBits++ = dlightBits;
                 xyz += 4;
                 normal += 4;
