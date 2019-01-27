@@ -312,7 +312,70 @@ static void RB_SurfacePolychain( srfPoly_t *p ) {
     tess.numVertexes = numv;
 }
 
-static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIndexes, glIndex_t *indexes, int dlightBits, int pshadowBits)
+/*
+=============
+RB_ComputeFinalVertexColor
+=============
+*/
+static ID_INLINE void RB_ComputeFinalVertexColor(const uint16_t *input, uint16_t *output, qboolean forceValidStyle)
+{
+    int         i;
+    uint8_t     *styleColor;
+    uint64_t    r, g, b;
+
+    if(tess.shader->lightmapIndex[0] != LIGHTMAP_BY_VERTEX /* || r_fullbright->integer || tr.refdef.doFullbright*/){ // FIXME BOE
+        output[0] = 65535;
+        output[1] = 65535;
+        output[2] = 65535;
+        output[3] = input[3];
+        return;
+    }
+
+    if(forceValidStyle){
+        if(tess.shader->styles[0] < LS_UNUSED){
+            if(tess.shader->styles[0] || tess.shader->styles[1] < LS_UNUSED){
+                // FIXME BOE
+                // Some surfaces in SP maps can take multiple colors depending on events currently happening.
+                // I need to check vanilla SoF2MP behavior.
+                // Below a little helper to point out which surfaces are missing this functionality, this turns them into green.
+                // For now, don't do anything with these surfaces.
+
+                //output[0] = 0;
+                //output[1] = 65535;
+                //output[2] = 0;
+                //output[3] = input[3];
+                //return;
+            }
+        }else{
+            output[0] = input[0];
+            output[1] = input[1];
+            output[2] = input[2];
+            output[3] = input[3];
+
+            return;
+        }
+    }
+
+    r = g = b = 0;
+    for(i = 0; i < MAXLIGHTMAPS; i++, input += 4){
+        if(tess.shader->styles[i] < LS_UNUSED){
+            styleColor = styleColors[tess.shader->styles[i]];
+
+            r += (uint32_t)(input[0] * (styleColor[0] * 257));
+            g += (uint32_t)(input[1] * (styleColor[1] * 257));
+            b += (uint32_t)(input[2] * (styleColor[2] * 257));
+        }else{
+            break;
+        }
+    }
+
+    output[0] = Com_Clamp(0, 65535, r >> 16);
+    output[1] = Com_Clamp(0, 65535, g >> 16);
+    output[2] = Com_Clamp(0, 65535, b >> 16);
+    output[3] = input[3];
+}
+
+static void RB_SurfaceVertsAndIndexes(int numVerts, srfVert_t *verts, int numIndexes, glIndex_t *indexes, int dlightBits, int pshadowBits, qboolean forceValidStyle)
 {
     int             i, j;
     glIndex_t      *inIndex;
@@ -382,8 +445,9 @@ static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIn
     {
         dv = verts;
         color = tess.color[ tess.numVertexes ];
-        for ( i = 0 ; i < numVerts ; i++, dv++, color+=4 )
-            VectorCopy4(dv->color[0], color);
+        for ( i = 0 ; i < numVerts ; i++, dv++, color+=4 ){
+            RB_ComputeFinalVertexColor((uint16_t *)&dv->color[0], color, forceValidStyle);
+        }
     }
 
     if ( tess.shader->vertexAttribs & ATTR_LIGHTDIRECTION )
@@ -464,7 +528,7 @@ static void RB_SurfaceTriangles( srfBspSurface_t *srf ) {
     }
 
     RB_SurfaceVertsAndIndexes(srf->numVerts, srf->verts, srf->numIndexes,
-            srf->indexes, srf->dlightBits, srf->pshadowBits);
+            srf->indexes, srf->dlightBits, srf->pshadowBits, qfalse);
 }
 
 
@@ -899,7 +963,7 @@ static void RB_SurfaceFace( srfBspSurface_t *srf ) {
     }
 
     RB_SurfaceVertsAndIndexes(srf->numVerts, srf->verts, srf->numIndexes,
-            srf->indexes, srf->dlightBits, srf->pshadowBits);
+            srf->indexes, srf->dlightBits, srf->pshadowBits, qtrue);
 }
 
 
@@ -1082,7 +1146,7 @@ static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
 
                 if ( tess.shader->vertexAttribs & ATTR_COLOR )
                 {
-                    VectorCopy4(dv->color[0], color);
+                    RB_ComputeFinalVertexColor((uint16_t *)&dv->color[0], color, qfalse);
                     color += 4;
                 }
 
