@@ -160,6 +160,12 @@ typedef enum {
                         // in addition to alpha test
     SS_BANNER,
 
+    SS_INSIDE,          // inside body parts (i.e. heart)
+    SS_MID_INSIDE,
+    SS_MIDDLE,
+    SS_MID_OUTSIDE,
+    SS_OUTSIDE,         // outside body parts (i.e. ribs)
+
     SS_FOG,
 
     SS_UNDERWATER,      // for items that should be drawn in front of the water plane
