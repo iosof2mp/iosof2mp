@@ -1906,8 +1906,14 @@ static qboolean ParseShader( char **text )
             SkipRestOfLine( text );
             continue;
         }
+        else if( !Q_stricmp( token, "material" ) || !Q_stricmp( token, "q3map_material" ) ) {
+            // FIXME BOE
+            //ParseMaterial( text );
+            SkipRestOfLine( text );
+            continue;
+        }
         // sun parms
-        else if ( !Q_stricmp( token, "q3map_sun" ) || !Q_stricmp( token, "q3map_sunExt" ) || !Q_stricmp( token, "q3gl2_sun" ) ) {
+        else if ( !Q_stricmp( token, "sun" ) || !Q_stricmp( token, "q3map_sun" ) || !Q_stricmp( token, "q3gl2_sun" ) ) {
             float   a, b;
             qboolean isGL2Sun = qfalse;
 
@@ -1973,7 +1979,18 @@ static qboolean ParseShader( char **text )
             SkipRestOfLine( text );
             continue;
         }
-        else if ( !Q_stricmp( token, "deformVertexes" ) ) {
+        else if ( !Q_stricmp( token, "surfacelight") || !Q_stricmp( token, "q3map_surfacelight" ) ) {
+            // No real use in SoF2. It is set and never used again.
+            // Safe to skip.
+            SkipRestOfLine( text );
+            continue;
+        }
+        else if ( !Q_stricmp(  token, "lightColor" ) ) {
+            if( !ParseVector( text, 3, shader.lightColor ) ) {
+                return qfalse;
+            }
+        }
+        else if ( !Q_stricmp( token, "deformvertexes" ) || !Q_stricmp( token, "deform" ) ) {
             ParseDeform( text );
             continue;
         }
@@ -1986,6 +2003,11 @@ static qboolean ParseShader( char **text )
             if (token[0]) {
                 shader.clampTime = atof(token);
             }
+        }
+        // skip aliasShader
+        else if ( !Q_stricmp( token, "aliasShader" ) ) {
+            SkipRestOfLine( text );
+            continue;
         }
         // skip stuff that only the q3map needs
         else if ( !Q_stricmpn( token, "q3map", 5 ) ) {
@@ -2010,10 +2032,22 @@ static qboolean ParseShader( char **text )
             shader.noPicMip = qtrue;
             continue;
         }
+        // no hardware fog
+        else if ( !Q_stricmp( token, "noglfog" ) ) {
+            shader.fogPass = FP_NONE;
+            continue;
+        }
         // polygonOffset
         else if ( !Q_stricmp( token, "polygonOffset" ) )
         {
             shader.polygonOffset = qtrue;
+            continue;
+        }
+        // no texture compression on e.g. skies
+        else if ( !Q_stricmp( token, "noTC" ) ) {
+            // FIXME BOE
+            //shader.noTC = qtrue;
+            ri.Printf( PRINT_WARNING, "WARNING: Skipping noTC on shader '%s'\n", shader.name );
             continue;
         }
         // entityMergable, allowing sprite surfaces from multiple entities
@@ -2108,6 +2142,23 @@ static qboolean ParseShader( char **text )
         else if ( !Q_stricmp( token, "sort" ) )
         {
             ParseSort( text );
+            continue;
+        }
+        // location hit mesh
+        else if ( !Q_stricmp( token, "hitLocation" ) ) {
+            // FIXME BOE
+            SkipRestOfLine(text);
+            continue;
+        }
+        // location hit material mesh
+        else if ( !Q_stricmp( token, "hitMaterial" ) ) {
+            // FIXME BOE
+            SkipRestOfLine(text);
+            continue;
+        }
+        else if ( !Q_stricmp( token, "damageShader" ) ) {
+            (void)COM_ParseExt( text, qfalse );
+            (void)COM_ParseExt( text, qfalse );
             continue;
         }
         else
