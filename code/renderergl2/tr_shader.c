@@ -2933,11 +2933,12 @@ pass, trying to guess which is the correct one to best approximate
 what it is supposed to look like.
 =================
 */
-static void VertexLightingCollapse( void ) {
+static int VertexLightingCollapse( void ) {
     int     stage;
     shaderStage_t   *bestStage;
     int     bestImageRank;
     int     rank;
+    int     finalStageNum;
 
     // if we aren't opaque, just use the first pass
     if ( shader.sort == SS_OPAQUE ) {
@@ -3002,7 +3003,7 @@ static void VertexLightingCollapse( void ) {
         }
     }
 
-    for ( stage = 1; stage < MAX_SHADER_STAGES; stage++ ) {
+    for ( stage = 1, finalStageNum = 1; stage < MAX_SHADER_STAGES; stage++ ) {
         shaderStage_t *pStage = &stages[stage];
 
         if ( !pStage->active ) {
@@ -3010,7 +3011,10 @@ static void VertexLightingCollapse( void ) {
         }
 
         Com_Memset( pStage, 0, sizeof( *pStage ) );
+        finalStageNum++;
     }
+
+    return finalStageNum;
 }
 
 /*
@@ -3058,6 +3062,7 @@ from the current global working shader
 */
 static shader_t *FinishShader( void ) {
     int             stage;
+    int             stageIndex;
     int             lmStage;
     int             blendSrcBits;
     int             blendDstBits;
@@ -3156,7 +3161,7 @@ static shader_t *FinishShader( void ) {
             break;
         }
 
-    // check for a missing texture
+        // check for a missing texture
         if ( !pStage->bundle[0].image[0] ) {
             ri.Printf( PRINT_WARNING, "Shader %s has a stage with no image\n", shader.name );
             pStage->active = qfalse;
@@ -3189,6 +3194,9 @@ static shader_t *FinishShader( void ) {
 
             continue;
         }
+
+        // Required for blended stages.
+        pStage->index = stageIndex;
 
         //
         // default texture coordinate generation
@@ -3280,6 +3288,7 @@ static shader_t *FinishShader( void ) {
         }
 
         stage++;
+        stageIndex++;
     }
 
     // there are times when you will need to manually apply a sort to
@@ -3292,7 +3301,7 @@ static shader_t *FinishShader( void ) {
     // if we are in r_vertexLight mode, never use a lightmap texture
     //
     if ( stage > 1 && ( (r_vertexLight->integer && !r_uiFullScreen->integer) || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) {
-        VertexLightingCollapse();
+        stage = VertexLightingCollapse();
         hasLightmapStage = qfalse;
     }
 
