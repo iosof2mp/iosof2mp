@@ -3072,6 +3072,7 @@ static shader_t *FinishShader( void ) {
 
     hasLightmapStage = qfalse;
     vertexLightmap = qfalse;
+    stageIndex = 0;
 
     //
     // set sky stuff appropriate
