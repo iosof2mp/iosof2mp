@@ -247,6 +247,11 @@ void main()
 		if (alpha < 0.5)
 			discard;
 	}
+	else if (u_AlphaTest == 4)
+	{
+		if (alpha < 0.75)
+			discard;
+	}
 
 #if defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
 	L = var_LightDir.xyz;

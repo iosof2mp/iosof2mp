@@ -1210,6 +1210,10 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
         {
             GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 3);
         }
+        else if ((pStage->stateBits & GLS_ATEST_BITS) == GLS_ATEST_GE_C0)
+        {
+            GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 4);
+        }
         else
         {
             GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 0);
