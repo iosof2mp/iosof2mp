@@ -1,6 +1,9 @@
 attribute vec4 attr_TexCoord0;
 #if defined(USE_LIGHTMAP) || defined(USE_TCGEN)
 attribute vec4 attr_TexCoord1;
+attribute vec4 attr_TexCoord2;
+attribute vec4 attr_TexCoord3;
+attribute vec4 attr_TexCoord4;
 #endif
 attribute vec4 attr_Color;
 
@@ -93,21 +96,31 @@ vec2 GenTexCoords(int TCGen, vec3 position, vec3 normal, vec3 TCGenVector0, vec3
 {
 	vec2 tex = attr_TexCoord0.st;
 
-	if (TCGen == TCGEN_LIGHTMAP)
-	{
-		tex = attr_TexCoord1.st;
-	}
-	else if (TCGen == TCGEN_ENVIRONMENT_MAPPED)
-	{
-		vec3 viewer = normalize(u_LocalViewOrigin - position);
-		vec2 ref = reflect(viewer, normal).yz;
-		tex.s = ref.x * -0.5 + 0.5;
-		tex.t = ref.y *  0.5 + 0.5;
-	}
-	else if (TCGen == TCGEN_VECTOR)
-	{
-		tex = vec2(dot(position, TCGenVector0), dot(position, TCGenVector1));
-	}
+    switch(TCGen){
+        case TCGEN_LIGHTMAP:
+            tex = attr_TexCoord1.st;
+            break;
+        case TCGEN_LIGHTMAP1:
+            tex = attr_TexCoord2.st;
+            break;
+        case TCGEN_LIGHTMAP2:
+            tex = attr_TexCoord3.st;
+            break;
+        case TCGEN_LIGHTMAP3:
+            tex = attr_TexCoord4.st;
+            break;
+        case TCGEN_ENVIRONMENT_MAPPED:
+            vec3 viewer = normalize(u_LocalViewOrigin - position);
+            vec2 ref = reflect(viewer, normal).yz;
+            tex.s = ref.x * -0.5 + 0.5;
+            tex.t = ref.y *  0.5 + 0.5;
+            break;
+        case TCGEN_VECTOR:
+            tex = vec2(dot(position, TCGenVector0), dot(position, TCGenVector1));
+            break;
+        default:
+            break;
+    }
 
 	return tex;
 }
