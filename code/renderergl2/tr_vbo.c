@@ -505,10 +505,10 @@ void R_InitVaos(void)
     tess.vao->attribs[ATTR_INDEX_NORMAL        ].offset = offset; offset += sizeof(tess.normal[0])       * SHADER_MAX_VERTEXES;
     tess.vao->attribs[ATTR_INDEX_TANGENT       ].offset = offset; offset += sizeof(tess.tangent[0])      * SHADER_MAX_VERTEXES;
     tess.vao->attribs[ATTR_INDEX_TEXCOORD0     ].offset = offset; offset += sizeof(tess.texCoords[0][0]);
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD1     ].offset = offset; offset += sizeof(tess.texCoords[0][1]);
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD2     ].offset = offset; offset += sizeof(tess.texCoords[0][2]);
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD3     ].offset = offset; offset += sizeof(tess.texCoords[0][3]);
-    tess.vao->attribs[ATTR_INDEX_TEXCOORD4     ].offset = offset; offset += sizeof(tess.texCoords[0][4]) * SHADER_MAX_VERTEXES * NUM_TEX_COORDS;
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD1     ].offset = offset; offset += sizeof(tess.texCoords[0][0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD2     ].offset = offset; offset += sizeof(tess.texCoords[0][0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD3     ].offset = offset; offset += sizeof(tess.texCoords[0][0]);
+    tess.vao->attribs[ATTR_INDEX_TEXCOORD4     ].offset = offset; offset += sizeof(tess.texCoords[0][0]) * SHADER_MAX_VERTEXES * NUM_TEX_COORDS;
     tess.vao->attribs[ATTR_INDEX_COLOR         ].offset = offset; offset += sizeof(tess.color[0])        * SHADER_MAX_VERTEXES;
     tess.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].offset = offset;
 
@@ -526,11 +526,11 @@ void R_InitVaos(void)
     tess.attribPointers[ATTR_INDEX_POSITION]       = tess.xyz;
     tess.attribPointers[ATTR_INDEX_NORMAL]         = tess.normal;
     tess.attribPointers[ATTR_INDEX_TANGENT]        = tess.tangent;
-    tess.attribPointers[ATTR_INDEX_TEXCOORD0]      = tess.texCoords;
-    tess.attribPointers[ATTR_INDEX_TEXCOORD1]      = tess.texCoords;
-    tess.attribPointers[ATTR_INDEX_TEXCOORD2]      = tess.texCoords;
-    tess.attribPointers[ATTR_INDEX_TEXCOORD3]      = tess.texCoords;
-    tess.attribPointers[ATTR_INDEX_TEXCOORD4]      = tess.texCoords;
+    tess.attribPointers[ATTR_INDEX_TEXCOORD0]      = tess.texCoords[0][0];
+    tess.attribPointers[ATTR_INDEX_TEXCOORD1]      = tess.texCoords[0][1];
+    tess.attribPointers[ATTR_INDEX_TEXCOORD2]      = tess.texCoords[0][2];
+    tess.attribPointers[ATTR_INDEX_TEXCOORD3]      = tess.texCoords[0][3];
+    tess.attribPointers[ATTR_INDEX_TEXCOORD4]      = tess.texCoords[0][4];
     tess.attribPointers[ATTR_INDEX_COLOR]          = tess.color;
     tess.attribPointers[ATTR_INDEX_LIGHTDIRECTION] = tess.lightdir;
 
