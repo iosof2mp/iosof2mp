@@ -235,20 +235,20 @@ static ID_INLINE void RB_ComputeFinalVertexColor(const uint8_t *input, uint8_t *
     }
 
     if(forceValidStyle){
-        if(tess.shader->styles[0] < LS_UNUSED){
-            if(tess.shader->styles[0] || tess.shader->styles[1] < LS_UNUSED){
-                // FIXME BOE
-                // Some surfaces in SP maps can take multiple colors depending on events currently happening.
-                // I need to check vanilla SoF2MP behavior.
-                // Below a little helper to point out which surfaces are missing this functionality, this turns them into green.
-                // For now, don't do anything with these surfaces.
+        if(tess.shader->styles[0] < LS_UNUSED
+            && (tess.shader->styles[0] || tess.shader->styles[1] < LS_UNUSED))
+        {
+            // FIXME BOE
+            // Some surfaces in SP maps can take multiple colors depending on events currently happening.
+            // I need to check vanilla SoF2MP behavior.
+            // Below a little helper to point out which surfaces are missing this functionality, this turns them into green.
+            // For now, don't do anything with these surfaces.
 
-                //output[0] = 0;
-                //output[1] = 255;
-                //output[2] = 0;
-                //output[3] = input[3];
-                //return;
-            }
+            //output[0] = 0;
+            //output[1] = 255;
+            //output[2] = 0;
+            //output[3] = input[3];
+            //return;
         }else{
             output[0] = input[0];
             output[1] = input[1];
