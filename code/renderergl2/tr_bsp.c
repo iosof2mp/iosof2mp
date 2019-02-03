@@ -893,17 +893,12 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
     glIndex_t       *tri;
     int             i, j;
     int             numVerts, numIndexes, badTriangles;
-    int             realLightmapNum[MAXLIGHTMAPS];
-
-    for ( i = 0 ; i < MAXLIGHTMAPS ; i++ ) {
-        realLightmapNum[i] = FatLightmap(LittleLong(ds->lightmapNum[i]));
-    }
 
     // get fog volume
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader
-    surf->shader = ShaderForShaderNum( ds->shaderNum, realLightmapNum, ds->lightmapStyles, ds->vertexStyles );
+    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapsVertex, ds->lightmapStyles, ds->vertexStyles );
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
