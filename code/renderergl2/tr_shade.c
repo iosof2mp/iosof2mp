@@ -61,9 +61,7 @@ void RE_SetLightStyle(int style, int color)
         ri.Error(ERR_FATAL, "RE_SetLightStyle: %d is out of range", style);
     }
 
-    if(*(int*)styleColors[style] != color){
-        *(int *)styleColors[style] = color;
-    }
+    *(int *)styleColors[style] = color;
 }
 
 /*
