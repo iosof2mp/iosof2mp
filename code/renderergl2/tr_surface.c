@@ -482,6 +482,10 @@ static qboolean RB_SurfaceVaoCached(int numVerts, srfVert_t *verts, int numIndex
     if (!numIndexes || !numVerts)
         return qfalse;
 
+    // Never use a cached surface if the surface uses vertex style colors.
+    if (tess.shader->vertexAttribs & ATTR_COLOR)
+        return qfalse;
+
     VaoCache_BindVao();
 
     tess.dlightBits |= dlightBits;
