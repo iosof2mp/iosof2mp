@@ -2418,7 +2418,7 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
         defs |= LIGHTDEF_USE_LIGHT_VERTEX;
     }
 
-    if (r_deluxeMapping->integer && tr.worldDeluxeMapping && lightmap && shader.lightmapIndex[0] >= 0) // FIXME BOE
+    if (r_deluxeMapping->integer && tr.worldDeluxeMapping && lightmap && shader.lightmapIndex[0] >= 0)
     {
         //ri.Printf(PRINT_ALL, ", deluxemap");
         diffuse->bundle[TB_DELUXEMAP] = lightmap->bundle[0];
@@ -2519,8 +2519,8 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 
 static int CollapseStagesToGLSL(void)
 {
-    int i, j, numStages;
-    qboolean skip = qfalse;
+    int             i, j, numStages;
+    qboolean        skip = qfalse;
 
     // skip shaders with deforms
     if (shader.numDeforms != 0)
@@ -2532,7 +2532,6 @@ static int CollapseStagesToGLSL(void)
     {
         // if 2+ stages and first stage is lightmap, switch them
         // this makes it easier for the later bits to process
-        // FIXME BOE: Lightmap stages, add proper support.
         if (stages[0].active
                 && stages[0].bundle[0].tcGen >= TCGEN_LIGHTMAP
                 && stages[0].bundle[0].tcGen <= TCGEN_LIGHTMAP3
@@ -2615,7 +2614,20 @@ static int CollapseStagesToGLSL(void)
 
     if (!skip)
     {
-        qboolean usedLightmap = qfalse;
+        qboolean        usedLightmap = qfalse;
+        shaderStage_t   *lightmaps[MAX_SHADER_STAGES] = { NULL };
+
+        for(i = 0; i < MAX_SHADER_STAGES; i++){
+            shaderStage_t *pStage = &stages[i];
+
+            if(!pStage->active){
+                continue;
+            }
+
+            if(pStage->bundle[0].tcGen >= TCGEN_LIGHTMAP && pStage->bundle[0].tcGen <= TCGEN_LIGHTMAP3){
+                lightmaps[i] = pStage;
+            }
+        }
 
         for (i = 0; i < MAX_SHADER_STAGES; i++)
         {
@@ -2673,8 +2685,10 @@ static int CollapseStagesToGLSL(void)
                         break;
 
                     case ST_COLORMAP:
-                        if (pStage2->bundle[0].tcGen >= TCGEN_LIGHTMAP && pStage2->bundle[0].tcGen <= TCGEN_LIGHTMAP3)
-                        {
+                        if (pStage2->bundle[0].tcGen >= TCGEN_LIGHTMAP
+                                && pStage2->bundle[0].tcGen <= TCGEN_LIGHTMAP3
+                                && pStage2->rgbGen != CGEN_EXACT_VERTEX
+                        ){
                             int blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 
                             // Only add lightmap to blendfunc filter stage if it's the first time lightmap is used
@@ -2683,6 +2697,7 @@ static int CollapseStagesToGLSL(void)
                                 && blendBits != (GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR)))
                             {
                                 lightmap = pStage2;
+                                lightmaps[j] = NULL;
                                 usedLightmap = qtrue;
                             }
                         }
@@ -2724,8 +2739,10 @@ static int CollapseStagesToGLSL(void)
             if (!pStage->active)
                 continue;
 
-            if (pStage->bundle[0].tcGen >= TCGEN_LIGHTMAP && pStage->bundle[0].tcGen <= TCGEN_LIGHTMAP3)
-            {
+            if (pStage->bundle[0].tcGen >= TCGEN_LIGHTMAP
+                    && pStage->bundle[0].tcGen <= TCGEN_LIGHTMAP3
+                    && lightmaps[i] == NULL
+            ){
                 pStage->active = qfalse;
             }
         }
