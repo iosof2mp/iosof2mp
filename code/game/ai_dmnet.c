@@ -124,7 +124,7 @@ int BotGetAirGoal(bot_state_t *bs, bot_goal_t *goal) {
     BotAI_Trace(&bsptrace, bs->origin, mins, maxs, end, bs->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
     //trace down until we hit water
     VectorCopy(bsptrace.endpos, end);
-    BotAI_Trace(&bsptrace, end, mins, maxs, bs->origin, bs->entitynum, CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA);
+    BotAI_Trace(&bsptrace, end, mins, maxs, bs->origin, bs->entitynum, CONTENTS_WATER|CONTENTS_LAVA);
     //if we found the water surface
     if (bsptrace.fraction > 0) {
         areanum = BotPointAreaNum(bsptrace.endpos);
@@ -172,7 +172,7 @@ int BotGoForAir(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
             while(trap_BotChooseNBGItem(bs->gs, bs->origin, bs->inventory, tfl, ltg, range)) {
                 trap_BotGetTopGoal(bs->gs, &goal);
                 //if the goal is not in water
-                if (!(trap_AAS_PointContents(goal.origin) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA))) {
+                if (!(trap_AAS_PointContents(goal.origin) & (CONTENTS_WATER|CONTENTS_LAVA))) {
                     return qtrue;
                 }
                 trap_BotPopGoal(bs->gs);
@@ -675,7 +675,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
             //don't crouch when swimming
             if (trap_AAS_Swimming(bs->origin)) bs->attackcrouch_time = FloatTime() - 1;
             //make sure the bot is not gonna drown
-            if (trap_PointContents(bs->eye,bs->entitynum) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA)) {
+            if (trap_PointContents(bs->eye,bs->entitynum) & (CONTENTS_WATER|CONTENTS_LAVA)) {
                 if (bs->ltgtype == LTG_CAMPORDER) {
                     BotAI_BotInitialChat(bs, "camp_stop", NULL);
                     trap_BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);

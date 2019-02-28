@@ -2107,7 +2107,7 @@ qboolean BotInLavaOrSlime(bot_state_t *bs) {
 
     VectorCopy(bs->origin, feet);
     feet[2] -= 23;
-    return (trap_AAS_PointContents(feet) & (CONTENTS_LAVA|CONTENTS_SLIME));
+    return (trap_AAS_PointContents(feet) & CONTENTS_LAVA);
 }
 
 /*
@@ -2617,7 +2617,7 @@ void BotRoamGoal(bot_state_t *bs, vec3_t goal) {
             if (!trace.startsolid) {
                 trace.endpos[2]++;
                 pc = trap_PointContents(trace.endpos, bs->entitynum);
-                if (!(pc & (CONTENTS_LAVA | CONTENTS_SLIME))) {
+                if (!(pc & CONTENTS_LAVA)) {
                     VectorCopy(bestorg, goal);
                     return;
                 }
@@ -2846,7 +2846,7 @@ float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int
     //
     pc = trap_AAS_PointContents(eye);
     infog = (pc & CONTENTS_FOG);
-    inwater = (pc & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER));
+    inwater = (pc & (CONTENTS_LAVA|CONTENTS_WATER));
     //
     bestvis = 0;
     for (i = 0; i < 3; i++) {
@@ -2859,29 +2859,29 @@ float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int
         VectorCopy(eye, start);
         VectorCopy(middle, end);
         //if the entity is in water, lava or slime
-        if (trap_AAS_PointContents(middle) & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER)) {
-            contents_mask |= (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER);
+        if (trap_AAS_PointContents(middle) & (CONTENTS_LAVA|CONTENTS_WATER)) {
+            contents_mask |= (CONTENTS_LAVA|CONTENTS_WATER);
         }
         //if eye is in water, lava or slime
         if (inwater) {
-            if (!(contents_mask & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER))) {
+            if (!(contents_mask & (CONTENTS_LAVA|CONTENTS_WATER))) {
                 passent = ent;
                 hitent = viewer;
                 VectorCopy(middle, start);
                 VectorCopy(eye, end);
             }
-            contents_mask ^= (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER);
+            contents_mask ^= (CONTENTS_LAVA|CONTENTS_WATER);
         }
         //trace from start to end
         BotAI_Trace(&trace, start, NULL, NULL, end, passent, contents_mask);
         //if water was hit
         waterfactor = 1.0;
         //note: trace.contents is always 0, see BotAI_Trace
-        if (trace.contents & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER)) {
+        if (trace.contents & (CONTENTS_LAVA|CONTENTS_WATER)) {
             //if the water surface is translucent
             if (1) {
                 //trace through the water
-                contents_mask &= ~(CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER);
+                contents_mask &= ~(CONTENTS_LAVA|CONTENTS_WATER);
                 BotAI_Trace(&trace, trace.endpos, NULL, NULL, end, passent, contents_mask);
                 waterfactor = 0.5;
             }
@@ -5062,7 +5062,7 @@ BotCheckAir
 */
 void BotCheckAir(bot_state_t *bs) {
     if (bs->inventory[INVENTORY_ENVIRONMENTSUIT] <= 0) {
-        if (trap_AAS_PointContents(bs->eye) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA)) {
+        if (trap_AAS_PointContents(bs->eye) & (CONTENTS_WATER|CONTENTS_LAVA)) {
             return;
         }
     }

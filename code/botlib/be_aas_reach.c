@@ -869,7 +869,7 @@ int AAS_Reachability_Swim(int area1num, int area2num)
             {
                 AAS_FaceCenter(face1num, start);
                 //
-                if (AAS_PointContents(start) & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER))
+                if (AAS_PointContents(start) & (CONTENTS_LAVA|CONTENTS_WATER))
                 {
                     //
                     face1 = &aasworld.faces[face1num];
@@ -2230,7 +2230,7 @@ int AAS_Reachability_Jump(int area1num, int area2num)
             if (DotProduct(plane->normal, up) >= 0.7)
             {
                 // if no lava or slime below
-                if (!(AAS_PointContents(trace.endpos) & (CONTENTS_LAVA|CONTENTS_SLIME)))
+                if (!(AAS_PointContents(trace.endpos) & CONTENTS_LAVA))
                 {
                     if (teststart[2] - trace.endpos[2] <= aassettings.phys_maxbarrier)
                         return qfalse;
@@ -2253,7 +2253,7 @@ int AAS_Reachability_Jump(int area1num, int area2num)
             if (DotProduct(plane->normal, up) >= 0.7)
             {
                 // if no lava or slime below
-                if (!(AAS_PointContents(trace.endpos) & (CONTENTS_LAVA|CONTENTS_SLIME)))
+                if (!(AAS_PointContents(trace.endpos) & CONTENTS_LAVA))
                 {
                     if (teststart[2] - trace.endpos[2] <= aassettings.phys_maxbarrier)
                         return qfalse;
@@ -3817,7 +3817,7 @@ int AAS_Reachability_Grapple(int area1num, int area2num)
     } //end if
     else
     {
-        if (!(AAS_PointContents(start) & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER))) return qfalse;
+        if (!(AAS_PointContents(start) & (CONTENTS_LAVA|CONTENTS_WATER))) return qfalse;
     } //end else
     //
     //start is now the start point

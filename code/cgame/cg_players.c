@@ -1555,7 +1555,7 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
         return;
     }
     contents = CG_PointContents( head->origin, 0 );
-    if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+    if ( contents & ( CONTENTS_WATER | CONTENTS_LAVA ) ) {
         return;
     }
     if ( ci->breathPuffTime > cg.time ) {
@@ -2073,7 +2073,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
     // if the feet aren't in liquid, don't make a mark
     // this won't handle moving water brushes, but they wouldn't draw right anyway...
     contents = CG_PointContents( end, 0 );
-    if ( !( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {
+    if ( !( contents & ( CONTENTS_WATER | CONTENTS_LAVA ) ) ) {
         return;
     }
 
@@ -2082,12 +2082,12 @@ static void CG_PlayerSplash( centity_t *cent ) {
 
     // if the head isn't out of liquid, don't make a mark
     contents = CG_PointContents( start, 0 );
-    if ( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+    if ( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_LAVA ) ) {
         return;
     }
 
     // trace down to find the surface
-    trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) );
+    trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_LAVA ) );
 
     if ( trace.fraction == 1.0 ) {
         return;

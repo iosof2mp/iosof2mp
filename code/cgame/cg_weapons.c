@@ -365,7 +365,7 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
     ent->trailTime = cg.time;
 
-    if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+    if ( contents & ( CONTENTS_WATER | CONTENTS_LAVA ) ) {
         if ( contents & lastContents & CONTENTS_WATER ) {
             CG_BubbleTrail( lastPos, origin, 8 );
         }
@@ -433,7 +433,7 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
     ent->trailTime = cg.time;
 
-    if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+    if ( contents & ( CONTENTS_WATER | CONTENTS_LAVA ) ) {
         if ( contents & lastContents & CONTENTS_WATER ) {
             CG_BubbleTrail( lastPos, origin, 8 );
         }

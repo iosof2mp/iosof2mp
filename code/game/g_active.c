@@ -144,7 +144,7 @@ void P_WorldEffects( gentity_t *ent ) {
     // check for sizzle damage (move to pmove?)
     //
     if (waterlevel &&
-        (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+        (ent->watertype & CONTENTS_LAVA) ) {
         if (ent->health > 0
             && ent->pain_debounce_time <= level.time    ) {
 
@@ -154,11 +154,6 @@ void P_WorldEffects( gentity_t *ent ) {
                 if (ent->watertype & CONTENTS_LAVA) {
                     G_Damage (ent, NULL, NULL, NULL, NULL,
                         30*waterlevel, 0, MOD_LAVA);
-                }
-
-                if (ent->watertype & CONTENTS_SLIME) {
-                    G_Damage (ent, NULL, NULL, NULL, NULL,
-                        10*waterlevel, 0, MOD_SLIME);
                 }
             }
         }
@@ -179,7 +174,7 @@ void G_SetClientSound( gentity_t *ent ) {
     }
     else
 #endif
-    if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+    if (ent->waterlevel && (ent->watertype & CONTENTS_LAVA) ) {
         ent->client->ps.loopSound = level.snd_fry;
     } else {
         ent->client->ps.loopSound = 0;
