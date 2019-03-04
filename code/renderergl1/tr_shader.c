@@ -1488,46 +1488,30 @@ typedef struct {
 } infoParm_t;
 
 infoParm_t  infoParms[] = {
-    // server relevant contents
-    {"water",       1,  0,  CONTENTS_WATER },
-    {"slime",       1,  0,  CONTENTS_SLIME },       // mildly damaging
-    {"lava",        1,  0,  CONTENTS_LAVA },        // very damaging
-    {"playerclip",  1,  0,  CONTENTS_PLAYERCLIP },
-    {"monsterclip", 1,  0,  CONTENTS_MONSTERCLIP },
-    {"nodrop",      1,  0,  CONTENTS_NODROP },      // don't drop items or leave bodies (death fog, lava, etc)
-    {"nonsolid",    1,  SURF_NONSOLID,  0},                     // clears the solid flag
+    // Game surface flags
+    {"nodamage",                -1,                 SURF_NODAMAGE,      0                   },
+    {"noimpact",                -1,                 SURF_NOIMPACT,      0                   },  // don't make impact explosions or marks
+    {"nomarks",                 -1,                 SURF_NOMARKS,       0                   },  // don't make impact marks, but still explode
 
-    // utility relevant attributes
-    {"origin",      1,  0,  CONTENTS_ORIGIN },      // center of rotating brushes
-    {"trans",       0,  0,  CONTENTS_TRANSLUCENT }, // don't eat contained surfaces
-    {"detail",      0,  0,  CONTENTS_DETAIL },      // don't include in structural bsp
-    {"structural",  0,  0,  CONTENTS_STRUCTURAL },  // force into structural bsp even if trnas
-    {"areaportal",  1,  0,  CONTENTS_AREAPORTAL },  // divides areas
-    {"clusterportal", 1,0,  CONTENTS_CLUSTERPORTAL },   // for bots
-    {"donotenter",  1,  0,  CONTENTS_DONOTENTER },      // for bots
+    // Game content flags
+    {"nonsolid",                ~CONTENTS_SOLID,    0,                  0                   },  // special hack to clear solid flag
+    {"nonopaque",               ~CONTENTS_OPAQUE,   0,                  0                   },  // special hack to clear opaque flag
+    {"lava",                    ~CONTENTS_SOLID,    0,                  CONTENTS_LAVA       },  // very damaging
+    {"water",                   ~CONTENTS_SOLID,    0,                  CONTENTS_WATER      },
+    {"fog",                     ~CONTENTS_SOLID,    0,                  CONTENTS_FOG        },  // carves surfaces entering
+    {"playerclip",              ~CONTENTS_SOLID,    0,                  CONTENTS_PLAYERCLIP },
+    {"monsterclip",             ~CONTENTS_SOLID,    0,                  CONTENTS_MONSTERCLIP},
+    {"botclip",                 ~CONTENTS_SOLID,    0,                  CONTENTS_BOTCLIP    },  // for bots
+    {"shotclip",                ~CONTENTS_SOLID,    0,                  CONTENTS_SHOTCLIP   },
+    {"trigger",                 ~CONTENTS_SOLID,    0,                  CONTENTS_TRIGGER    },
+    {"nodrop",                  ~CONTENTS_SOLID,    0,                  CONTENTS_NODROP     },  // don't drop items or leave bodies (death fog, lava, etc)
+    {"terrain",                 ~CONTENTS_SOLID,    0,                  CONTENTS_TERRAIN    },  // use special terrain collsion
+    {"ladder",                  ~CONTENTS_SOLID,    0,                  CONTENTS_LADDER     },  // climb up in it like water
+    {"abseil",                  ~CONTENTS_SOLID,    0,                  CONTENTS_ABSEIL     },  // can abseil down this brush
+    {"outside",                 ~CONTENTS_SOLID,    0,                  CONTENTS_OUTSIDE    },  // volume is considered to be in the outside (i.e. not indoors)
 
-    {"fog",         1,  0,  CONTENTS_FOG},          // carves surfaces entering
-    {"sky",         0,  SURF_SKY,       0 },        // emit light from an environment map
-    {"lightfilter", 0,  SURF_LIGHTFILTER, 0 },      // filter light going through it
-    {"alphashadow", 0,  SURF_ALPHASHADOW, 0 },      // test light on a per-pixel basis
-    {"hint",        0,  SURF_HINT,      0 },        // use as a primary splitter
-
-    // server attributes
-    {"slick",       0,  SURF_SLICK,     0 },
-    {"noimpact",    0,  SURF_NOIMPACT,  0 },        // don't make impact explosions or marks
-    {"nomarks",     0,  SURF_NOMARKS,   0 },        // don't make impact marks, but still explode
-    {"ladder",      0,  SURF_LADDER,    0 },
-    {"nodamage",    0,  SURF_NODAMAGE,  0 },
-    {"metalsteps",  0,  SURF_METALSTEPS,0 },
-    {"flesh",       0,  SURF_FLESH,     0 },
-    {"nosteps",     0,  SURF_NOSTEPS,   0 },
-
-    // drawsurf attributes
-    {"nodraw",      0,  SURF_NODRAW,    0 },    // don't generate a drawsurface (or a lightmap)
-    {"pointlight",  0,  SURF_POINTLIGHT, 0 },   // sample lighting at vertexes
-    {"nolightmap",  0,  SURF_NOLIGHTMAP,0 },    // don't generate a lightmap
-    {"nodlight",    0,  SURF_NODLIGHT, 0 },     // don't ever add dynamic lights
-    {"dust",        0,  SURF_DUST, 0}           // leave a dust trail when walking on this surface
+    {"detail",                  -1,                 0,                  CONTENTS_DETAIL     },  // don't include in structural bsp
+    {"trans",                   -1,                 0,                  CONTENTS_TRANSLUCENT},  // surface has an alpha component
 };
 
 
