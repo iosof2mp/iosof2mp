@@ -87,6 +87,7 @@ extern void (APIENTRYP qglUnlockArraysEXT) (void);
 #define QGL_1_1_FIXED_FUNCTION_PROCS \
     GLE(void, AlphaFunc, GLenum func, GLclampf ref) \
     GLE(void, Color4f, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) \
+    GLE(void, Color4ub, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) \
     GLE(void, ColorPointer, GLint size, GLenum type, GLsizei stride, const GLvoid *ptr) \
     GLE(void, DisableClientState, GLenum cap) \
     GLE(void, EnableClientState, GLenum cap) \
