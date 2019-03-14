@@ -1303,9 +1303,10 @@ extern  color4ub_t          styleColors[MAX_LIGHT_STYLES];
 void    RE_GetLightStyle    ( int style, color4ub_t color );
 void    RE_SetLightStyle    ( int style, int color );
 
-void RB_BeginSurface(shader_t *shader, int fogNum );
-void RB_EndSurface(void);
-void RB_CheckOverflow( int verts, int indexes );
+void R_BindAnimatedImage    ( textureBundle_t *bundle );
+void RB_BeginSurface        ( shader_t *shader, int fogNum );
+void RB_EndSurface          ( void );
+void RB_CheckOverflow       ( int verts, int indexes );
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
 
 void RB_StageIteratorGeneric( void );
@@ -1659,5 +1660,30 @@ void LerpMeshVertexes_altivec( md3Surface_t *surf, float backlerp );
 void ProjectDlightTexture_altivec( void );
 void RB_CalcDiffuseColor_altivec( unsigned char *colors );
 #endif
+
+/*
+============================================================
+
+QUICK SPRITE SYSTEM
+
+============================================================
+*/
+
+typedef struct {
+    textureBundle_t *mTexBundle;
+    unsigned long   mGLStateBits;
+    unsigned long   mFogColor;
+    qboolean        mUseFog;
+    vec4_t          mVerts[SHADER_MAX_VERTEXES];
+    vec2_t          mTextureCoords[SHADER_MAX_VERTEXES];
+    unsigned long   mColors[SHADER_MAX_VERTEXES];
+    int             mNextVert;
+    qboolean        mTurnCullBackOn;
+} quickSprite_t;
+
+quickSprite_t   *R_InitQuickSprite              ( void );
+void            RB_AddSprite                    ( quickSprite_t *qs, float *pointData, color4ub_t *color );
+void            RB_StartQuickSpriteRendering    ( quickSprite_t *qs, textureBundle_t *bundle, unsigned long stateBits, unsigned long fogColor );
+void            RB_EndQuickSpriteRendering      ( quickSprite_t *qs );
 
 #endif //TR_LOCAL_H

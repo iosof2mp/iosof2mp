@@ -1866,6 +1866,7 @@ Q3ROBJ = \
   $(B)/renderergl1/tr_model.o \
   $(B)/renderergl1/tr_model_iqm.o \
   $(B)/renderergl1/tr_noise.o \
+  $(B)/renderergl1/tr_quicksprite.o \
   $(B)/renderergl1/tr_scene.o \
   $(B)/renderergl1/tr_shade.o \
   $(B)/renderergl1/tr_shade_calc.o \
