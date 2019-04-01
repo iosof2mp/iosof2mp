@@ -38,7 +38,7 @@ quickSprite_t *R_InitQuickSprite(void)
     int             i;
 
     // Allocate memory for this new quick sprite system instance.
-    qs = Hunk_Alloc(sizeof(quickSprite_t), h_high);
+    qs = ri.Hunk_Alloc(sizeof(quickSprite_t), h_low);
 
     // Set initial texture coordinates.
     for(i = 0; i < SHADER_MAX_VERTEXES; i += 4){
