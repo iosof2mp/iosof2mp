@@ -899,6 +899,17 @@ extern  qboolean    com_fullyInitialized;
 extern  fileHandle_t    com_journalFile;
 extern  fileHandle_t    com_journalDataFile;
 
+/*
+==============================================================
+
+Zone and hunk memory
+
+==============================================================
+*/
+
+// When adding zone tags, also update
+// the memtagInfo_t memtags array.
+
 typedef enum {
     TAG_FREE,
     TAG_GENERAL,
