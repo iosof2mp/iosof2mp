@@ -145,6 +145,7 @@ typedef struct {
 
     int     (*Cmd_Argc) (void);
     char    *(*Cmd_Argv) (int i);
+    void    (*Cmd_ArgsBuffer) (char * buffer, int bufferLength);
 
     void    (*Cmd_ExecuteText) (int exec_when, const char *text);
 
