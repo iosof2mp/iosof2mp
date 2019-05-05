@@ -1245,8 +1245,8 @@ void S_GetSoundtime(void)
 
     if( CL_VideoRecording( ) )
     {
-        float fps = MIN(cl_aviFrameRate->value, 1000.0f);
-        float frameDuration = MAX(dma.speed / fps, 1.0f) + clc.aviSoundFrameRemainder;
+        float fps = min(cl_aviFrameRate->value, 1000.0f);
+        float frameDuration = max(dma.speed / fps, 1.0f) + clc.aviSoundFrameRemainder;
 
         int msec = (int)frameDuration;
         s_soundtime += msec;

@@ -477,7 +477,7 @@ void CL_CaptureVoip(void)
     // try to get more audio data from the sound card...
 
     if (initialFrame) {
-        S_MasterGain(Com_Clamp(0.0f, 1.0f, cl_voipGainDuringCapture->value));
+        S_MasterGain(Com_Clampf(0.0f, 1.0f, cl_voipGainDuringCapture->value));
         S_StartCapture();
         CL_VoipNewGeneration();
         CL_VoipParseTargets();
@@ -2968,8 +2968,8 @@ void CL_Frame ( int msec ) {
     if ( CL_VideoRecording( ) && cl_aviFrameRate->integer && msec) {
         // save the current screen
         if ( clc.state == CA_ACTIVE || cl_forceavidemo->integer) {
-            float fps = MIN(cl_aviFrameRate->value * com_timescale->value, 1000.0f);
-            float frameDuration = MAX(1000.0f / fps, 1.0f) + clc.aviVideoFrameRemainder;
+            float fps = min(cl_aviFrameRate->value * com_timescale->value, 1000.0f);
+            float frameDuration = max(1000.0f / fps, 1.0f) + clc.aviVideoFrameRemainder;
 
             CL_TakeVideoFrame( );
 

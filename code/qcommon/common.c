@@ -2716,6 +2716,9 @@ void Com_Init( char *commandLine ) {
     Com_InitZoneMemory();
     Cmd_Init ();
 
+    // Seed the random number generator
+    Rand_Init(Sys_Milliseconds());
+
     // get the developer cvar set as early as possible
     com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
 
