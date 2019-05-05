@@ -178,6 +178,7 @@ typedef struct {
 
     // math
     long    (*ftol)(float f);
+    float   (*flrand)(float min, float max);
 
     // system stuff
     void    (*Sys_SetEnv)( const char *name, const char *value );

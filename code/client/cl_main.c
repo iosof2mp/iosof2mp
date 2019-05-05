@@ -3282,6 +3282,7 @@ void CL_InitRef( void ) {
     ri.IN_Restart = IN_Restart;
 
     ri.ftol = Q_ftol;
+    ri.flrand = flrand;
 
     ri.Sys_SetEnv = Sys_SetEnv;
     ri.Sys_GLimpSafeInit = Sys_GLimpSafeInit;
