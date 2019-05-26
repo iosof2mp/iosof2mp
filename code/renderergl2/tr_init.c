@@ -1378,6 +1378,7 @@ void R_Register( void )
     ri.Cmd_AddCommand( "minimize", GLimp_Minimize );
     ri.Cmd_AddCommand( "gfxmeminfo", GfxMemInfo_f );
     ri.Cmd_AddCommand( "exportCubemaps", R_ExportCubemaps_f );
+    ri.Cmd_AddCommand( "r_we", R_WorldEffect_f );
 }
 
 void R_InitQueries(void)
@@ -1523,6 +1524,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
     ri.Cmd_RemoveCommand( "minimize" );
     ri.Cmd_RemoveCommand( "gfxmeminfo" );
     ri.Cmd_RemoveCommand( "exportCubemaps" );
+    ri.Cmd_RemoveCommand( "r_we" );
 
 
     if ( tr.registered ) {

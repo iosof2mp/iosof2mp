@@ -1160,6 +1160,7 @@ void R_Register( void )
     ri.Cmd_AddCommand( "screenshotJPEG", R_ScreenShotJPEG_f );
     ri.Cmd_AddCommand( "gfxinfo", GfxInfo_f );
     ri.Cmd_AddCommand( "minimize", GLimp_Minimize );
+    ri.Cmd_AddCommand( "r_we", R_WorldEffect_f );
 }
 
 /*
@@ -1276,6 +1277,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
     ri.Cmd_RemoveCommand( "screenshotJPEG" );
     ri.Cmd_RemoveCommand( "gfxinfo" );
     ri.Cmd_RemoveCommand( "minimize" );
+    ri.Cmd_RemoveCommand( "r_we" );
 
 
     if ( tr.registered ) {
