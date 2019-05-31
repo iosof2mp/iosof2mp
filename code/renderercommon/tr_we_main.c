@@ -115,7 +115,7 @@ this world effect system.
 ==================
 */
 
-static void R_AddWorldEffectSystem(worldEffectSystem_t *weSystem)
+void R_AddWorldEffectSystem(worldEffectSystem_t *weSystem)
 {
     worldEffectSystem_t *lastSystem;
 
@@ -145,16 +145,9 @@ all associated memory.
 ==================
 */
 
-static void R_RemoveWorldEffectSystem(const char *name)
+void R_RemoveWorldEffectSystem(worldEffectSystem_t *weSystem)
 {
-    worldEffectSystem_t *weSystem;
     worldEffectSystem_t *currentSystem;
-
-    // Ensure the system is present in the world effect system list.
-    weSystem = R_IsWorldEffectSystemInitialized(name);
-    if(!weSystem){
-        return;
-    }
 
     // Free allocated memory.
     // FIXME BOE

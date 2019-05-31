@@ -82,6 +82,9 @@ struct worldEffectSystem_s {
 
 qboolean        R_ParseVectorArgument           ( char **text, int count, float *v, char *argDesc );
 
+void            R_AddWorldEffectSystem          ( worldEffectSystem_t *weSystem );
+void            R_RemoveWorldEffectSystem       ( worldEffectSystem_t *weSystem );
+
 void            R_WorldEffect_f                 ( void );
 
 #endif // __TR_WE__H
