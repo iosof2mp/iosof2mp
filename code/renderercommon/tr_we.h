@@ -70,7 +70,6 @@ struct worldEffectSystem_s {
     worldEffectParticle_t   *particleList;
     int                     numParticles;
 
-    void                    (*Command)          ( worldEffectSystem_t *weSystem, char *command );
     void                    (*Update)           ( worldEffectSystem_t *weSystem, float elapsedTime );
     void                    (*Render)           ( worldEffectSystem_t *weSystem );
 };

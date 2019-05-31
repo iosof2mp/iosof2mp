@@ -19,7 +19,7 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// tr_we_main.c - Initialization and main functions of the world effects system.
+// tr_we_main.c - Initialization and main functions of the world effect system.
 
 #include "tr_common.h"
 #include "tr_we.h"
@@ -200,39 +200,35 @@ static void R_RemoveWorldEffectSystem(const char *name)
 ==================
 R_WorldEffectCommand
 
-Handles initializing a world effect system
-if applicable, or passes the command to
-the already-initialized system.
+Any system defined should have a
+command handler set in this
+function.
 
-Any system defined should have an
-appropriate initialization routine in
-this function in order to be correctly
-recognized by the command handler.
+If the name matches a defined world
+effect system, the command is then
+forwarded to the command handler of
+that world effect system.
 ==================
 */
 
 static void R_WorldEffectCommand(char *command)
 {
-    char                *token;
+    char                *systemName;
     worldEffectSystem_t *weSystem;
 
     // The first token is always the name
     // of the world effect system.
-    token = COM_ParseExt(&command, qfalse);
+    systemName = COM_ParseExt(&command, qfalse);
 
-    // If this system is already initialized,
-    // pass the command to its command handler.
-    weSystem = R_IsWorldEffectSystemInitialized(token);
-    if(weSystem != NULL){
-        weSystem->Command(weSystem, command);
-        return;
-    }
+    // All known world effect systems are checked here
+    // and passed along to the command handler of that
+    // system.
+    weSystem = R_IsWorldEffectSystemInitialized(systemName);
 
-    // No such system present yet, try to initialize.
-    if(Q_stricmp(token, "") == 0){
+    if(Q_stricmp(systemName, "") == 0){
         // FIXME BOE
     }else{
-        ri.Printf(PRINT_ERROR, "ERROR: Unknown world effect system '%s'.\n", token);
+        ri.Printf(PRINT_ERROR, "ERROR: Unknown world effect system '%s'.\n", systemName);
     }
 }
 
