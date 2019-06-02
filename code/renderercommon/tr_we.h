@@ -29,6 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Global world effect system definitions.
 //
 
+#define     SNOWCONTENTS_X_SIZE             16
+#define     SNOWCONTENTS_Y_SIZE             16
+#define     SNOWCONTENTS_Z_SIZE             8
+
 typedef     struct      worldEffect_s           worldEffect_t;
 typedef     struct      worldEffectSystem_s     worldEffectSystem_t;
 
@@ -74,6 +78,31 @@ struct worldEffectSystem_s {
     void                    (*Render)           ( worldEffectSystem_t *weSystem );
 };
 
+typedef struct {
+    worldEffectSystem_t     base;
+
+    float                   alpha;
+    vec3_t                  minSpread, maxSpread;
+    vec3_t                  minVelocity, maxVelocity;
+    float                   windDuration, windLow;
+    float                   windMin, windMax;
+    vec3_t                  windSize;
+
+    vec3_t                  mins, maxs;
+    float                   nextWindGust, windLowSize;
+
+    vec3_t                  windDirection, windSpeed;
+    int                     windChange;
+
+    int                     contents[SNOWCONTENTS_Z_SIZE][SNOWCONTENTS_Y_SIZE][SNOWCONTENTS_X_SIZE];
+    vec3_t                  contentsSize, contentsStart;
+
+    int                     overallContents;
+    qboolean                isSnowing;
+
+    float                   velocityStabilize;
+} snowSystem_t;
+
 //=============================================
 
 //
@@ -86,5 +115,11 @@ void            R_AddWorldEffectSystem          ( worldEffectSystem_t *weSystem 
 void            R_RemoveWorldEffectSystem       ( worldEffectSystem_t *weSystem );
 
 void            R_WorldEffect_f                 ( void );
+
+//
+// tr_we_snow.c
+//
+
+void            R_SnowSystemCommand             ( worldEffectSystem_t *weSystem, char *command );
 
 #endif // __TR_WE__H

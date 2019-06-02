@@ -218,8 +218,8 @@ static void R_WorldEffectCommand(char *command)
     // system.
     weSystem = R_IsWorldEffectSystemInitialized(systemName);
 
-    if(Q_stricmp(systemName, "") == 0){
-        // FIXME BOE
+    if(Q_stricmp(systemName, "snow") == 0){
+        R_SnowSystemCommand(weSystem, command);
     }else{
         ri.Printf(PRINT_ERROR, "ERROR: Unknown world effect system '%s'.\n", systemName);
     }
