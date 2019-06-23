@@ -301,9 +301,6 @@ void R_RemoveWorldEffectSystem(worldEffectSystem_t *weSystem)
 {
     worldEffectSystem_t *currentSystem;
 
-    // Free allocated memory.
-    // FIXME BOE
-
     // Update list indexes.
     if(worldEffectSystemList == weSystem){
         // The current system is the current list base.
@@ -335,6 +332,14 @@ void R_RemoveWorldEffectSystem(worldEffectSystem_t *weSystem)
             currentSystem = currentSystem->nextSystem;
         }
     }
+
+    // Free all effects.
+    while(weSystem->worldEffectList != NULL){
+        R_RemoveWorldEffect(weSystem, weSystem->worldEffectList);
+    }
+
+    // Free particle list.
+    ri.Free(weSystem->particleList);
 
     // Free the world effect system itself.
     ri.Free(weSystem);
