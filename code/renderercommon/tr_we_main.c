@@ -73,6 +73,158 @@ qboolean R_ParseVectorArgument(char **text, int count, float *v, char *argDesc)
 
 /*
 ==================
+R_GetWorldEffect
+
+Checks if there is a world effect in the list
+with the specified name.
+
+Returns the world effect if a match is found,
+NULL otherwise.
+==================
+*/
+
+worldEffect_t *R_GetWorldEffect(worldEffectSystem_t *weSystem, const char *name)
+{
+    worldEffect_t   *current;
+
+    // Must have a valid list to iterate through.
+    if(weSystem->worldEffectList == NULL){
+        return NULL;
+    }
+
+    // Iterate through the world effect list, check if there is a match.
+    current = weSystem->worldEffectList;
+    while(current != NULL){
+        if(Q_stricmp(current->name, name) == 0){
+            return current;
+        }
+
+        current = current->nextEffect;
+    }
+
+    return NULL;
+}
+
+/*
+==================
+R_GetNextEffect
+
+Gets a next world effect in the list of
+the same type.
+
+Returns the next world effect if a match
+is found, NULL otherwise.
+==================
+*/
+
+worldEffect_t *R_GetNextEffect(worldEffect_t *effect)
+{
+    worldEffect_t   *current;
+
+    // Must not be the end of the world effect list.
+    if(effect->nextEffect == NULL){
+        return NULL;
+    }
+
+    // Iterate through remaining effects, start at the next effect in the list.
+    current = effect->nextEffect;
+    while(current != NULL){
+        if(Q_stricmp(current->name, effect->name) == 0){
+            return current;
+        }
+
+        current = current->nextEffect;
+    }
+
+    return NULL;
+}
+
+/*
+==================
+R_AddWorldEffect
+
+Adds a new world effect to the end of the
+existing effect list, or sets this effect
+as the effect list base of the specified
+world effect system.
+==================
+*/
+
+void R_AddWorldEffect(worldEffectSystem_t *weSystem, worldEffect_t *effect)
+{
+    worldEffect_t   *lastEffect;
+
+    // If there is no world effect initialized yet,
+    // use this effect as list base.
+    if(!weSystem->worldEffectList){
+        weSystem->worldEffectList = effect;
+        return;
+    }
+
+    // Find the end of the list.
+    lastEffect = weSystem->worldEffectList;
+    while(lastEffect->nextEffect != NULL){
+        lastEffect = lastEffect->nextEffect;
+    }
+
+    // Add the new world effect to the end of the list.
+    lastEffect->nextEffect = effect;
+}
+
+/*
+==================
+R_RemoveWorldEffect
+
+Fully remove a world effect from the specified
+world effect system and free all associated
+memory.
+==================
+*/
+
+void R_RemoveWorldEffect(worldEffectSystem_t *weSystem, worldEffect_t *effect)
+{
+    worldEffect_t   *currentEffect;
+
+    // Update list indexes.
+    if(weSystem->worldEffectList == effect){
+        // The current effect is the current list base.
+        if(effect->nextEffect != NULL){
+            weSystem->worldEffectList = effect->nextEffect;
+        }else{
+            // The single remaining effect in the list is removed.
+            // The list is now empty.
+            weSystem->worldEffectList = NULL;
+        }
+    }else{
+        // Iterate through the world effect list.
+        currentEffect = weSystem->worldEffectList;
+
+        while(currentEffect != NULL){
+            // Check if the next effect in the list is the effect
+            // that is removed.
+            if(currentEffect->nextEffect == effect){
+                if(effect->nextEffect != NULL){
+                    currentEffect->nextEffect = effect->nextEffect;
+                }else{
+                    // Last effect in the list is removed.
+                    currentEffect->nextEffect = NULL;
+                }
+
+                break;
+            }
+
+            currentEffect = currentEffect->nextEffect;
+        }
+    }
+
+    // Free the world effect.
+    ri.Free(effect);
+}
+
+//==============================================
+
+/*
+==================
 R_IsWorldEffectSystemInitialized
 
 Checks if a world effect system is already
@@ -165,6 +317,7 @@ void R_RemoveWorldEffectSystem(worldEffectSystem_t *weSystem)
     }else{
         // Iterate through the world effect system list.
         currentSystem = worldEffectSystemList;
+
         while(currentSystem != NULL){
             // Check if the next system in the list is the system
             // that is removed.
