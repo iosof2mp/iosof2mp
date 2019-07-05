@@ -35,6 +35,8 @@ int         r_firstScenePoly;
 
 int         r_numpolyverts;
 
+int         r_lastFrameTime;
+
 
 /*
 ====================
@@ -57,6 +59,8 @@ void R_InitNextFrame( void ) {
     r_firstScenePoly = 0;
 
     r_numpolyverts = 0;
+
+    r_lastFrameTime = tr.refdef.time;
 }
 
 
@@ -319,6 +323,7 @@ void RE_RenderScene( const refdef_t *fd ) {
     VectorCopy( fd->viewaxis[2], tr.refdef.viewaxis[2] );
 
     tr.refdef.time = fd->time;
+    tr.refdef.frameTime = Com_Clamp(0, 500, fd->time - r_lastFrameTime);
     tr.refdef.rdflags = fd->rdflags;
 
     // copy the areamask data over and note if it has changed, which
