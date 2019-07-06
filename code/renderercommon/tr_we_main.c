@@ -221,6 +221,54 @@ void R_RemoveWorldEffect(worldEffectSystem_t *weSystem, worldEffect_t *effect)
     ri.Free(effect);
 }
 
+/*
+==================
+R_UpdateWorldEffects
+
+Update any world effect currently
+present in the specified world
+effect system.
+==================
+*/
+
+void R_UpdateWorldEffects(worldEffectSystem_t *weSystem, float elapsedTime)
+{
+    worldEffect_t   *current;
+
+    current = weSystem->worldEffectList;
+    while(current != NULL){
+        if(current->Update != NULL){
+            current->Update(weSystem, current, elapsedTime);
+        }
+
+        current = current->nextEffect;
+    }
+}
+
+/*
+==================
+R_RenderWorldEffects
+
+Renders any world effect currently
+present in the specified world
+effect system.
+==================
+*/
+
+void R_RenderWorldEffects(worldEffectSystem_t *weSystem)
+{
+    worldEffect_t   *current;
+
+    current = weSystem->worldEffectList;
+    while(current != NULL){
+        if(current->Render != NULL){
+            current->Render(weSystem, current);
+        }
+
+        current = current->nextEffect;
+    }
+}
+
 //==============================================
 
 /*
