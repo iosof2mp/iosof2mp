@@ -196,7 +196,6 @@ void R_RemoveWorldEffect(worldEffectSystem_t *weSystem, worldEffect_t *effect)
             weSystem->worldEffectList = NULL;
         }
     }else{
-        // Iterate through the world effect list.
         currentEffect = weSystem->worldEffectList;
 
         while(currentEffect != NULL){
@@ -217,7 +216,6 @@ void R_RemoveWorldEffect(worldEffectSystem_t *weSystem, worldEffect_t *effect)
         }
     }
 
-    // Free the world effect.
     ri.Free(effect);
 }
 
@@ -292,7 +290,6 @@ static worldEffectSystem_t *R_IsWorldEffectSystemInitialized(const char *name)
         return NULL;
     }
 
-    // Iterate through world effect systems, check if there is a match.
     current = worldEffectSystemList;
     while(current != NULL){
         if(Q_stricmp(current->name, name) == 0){
@@ -349,7 +346,7 @@ void R_RemoveWorldEffectSystem(worldEffectSystem_t *weSystem)
 {
     worldEffectSystem_t *currentSystem;
 
-    // Update list indexes.
+    // Update list indexes for the specified world effect system.
     if(worldEffectSystemList == weSystem){
         // The current system is the current list base.
         if(weSystem->nextSystem != NULL){
@@ -360,7 +357,6 @@ void R_RemoveWorldEffectSystem(worldEffectSystem_t *weSystem)
             worldEffectSystemList = NULL;
         }
     }else{
-        // Iterate through the world effect system list.
         currentSystem = worldEffectSystemList;
 
         while(currentSystem != NULL){
@@ -381,15 +377,12 @@ void R_RemoveWorldEffectSystem(worldEffectSystem_t *weSystem)
         }
     }
 
-    // Free all effects.
+    // Free all effects associated to this world effect system.
     while(weSystem->worldEffectList != NULL){
         R_RemoveWorldEffect(weSystem, weSystem->worldEffectList);
     }
 
-    // Free particle list.
     ri.Free(weSystem->particleList);
-
-    // Free the world effect system itself.
     ri.Free(weSystem);
 }
 
@@ -474,9 +467,6 @@ void R_WorldEffect_f(void)
 {
     char cmd[2048];
 
-    // Grab the console arguments.
     ri.Cmd_ArgsBuffer(cmd, sizeof(cmd));
-
-    // Execute the command.
     R_WorldEffectCommand(cmd);
 }
