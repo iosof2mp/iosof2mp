@@ -393,6 +393,35 @@ void R_RemoveWorldEffectSystem(worldEffectSystem_t *weSystem)
     ri.Free(weSystem);
 }
 
+/*
+==================
+R_RenderWorldEffectSystems
+
+Updates and/or renders available
+world effect systems, if the
+required function pointers are
+set for given system.
+==================
+*/
+
+void R_RenderWorldEffectSystems(float elapsedTime)
+{
+    worldEffectSystem_t *weSystem;
+
+    weSystem = worldEffectSystemList;
+    while(weSystem != NULL){
+        if(weSystem->Update != NULL){
+            weSystem->Update(weSystem, elapsedTime);
+        }
+
+        if(weSystem->Render != NULL){
+            weSystem->Render(weSystem);
+        }
+
+        weSystem = weSystem->nextSystem;
+    }
+}
+
 //==============================================
 
 /*

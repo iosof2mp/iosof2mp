@@ -123,6 +123,7 @@ void            R_RenderWorldEffects            ( worldEffectSystem_t *weSystem 
 
 void            R_AddWorldEffectSystem          ( worldEffectSystem_t *weSystem );
 void            R_RemoveWorldEffectSystem       ( worldEffectSystem_t *weSystem );
+void            R_RenderWorldEffectSystems      ( float elapsedTime );
 
 void            R_WorldEffect_f                 ( void );
 
