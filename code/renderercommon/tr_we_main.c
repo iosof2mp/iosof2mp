@@ -107,7 +107,7 @@ worldEffect_t *R_GetWorldEffect(worldEffectSystem_t *weSystem, const char *name)
 
 /*
 ==================
-R_GetNextEffect
+R_GetNextWorldEffect
 
 Gets a next world effect in the list of
 the same type.
@@ -117,7 +117,7 @@ is found, NULL otherwise.
 ==================
 */
 
-worldEffect_t *R_GetNextEffect(worldEffect_t *effect)
+worldEffect_t *R_GetNextWorldEffect(worldEffect_t *effect)
 {
     worldEffect_t   *current;
 

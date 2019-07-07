@@ -57,7 +57,8 @@ typedef enum {
 //
 
 struct worldEffect_s {
-    qboolean                mEnabled;
+    const char              *name;
+    worldEffect_t           *nextEffect;
 
     void                    (*Update)           ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
     void                    (*Render)           ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
@@ -115,7 +116,7 @@ typedef struct {
 qboolean        R_ParseVectorArgument           ( char **text, int count, float *v, char *argDesc );
 
 worldEffect_t   *R_GetWorldEffect               ( worldEffectSystem_t *weSystem, const char *name );
-worldEffect_t   *R_GetNextEffect                ( worldEffect_t *effect );
+worldEffect_t   *R_GetNextWorldEffect           ( worldEffect_t *effect );
 void            R_AddWorldEffect                ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
 void            R_RemoveWorldEffect             ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
 void            R_UpdateWorldEffects            ( worldEffectSystem_t *weSystem, float elapsedTime );
