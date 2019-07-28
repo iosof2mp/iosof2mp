@@ -163,9 +163,9 @@ loop:   SWAPINIT(a, es);
     }
 
     pn = (char *)a + n * es;
-    r = MIN(pa - (char *)a, pb - pa);
+    r = min(pa - (char *)a, pb - pa);
     vecswap(a, pb - r, r);
-    r = MIN(pd - pc, pn - pd - es);
+    r = min(pd - pc, pn - pd - es);
     vecswap(pb, pn - r, r);
     if ((r = pb - pa) > es)
         qsort(a, r / es, es, cmp);
@@ -1840,12 +1840,12 @@ static int fmtint (char *buffer, size_t *currlen, size_t maxlen,
   convert[place] = 0;
 
   zpadlen = max - place;
-  spadlen = min - MAX (max, place) - (signvalue ? 1 : 0);
+  spadlen = min - max (max, place) - (signvalue ? 1 : 0);
   if (zpadlen < 0) zpadlen = 0;
   if (spadlen < 0) spadlen = 0;
   if (flags & DP_F_ZERO)
   {
-    zpadlen = MAX(zpadlen, spadlen);
+    zpadlen = max(zpadlen, spadlen);
     spadlen = 0;
   }
   if (flags & DP_F_MINUS)

@@ -166,7 +166,12 @@ float   Q_crandom( int *seed ) {
 // conversions and the additional math required to get the desired value.
 // eg the typical tint = (rand() * 255) / 32768
 // becomes tint = irand(0, 255)
-static uint32_t        holdrand = 0x89abcdef;
+
+#ifndef Q3_VM
+static uint32_t     holdrand = 0x89abcdef;
+#else
+static unsigned int holdrand = 0x89abcdef;
+#endif
 
 void Rand_Init( int seed )
 {
@@ -190,7 +195,9 @@ int irand( int min, int max )
 {
     int     result;
 
+#ifndef Q3_VM
     assert((max - min) < QRAND_MAX);
+#endif
 
     max++;
     holdrand = (holdrand * 214013L) + 2531011L;
