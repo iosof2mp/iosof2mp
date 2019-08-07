@@ -62,6 +62,8 @@ struct worldEffect_s {
 
     void                    (*Update)           ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
     void                    (*Render)           ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
+
+    qboolean                (*Command)          ( worldEffect_t *effect, char *command );
 };
 
 //=============================================
@@ -121,6 +123,7 @@ void            R_AddWorldEffect                ( worldEffectSystem_t *weSystem,
 void            R_RemoveWorldEffect             ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
 void            R_UpdateWorldEffects            ( worldEffectSystem_t *weSystem, float elapsedTime );
 void            R_RenderWorldEffects            ( worldEffectSystem_t *weSystem );
+qboolean        R_WorldEffectCommand            ( worldEffectSystem_t *weSystem, char *command );
 
 void            R_AddWorldEffectSystem          ( worldEffectSystem_t *weSystem );
 void            R_RemoveWorldEffectSystem       ( worldEffectSystem_t *weSystem );

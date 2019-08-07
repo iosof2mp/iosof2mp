@@ -221,6 +221,39 @@ void R_RemoveWorldEffect(worldEffectSystem_t *weSystem, worldEffect_t *effect)
 
 /*
 ==================
+R_WorldEffectCommand
+
+Passes the user command to every
+world effect currently present
+in the specified world effect
+system.
+
+Returns qtrue if any world effect
+accepts the command, qfalse
+otherwise.
+==================
+*/
+
+qboolean R_WorldEffectCommand(worldEffectSystem_t *weSystem, char *command)
+{
+    worldEffect_t   *current;
+
+    current = weSystem->worldEffectList;
+    while(current != NULL){
+        if(current->Command != NULL){
+            if(current->Command(current, command)){
+                return qtrue;
+            }
+        }
+
+        current = current->nextEffect;
+    }
+
+    return qfalse;
+}
+
+/*
+==================
 R_UpdateWorldEffects
 
 Update any world effect currently
@@ -415,11 +448,9 @@ void R_RenderWorldEffectSystems(float elapsedTime)
     }
 }
 
-//==============================================
-
 /*
 ==================
-R_WorldEffectCommand
+R_WorldEffectSystemCommand
 
 Any system defined should have a
 command handler set in this
@@ -432,7 +463,7 @@ that world effect system.
 ==================
 */
 
-static void R_WorldEffectCommand(char *command)
+static void R_WorldEffectSystemCommand(char *command)
 {
     char                *systemName;
     worldEffectSystem_t *weSystem;
@@ -453,6 +484,8 @@ static void R_WorldEffectCommand(char *command)
     }
 }
 
+//==============================================
+
 /*
 ==================
 R_WorldEffect_f
@@ -468,5 +501,5 @@ void R_WorldEffect_f(void)
     char cmd[2048];
 
     ri.Cmd_ArgsBuffer(cmd, sizeof(cmd));
-    R_WorldEffectCommand(cmd);
+    R_WorldEffectSystemCommand(cmd);
 }
