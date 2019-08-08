@@ -1900,7 +1900,7 @@ static qboolean DecodeImageInterlaced(struct PNG_Chunk_IHDR *IHDR,
  *  The PNG loader
  */
 
-void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
+static void LoadPNG(const char *name, byte **pic, int *width, int *height, qboolean dataImage)
 {
     struct BufferedFile *ThePNG;
     byte *OutBuffer;
@@ -2091,6 +2091,25 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
         CloseBufferedFile(ThePNG);
 
         return;
+    }
+
+    /*
+     * Check if the file should be forced to load as 8 bit greyscale image,
+     * only true for SoF2 data files.
+     */
+
+    if(dataImage)
+    {
+        /*
+         * SoF2 data files must be 8 bit.
+         */
+        if(IHDR->BitDepth != PNG_BitDepth_8){
+            CloseBufferedFile(ThePNG);
+
+            return;
+        }
+
+        IHDR->ColourType = PNG_ColourType_Grey;
     }
 
     /*
@@ -2482,4 +2501,23 @@ void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
      */
 
     CloseBufferedFile(ThePNG);
+}
+
+/*
+ * Load a PNG image file.
+ */
+
+void R_LoadPNG(const char *name, byte **pic, int *width, int *height)
+{
+    LoadPNG(name, pic, width, height, qfalse);
+}
+
+/*
+ * Load a PNG data file, which parses the image as an 8 bit greyscale image
+ * regardless of what color type is defined in the IHDR chunk.
+ */
+
+void R_LoadPNGDataFile(const char *name, byte **pic, int *width, int *height)
+{
+    LoadPNG(name, pic, width, height, qtrue);
 }

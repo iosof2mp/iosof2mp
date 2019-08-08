@@ -2375,6 +2375,31 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
     }
 }
 
+/*
+=================
+R_LoadDataImage
+
+Loads a PNG data image file,
+used internally by several
+subsystems.
+=================
+*/
+
+void R_LoadDataImage(const char *name, byte **pic, int *width, int *height)
+{
+    char localName[MAX_QPATH];
+
+    *pic = NULL;
+    *width = 0;
+    *height = 0;
+
+    Q_strncpyz(localName, name, MAX_QPATH);
+
+    // SoF2 data images must always be PNG.
+    COM_DefaultExtension(localName, sizeof(localName), ".png");
+
+    R_LoadPNGDataFile(localName, pic, width, height);
+}
 
 /*
 ===============

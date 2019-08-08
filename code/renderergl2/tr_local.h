@@ -2011,6 +2011,8 @@ void        R_UpdateSubImage( image_t *image, byte *pic, int x, int y, int width
 void        R_SetColorMappings( void );
 void        R_GammaCorrect( byte *buffer, int bufSize );
 
+void    R_LoadDataImage( const char *name, byte **pic, int *width, int *height );
+
 void    R_ImageList_f( void );
 void    R_SkinList_f( void );
 // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=516
