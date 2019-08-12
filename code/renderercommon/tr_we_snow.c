@@ -109,11 +109,13 @@ world effect system.
 
 void R_SnowSystemCommand(worldEffectSystem_t *weSystem, char *command)
 {
+    char            *originalCommand;
     char            *token;
     int             maxSnowflakes;
     snowSystem_t    *snowSystem;
 
-    token = COM_ParseExt(&command, qfalse);
+    originalCommand = command;
+    token           = COM_ParseExt(&command, qfalse);
 
     //
     // Snow system initialization.
@@ -157,9 +159,18 @@ void R_SnowSystemCommand(worldEffectSystem_t *weSystem, char *command)
     }
 
     //
+    // Check if this command belongs to any world effect.
+    //
+    if(R_WorldEffectCommand(weSystem, originalCommand)){
+        return;
+    }
+
+    //
     // Remaining commands.
     //
-    snowSystem = (snowSystem_t *)weSystem;
+    snowSystem  = (snowSystem_t *)weSystem;
+    command     = originalCommand;
+    token       = COM_ParseExt(&command, qfalse);
 
     // snow remove
     if(Q_stricmp(token, "remove") == 0){
@@ -198,9 +209,10 @@ void R_SnowSystemCommand(worldEffectSystem_t *weSystem, char *command)
         if(!alpha){
             ri.Printf(PRINT_ALL, "Usage: snow alpha <alpha>\n");
             ri.Printf(PRINT_ALL, "Default: 0.09\n");
+            return;
         }
 
-        snowSystem->alpha = atof(token);
+        snowSystem->alpha = alpha;
     }
     // snow spread
     else if(Q_stricmp(token, "spread") == 0){
@@ -247,6 +259,7 @@ void R_SnowSystemCommand(worldEffectSystem_t *weSystem, char *command)
             if(!duration){
                 ri.Printf(PRINT_ALL, "Usage: snow blowing duration <seconds>\n");
                 ri.Printf(PRINT_ALL, "Default: 2\n");
+                return;
             }
 
             snowSystem->windDuration = duration;
@@ -260,6 +273,7 @@ void R_SnowSystemCommand(worldEffectSystem_t *weSystem, char *command)
             if(!low){
                 ri.Printf(PRINT_ALL, "Usage: snow blowing low <seconds>\n");
                 ri.Printf(PRINT_ALL, "Default: 3\n");
+                return;
             }
 
             snowSystem->windLow = low;
