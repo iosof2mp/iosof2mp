@@ -39,6 +39,8 @@ extern void (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat
 extern void (APIENTRYP qglLockArraysEXT) (GLint first, GLsizei count);
 extern void (APIENTRYP qglUnlockArraysEXT) (void);
 
+extern void (APIENTRYP qglPointParameterfEXT) (GLenum, GLfloat);
+extern void (APIENTRYP qglPointParameterfvEXT) (GLenum pname, GLfloat *params);
 
 //===========================================================================
 
@@ -70,6 +72,7 @@ extern void (APIENTRYP qglUnlockArraysEXT) (void);
     GLE(void, GetIntegerv, GLenum pname, GLint *params) \
     GLE(const GLubyte *, GetString, GLenum name) \
     GLE(void, LineWidth, GLfloat width) \
+    GLE(void, PointSize, GLfloat size) \
     GLE(void, PolygonOffset, GLfloat factor, GLfloat units) \
     GLE(void, ReadPixels, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels) \
     GLE(void, Scissor, GLint x, GLint y, GLsizei width, GLsizei height) \

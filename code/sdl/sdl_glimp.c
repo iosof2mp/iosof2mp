@@ -63,6 +63,9 @@ void (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 void (APIENTRYP qglLockArraysEXT) (GLint first, GLsizei count);
 void (APIENTRYP qglUnlockArraysEXT) (void);
 
+void (APIENTRYP qglPointParameterfEXT) (GLenum pname, GLfloat param);
+void (APIENTRYP qglPointParameterfvEXT) (GLenum pname, GLfloat *params);
+
 #define GLE(ret, name, ...) name##proc * qgl##name;
 QGL_1_1_PROCS;
 QGL_1_1_FIXED_FUNCTION_PROCS;
@@ -358,6 +361,9 @@ static void GLimp_ClearProcAddresses( void ) {
 
     qglLockArraysEXT = NULL;
     qglUnlockArraysEXT = NULL;
+
+    qglPointParameterfEXT = NULL;
+    qglPointParameterfvEXT = NULL;
 
 #undef GLE
 }
@@ -938,6 +944,22 @@ static void GLimp_InitExtensions( qboolean fixedFunction )
         else
         {
             ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
+        }
+
+        // GL_EXT_point_parameters
+        if ( SDL_GL_ExtensionSupported( "GL_EXT_point_parameters" ) )
+        {
+            ri.Printf( PRINT_ALL, "...using GL_EXT_point_parameters\n" );
+            qglPointParameterfEXT = ( void ( APIENTRY * )( GLenum, GLfloat ) ) SDL_GL_GetProcAddress( "glPointParameterfEXT" );
+            qglPointParameterfvEXT = ( void ( APIENTRY * )( GLenum, GLfloat * ) ) SDL_GL_GetProcAddress( "glPointParameterfvEXT" );
+            if (!qglPointParameterfEXT || !qglPointParameterfvEXT)
+            {
+                ri.Error (ERR_FATAL, "bad getprocaddress");
+            }
+        }
+        else
+        {
+            ri.Printf( PRINT_ALL, "...GL_EXT_point_parameters not found\n" );
         }
     }
 
