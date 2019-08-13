@@ -1199,6 +1199,7 @@ void    GL_Cull( int cullType );
 #define     GLS_ATEST_BITS                      0xf0000000
 
 #define GLS_DEFAULT         GLS_DEPTHMASK_TRUE
+#define GLS_ALPHA           (GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA)
 
 void    RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 void    RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);

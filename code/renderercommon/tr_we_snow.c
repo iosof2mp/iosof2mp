@@ -53,9 +53,8 @@ static worldEffectSystem_t *R_SnowSystemInitialize(int maxSnowflakes)
     snowSystem->base.particleList   = ri.Malloc(sizeof(worldEffectParticle_t) * maxSnowflakes);
     snowSystem->base.numParticles   = maxSnowflakes;
 
-    // TODO: Set proper functions.
-    snowSystem->base.Update         = NULL;
-    snowSystem->base.Render         = NULL;
+    snowSystem->base.Update         = RB_SnowSystemUpdate;
+    snowSystem->base.Render         = RB_SnowSystemRender;
 
     //
     // Set snow system information.

@@ -104,12 +104,19 @@ typedef struct {
     vec3_t                  contentsSize, contentsStart;
 
     int                     overallContents;
-    qboolean                isSnowing;
+    qboolean                isRendering;
 
     float                   velocityStabilize;
 } snowSystem_t;
 
 //=============================================
+
+//
+// tr_we backend.c
+//
+
+void            RB_SnowSystemUpdate             ( worldEffectSystem_t *weSystem, float elapsedTime );
+void            RB_SnowSystemRender             ( worldEffectSystem_t *weSystem );
 
 //
 // tr_we_main.c
