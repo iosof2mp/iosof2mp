@@ -149,6 +149,7 @@ typedef struct {
 
     void    (*Cmd_ExecuteText) (int exec_when, const char *text);
 
+    int     (*CM_PointContents)(const vec3_t p, clipHandle_t model);
     byte    *(*CM_ClusterPVS)(int cluster);
 
     // visualization for debugging collision detection
