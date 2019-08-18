@@ -26,6 +26,80 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /*
 =============================================
 -----------
+Wind effect
+-----------
+=============================================
+*/
+
+/*
+==================
+RB_WindEffectUpdate
+
+Updates any particles of the parent
+world effect system that are affected
+by this wind effect.
+==================
+*/
+
+void RB_WindEffectUpdate(worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime)
+{
+    windEffect_t            *windEffect;
+    worldEffectParticle_t   *item;
+    vec3_t                  difference;
+    float                   dist, calcDist;
+    float                   scaleLength;
+    int                     i, j;
+
+    windEffect = (windEffect_t *)effect;
+
+    // Only update if this effect is currently enabled in the parent world effect system.
+    if(!windEffect->isEnabled){
+        return;
+    }
+
+    // Calculate total distance between the wind effect origin
+    // and the current player position.
+    VectorSubtract(backEnd.viewParms.or.origin, windEffect->point, difference);
+    if(VectorLength(difference) > 300.0f){
+        // This effect instance is too far away to impact any
+        // of the particles that are currently rendering.
+        return;
+    }
+
+    calcDist = 0.0f;
+    for(i = 0; i < weSystem->numParticles; i++){
+        item = &weSystem->particleList[i];
+
+        if(windEffect->affectedParticles[i]){
+            windEffect->affectedParticles[i]--;
+        }else{
+            if(!windEffect->isGlobal){
+                for(j = 0; j < windEffect->numPlanes; j++){
+                    dist = DotProduct(item->pos, windEffect->planes[j]) - windEffect->planes[j][3];
+
+                    if(dist < 0.01f || dist > windEffect->maxDistance[j]){
+                        break;
+                    }else if(j == 0){
+                        calcDist = dist;
+                    }
+                }
+
+                if(j != windEffect->numPlanes){
+                    continue;
+                }
+            }
+
+            scaleLength = 1.0f - (calcDist / windEffect->maxDistance[0]);
+
+            windEffect->affectedParticles[i] = windEffect->affectedDuration * scaleLength;
+            VectorMA(item->velocity, elapsedTime, windEffect->velocity, item->velocity);
+        }
+    }
+}
+
+/*
+=============================================
+-----------
 Snow system
 -----------
 =============================================
@@ -50,6 +124,7 @@ longer outside).
 void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
 {
     snowSystem_t            *snowSystem;
+    windEffect_t            *windGust;
     worldEffectParticle_t   *item;
     vec3_t                  origin, difference;
     vec3_t                  newMins, newMaxs;
@@ -59,6 +134,7 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
     int                     x, y, z;
 
     snowSystem  = (snowSystem_t *)weSystem;
+    windGust    = (windEffect_t *)R_GetWorldEffect(weSystem, "wind");
 
     snowSystem->windChange--;
     if(snowSystem->windChange < 0){
@@ -84,7 +160,8 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
     // Check when the next wind gust should occur.
     snowSystem->nextWindGust -= elapsedTime;
     if(snowSystem->nextWindGust < 0){
-        // TODO: There is currently no wind, disable the effect temporarily.
+        // There is currently no wind, disable the effect temporarily.
+        windGust->isEnabled = qfalse;
     }
 
     if(snowSystem->nextWindGust < snowSystem->windLowSize){
@@ -100,7 +177,12 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
 
         VectorCopy(origin, windPos);
 
-        // TODO: Update wind effect.
+        // Update the global wind effect with the new parameters.
+        windGust->isEnabled = qtrue;
+        R_UpdateWindParams(windGust, windPos, windDirection, snowSystem->windSize);
+
+        snowSystem->nextWindGust = flrand(snowSystem->windDuration, snowSystem->windDuration * 2.0f);
+        snowSystem->windLowSize = -flrand(snowSystem->windLow, snowSystem->windLow * 3.0f);
     }
 
     VectorAdd(snowSystem->minSpread, origin, newMins);

@@ -131,6 +131,8 @@ typedef struct {
 // tr_we backend.c
 //
 
+void            RB_WindEffectUpdate             ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
+
 void            RB_SnowSystemUpdate             ( worldEffectSystem_t *weSystem, float elapsedTime );
 void            RB_SnowSystemRender             ( worldEffectSystem_t *weSystem );
 

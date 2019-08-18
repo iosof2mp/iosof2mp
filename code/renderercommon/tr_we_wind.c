@@ -101,8 +101,7 @@ windEffect_t *R_AddWindEffect(worldEffectSystem_t *weSystem, qboolean isGlobalEf
     //
     windEffect->base.name = "wind";
 
-    // TODO: Set proper function.
-    windEffect->base.Update = NULL;
+    windEffect->base.Update = RB_WindEffectUpdate;
 
     //
     // Set wind effect information.
