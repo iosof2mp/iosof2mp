@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_common.h"
 #include "tr_we.h"
 
-// Local variable definitions.
+// A linked list containing all world effect system instances.
 static  worldEffectSystem_t     *worldEffectSystemList  = NULL;
 
 //==============================================

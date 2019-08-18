@@ -66,6 +66,22 @@ struct worldEffect_s {
     qboolean                (*Command)          ( worldEffect_t *effect, char *command );
 };
 
+typedef struct {
+    worldEffect_t           base;
+
+    vec4_t                  planes[3];
+    float                   maxDistance[3];
+    vec3_t                  velocity;
+    int                     numPlanes;
+
+    int                     affectedDuration;
+    int                     *affectedParticles;
+    vec3_t                  point, size;
+
+    qboolean                isGlobal;
+    qboolean                isEnabled;
+} windEffect_t;
+
 //=============================================
 //
 // World effect system structures.
@@ -143,5 +159,13 @@ void            R_WorldEffect_f                 ( void );
 //
 
 void            R_SnowSystemCommand             ( worldEffectSystem_t *weSystem, char *command );
+
+//
+// tr_we_wind.c
+//
+
+void            R_UpdateWindParams              ( windEffect_t *windEffect, vec3_t point, vec3_t velocity, vec3_t size );
+
+windEffect_t    *R_AddWindEffect                ( worldEffectSystem_t *weSystem, qboolean isGlobalEffect );
 
 #endif // __TR_WE__H

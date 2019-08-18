@@ -36,6 +36,7 @@ the snow world effect system.
 static worldEffectSystem_t *R_SnowSystemInitialize(int maxSnowflakes)
 {
     snowSystem_t            *snowSystem;
+    worldEffectSystem_t     *weSystem;
     worldEffectParticle_t   *item;
     int                     i;
 
@@ -92,7 +93,13 @@ static worldEffectSystem_t *R_SnowSystemInitialize(int maxSnowflakes)
         item++;
     }
 
-    return (worldEffectSystem_t *)snowSystem;
+    //
+    // Add global wind gust effect.
+    //
+    weSystem = (worldEffectSystem_t *)snowSystem;
+    R_AddWindEffect(weSystem, qtrue);
+
+    return weSystem;
 }
 
 //==============================================
@@ -179,20 +186,22 @@ void R_SnowSystemCommand(worldEffectSystem_t *weSystem, char *command)
     }
     // snow wind
     else if(Q_stricmp(token, "wind") == 0){
-        vec3_t  windOrigin;
-        vec3_t  windVelocity;
-        vec3_t  size;
+        vec3_t          windOrigin;
+        vec3_t          windVelocity;
+        vec3_t          windSize;
+        windEffect_t    *windEffect;
 
         if(!R_ParseVectorArgument(&command, 3, windOrigin, "origin")
             || !R_ParseVectorArgument(&command, 3, windVelocity, "velocity")
-            || !R_ParseVectorArgument(&command, 3, size, "size")
+            || !R_ParseVectorArgument(&command, 3, windSize, "size")
         ){
             ri.Printf(PRINT_ALL, "Usage: snow wind ( originX originY originZ ) ( velocityX velocityY velocityZ ) ( sizeX sizeY sizeZ )\n");
             ri.Printf(PRINT_ALL, "Defaults: N/A\n");
             return;
         }
 
-        // TODO: Add wind effect.
+        windEffect = R_AddWindEffect(weSystem, qfalse);
+        R_UpdateWindParams(windEffect, windOrigin, windVelocity, windSize);
     }
     // snow fog
     else if(Q_stricmp(token, "fog") == 0){
