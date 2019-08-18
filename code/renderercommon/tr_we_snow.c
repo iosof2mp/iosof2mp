@@ -205,7 +205,7 @@ void R_SnowSystemCommand(worldEffectSystem_t *weSystem, char *command)
     }
     // snow fog
     else if(Q_stricmp(token, "fog") == 0){
-        // TODO: Add fog effect.
+        R_AddMistyFogEffect(weSystem, 2);
         snowSystem->windChange = 0;
     }
     // snow alpha
