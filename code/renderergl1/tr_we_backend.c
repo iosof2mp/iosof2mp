@@ -25,6 +25,257 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 =============================================
+----------------
+Misty fog effect
+----------------
+=============================================
+*/
+
+/*
+==================
+RB_LoadMistyFogImage
+
+Loads the specified misty fog image as
+data image file.
+==================
+*/
+
+qboolean RB_LoadMistyFogImage(mistyFogImage_t *fogImage, char *fileName)
+{
+    R_LoadDataImage(fileName, &fogImage->data, &fogImage->width, &fogImage->height);
+
+    return fogImage->data != NULL;
+}
+
+/*
+==================
+RB_CreateMistyFogTextureCoords
+
+Sets up the texture coordinates on the
+misty fog image based on the wind.
+==================
+*/
+
+void RB_CreateMistyFogTextureCoords(mistyFogImage_t *fogImage)
+{
+    int     xStart, yStart;
+    float   forwardWind;
+
+    fogImage->speed = flrand(200.0f, 700.0f);
+
+    forwardWind = DotProduct(fogImage->windTransform, backEnd.viewParms.or.axis[0]);
+
+    if(forwardWind > 0.5f){
+        // Moving away, so make the size smaller.
+        fogImage->currentSize = flrand(fogImage->minSize, fogImage->minSize * 1.01f);
+    }else if(forwardWind < -0.5f){
+        // Moving towards, so make the size bigger.
+        fogImage->currentSize = flrand(fogImage->maxSize - fogImage->minSize, fogImage->maxSize);
+    }else{
+        // Normal range.
+        fogImage->currentSize = flrand(fogImage->minSize * 1.5f, fogImage->minSize * 1.5f + fogImage->size);
+    }
+
+    fogImage->currentSize /= 2.0f;
+
+    xStart = (1.0f - fogImage->currentSize - 0.40f) * flrand(0.0f, 1.0f) + 0.20f;
+    yStart = (1.0f - fogImage->currentSize - 0.40f) * flrand(0.0f, 1.0f) + 0.20f;
+
+    fogImage->textureCoords[0][0] = xStart - fogImage->currentSize;
+    fogImage->textureCoords[0][1] = yStart - fogImage->currentSize;
+    fogImage->textureCoords[1][0] = xStart + fogImage->currentSize;
+    fogImage->textureCoords[1][1] = yStart + fogImage->currentSize;
+}
+
+/*
+==================
+RB_MistyFogEffectUpdate
+
+Updates the misty fog effect images
+by taking the wind speed and direction
+into account, given we are allowed to
+render in the current state
+(e.g. outside).
+==================
+*/
+
+void RB_MistyFogEffectUpdate(worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime)
+{
+    mistyFogEffect_t    *mistyFogEffect;
+    int                 originContents;
+    int                 i, j;
+    int                 x, y;
+
+    mistyFogEffect = (mistyFogEffect_t *)effect;
+    originContents = ri.CM_PointContents(backEnd.viewParms.or.origin, 0);
+
+    if(originContents & CONTENTS_OUTSIDE && !(originContents & CONTENTS_WATER)){
+        if(mistyFogEffect->fadeAlpha < 1.0f){
+            // Player just went outside, fade in fog.
+            mistyFogEffect->fadeAlpha += elapsedTime / 2.0f;
+        }
+
+        if(mistyFogEffect->fadeAlpha > 1.0f){
+            mistyFogEffect->fadeAlpha = 1.0f;
+        }
+    }else{
+        if(mistyFogEffect->fadeAlpha > 0.0f){
+            // Player just went inside, fade out fog.
+            mistyFogEffect->fadeAlpha -= elapsedTime / 2.0f;
+        }
+
+        if(mistyFogEffect->fadeAlpha <= 0.0f){
+            // No need to continue here as the player is (still) inside
+            // and the fog is already fully faded out.
+            return;
+        }
+    }
+
+    for(y = 0; y < MISTYFOG_HEIGHT; y++){
+        for(x = 0; x < MISTYFOG_WIDTH; x++){
+            mistyFogEffect->colors[y][x][3] = 0.0f;
+        }
+    }
+
+    // Update all associated images.
+    for(i = 0; i < MISTYFOG_NUM_IMAGES; i++){
+        for(j = 0; j < MISTYFOG_NUM_PAIRED_IMAGES; j++){
+            mistyFogImage_t     *mistyFogImage;
+            mistyFogImage_t     *pairedImage;
+            qboolean            removeImage;
+            float               windSpeed;
+            float               forwardWind, rightWind;
+
+            mistyFogImage       = &mistyFogEffect->images[i][j];
+            removeImage         = qfalse;
+
+            // Translate.
+            windSpeed           = 1.0f / mistyFogImage->speed;
+            forwardWind         = DotProduct(mistyFogImage->windTransform, backEnd.viewParms.or.axis[0]);
+            rightWind           = DotProduct(mistyFogImage->windTransform, backEnd.viewParms.or.axis[1]);
+
+            mistyFogImage->textureCoords[0][0] += rightWind * windSpeed;
+            mistyFogImage->textureCoords[1][0] += rightWind * windSpeed;
+
+            mistyFogImage->textureCoords[0][0] -= forwardWind * windSpeed * 0.25f;
+            mistyFogImage->textureCoords[0][1] -= forwardWind * windSpeed * 0.25f;
+            mistyFogImage->textureCoords[1][0] -= forwardWind * windSpeed * 0.25f;
+            mistyFogImage->textureCoords[1][1] -= forwardWind * windSpeed * 0.25f;
+
+            if((fabs(mistyFogImage->textureCoords[0][0] - mistyFogImage->textureCoords[1][0]) < mistyFogImage->minSize) ||
+               (fabs(mistyFogImage->textureCoords[0][1] - mistyFogImage->textureCoords[1][1]) < mistyFogImage->minSize)
+            ){
+                removeImage = qtrue;
+            }else if((fabs(mistyFogImage->textureCoords[0][0] - mistyFogImage->textureCoords[1][0]) > mistyFogImage->maxSize) ||
+                     (fabs(mistyFogImage->textureCoords[0][1] - mistyFogImage->textureCoords[1][1]) > mistyFogImage->maxSize)
+            ){
+                removeImage = qtrue;
+            }
+
+            if(removeImage && !mistyFogImage->alphaFade){
+                mistyFogImage->alphaFade = qtrue;
+                mistyFogImage->alphaDirection = -0.025f;
+
+                // Update the image bound to the current one.
+                pairedImage = &mistyFogEffect->images[i][j == 0];
+
+                pairedImage->alpha = 0.0f;
+                pairedImage->alphaDirection = 0.025f;
+                pairedImage->alphaFade = qtrue;
+                RB_CreateMistyFogTextureCoords(pairedImage);
+                pairedImage->isRendering = qtrue;
+            }else if(mistyFogImage->alphaFade){
+                mistyFogImage->alpha += mistyFogImage->alphaDirection * 0.4f;
+
+                if(mistyFogImage->alpha < 0.0f){
+                    mistyFogImage->alpha = 0.0f;
+                    mistyFogImage->isRendering = qfalse;
+                }else if(mistyFogImage->alpha >= 1.0f){
+                    mistyFogImage->alpha = 1.0f;
+                    mistyFogImage->alphaFade = qfalse;
+                }
+            }
+        }
+    }
+
+    // Determine and update texture colors for the current state.
+    R_UpdateMistyFogTextures(mistyFogEffect);
+}
+
+/*
+==================
+RB_MistyFogEffectRender
+
+Render all misty fog effect images
+to the screen.
+==================
+*/
+
+void RB_MistyFogEffectRender(worldEffectSystem_t *weSystem, worldEffect_t *effect)
+{
+    mistyFogEffect_t    *mistyFogEffect;
+    double              gluPersMax;
+
+    mistyFogEffect = (mistyFogEffect_t *)effect;
+
+    // Only update if this effect is currently enabled,
+    // i.e. it is not fully faded out.
+    if(mistyFogEffect->fadeAlpha <= 0.0f){
+        return;
+    }
+
+    qglMatrixMode(GL_PROJECTION);
+    qglPushMatrix();
+    qglLoadIdentity();
+
+    // Define the view frustum.
+    gluPersMax = 4.0 * tan(80.0 * M_PI / 360.0);
+    qglFrustum(-gluPersMax, gluPersMax, -gluPersMax, gluPersMax, 4.0f, 2048.0f);
+
+    qglMatrixMode(GL_MODELVIEW);
+    qglPushMatrix();
+    qglLoadIdentity();
+
+    // Put Z going up.
+    qglRotatef(-90, 1, 0, 0);
+    qglRotatef(90, 0, 0, 1);
+
+    qglRotatef(0, 1, 0, 0);
+
+    qglRotatef(-90, 0, 1, 0);
+    qglRotatef(-90, 0, 0, 1);
+
+    qglDisable(GL_TEXTURE_2D);
+    GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE);
+    qglShadeModel(GL_SMOOTH);
+
+    qglEnableClientState(GL_COLOR_ARRAY);
+
+    qglColorPointer(4, GL_FLOAT, 0, mistyFogEffect->colors);
+    qglVertexPointer(3, GL_FLOAT, 0, mistyFogEffect->verts);
+
+    if(qglLockArraysEXT){
+        qglLockArraysEXT(0, MISTYFOG_HEIGHT * MISTYFOG_WIDTH);
+    }
+
+    qglDrawElements(GL_QUADS, (MISTYFOG_HEIGHT - 1) * (MISTYFOG_WIDTH - 1) * 4, GL_UNSIGNED_INT, mistyFogEffect->indexes);
+
+    if(qglUnlockArraysEXT){
+        qglUnlockArraysEXT();
+    }
+
+    qglDisableClientState(GL_COLOR_ARRAY);
+
+    qglPopMatrix();
+    qglMatrixMode(GL_PROJECTION);
+    qglPopMatrix();
+    qglMatrixMode(GL_MODELVIEW);
+
+    qglEnable(GL_TEXTURE_2D);
+}
+
+/*
+=============================================
 -----------
 Wind effect
 -----------
@@ -147,7 +398,8 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
 
         snowSystem->windChange = irand(200, 450);
 
-        // TODO: Update wind direction for all misty fog effect images.
+        // Update wind direction for all misty fog effect images.
+        R_UpdateMistyFogWindDirection(weSystem, snowSystem->windDirection);
     }
 
     // Update all effects if we are rendering.

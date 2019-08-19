@@ -169,6 +169,11 @@ typedef struct {
 // tr_we backend.c
 //
 
+qboolean            RB_LoadMistyFogImage            ( mistyFogImage_t *fogImage, char *fileName );
+void                RB_CreateMistyFogTextureCoords  ( mistyFogImage_t *fogImage );
+void                RB_MistyFogEffectUpdate         ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
+void                RB_MistyFogEffectRender         ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
+
 void                RB_WindEffectUpdate             ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
 
 void                RB_SnowSystemUpdate             ( worldEffectSystem_t *weSystem, float elapsedTime );

@@ -179,9 +179,8 @@ mistyFogEffect_t *R_AddMistyFogEffect(worldEffectSystem_t *weSystem, int fogFile
 
     mistyFogEffect->base.name = "fog";
 
-    // TODO: Set proper functions.
-    mistyFogEffect->base.Update = NULL;
-    mistyFogEffect->base.Render = NULL;
+    mistyFogEffect->base.Update = RB_MistyFogEffectUpdate;
+    mistyFogEffect->base.Render = RB_MistyFogEffectRender;
     mistyFogEffect->base.Command = R_MistyFogEffectCommand;
 
     //
@@ -195,8 +194,7 @@ mistyFogEffect_t *R_AddMistyFogEffect(worldEffectSystem_t *weSystem, int fogFile
         mainImage   = &mistyFogEffect->images[i][0];
         buddyImage  = &mistyFogEffect->images[i][1];
 
-        // TODO: Load misty fog images.
-        if(qtrue){
+        if(!RB_LoadMistyFogImage(mainImage, fileName)){
             ri.Error(ERR_DROP, "R_AddMistyFogEffect: Could not load fog image \"%s\".\n", fileName);
             return NULL;
         }
@@ -211,7 +209,8 @@ mistyFogEffect_t *R_AddMistyFogEffect(worldEffectSystem_t *weSystem, int fogFile
 
         mainImage->isRendering  = qtrue;
 
-        // TODO: Create texture coords.
+        RB_CreateMistyFogTextureCoords(mainImage);
+        RB_CreateMistyFogTextureCoords(buddyImage);
     }
 
     // Initialize fog effect.
