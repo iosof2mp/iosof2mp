@@ -99,6 +99,7 @@ extern void (APIENTRYP qglPointParameterfvEXT) (GLenum pname, GLfloat *params);
     GLE(void, MatrixMode, GLenum mode) \
     GLE(void, PopMatrix, void) \
     GLE(void, PushMatrix, void) \
+    GLE(void, Rotatef, GLfloat angle, GLfloat x, GLfloat y, GLfloat z) \
     GLE(void, ShadeModel, GLenum mode) \
     GLE(void, TexCoordPointer, GLint size, GLenum type, GLsizei stride, const GLvoid *ptr) \
     GLE(void, TexEnvf, GLenum target, GLenum pname, GLfloat param) \
