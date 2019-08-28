@@ -399,7 +399,7 @@ static void RB_Hyperspace( void ) {
 }
 
 
-static void SetViewportAndScissor( void ) {
+void SetViewportAndScissor( void ) {
     qglMatrixMode(GL_PROJECTION);
     qglLoadMatrixf( backEnd.viewParms.projectionMatrix );
     qglMatrixMode(GL_MODELVIEW);
@@ -1067,6 +1067,9 @@ const void  *RB_SwapBuffers( const void *data ) {
     if ( r_showImages->integer ) {
         RB_ShowImages();
     }
+
+    // Render any world effect systems.
+    RB_RenderWorldEffectSystems();
 
     cmd = (const swapBuffersCommand_t *)data;
 

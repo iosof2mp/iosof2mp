@@ -2375,16 +2375,6 @@ float   RB_CalcWaveColorSingle( const waveForm_t *wf );
 /*
 =============================================================
 
-RENDERER BACK END FUNCTIONS
-
-=============================================================
-*/
-
-void RB_ExecuteRenderCommands( const void *data );
-
-/*
-=============================================================
-
 RENDERER BACK END COMMAND QUEUE
 
 =============================================================

@@ -613,17 +613,46 @@ void RB_SnowSystemRender(worldEffectSystem_t *weSystem)
         qglPointSize(2.0f);
     }
 
-    item = weSystem->particleList;
     qglBegin(GL_POINTS);
 
     for(i = 0; i < weSystem->numParticles; i++){
+        item = &weSystem->particleList[i];
+
         if(item->flags & PARTICLE_FLAG_RENDER){
             qglVertex3fv(item->pos);
         }
-
-        item++;
     }
 
     qglEnd();
     qglEnable(GL_TEXTURE_2D);
+}
+
+//==============================================
+
+/*
+==================
+RB_RenderWorldEffectSystems
+
+Renders all active world effect systems
+along with their associated world
+effects.
+==================
+*/
+
+void RB_RenderWorldEffectSystems(void)
+{
+    // Only render world effect systems if there is a world
+    // and it is being rendered.
+    if(tr.refdef.rdflags & RDF_NOWORLDMODEL || !tr.world){
+        return;
+    }
+
+    // Set model view matrix for the viewer.
+    SetViewportAndScissor();
+    qglMatrixMode(GL_MODELVIEW);
+    qglLoadMatrixf(backEnd.viewParms.world.modelMatrix);
+
+    // Let the world effect system handler update
+    // and render all systems initialized.
+    R_RenderWorldEffectSystems(tr.refdef.frameTime * 0.001);
 }

@@ -1504,16 +1504,6 @@ void    RB_CalcDiffuseColor( unsigned char *colors );
 /*
 =============================================================
 
-RENDERER BACK END FUNCTIONS
-
-=============================================================
-*/
-
-void RB_ExecuteRenderCommands( const void *data );
-
-/*
-=============================================================
-
 RENDERER BACK END COMMAND QUEUE
 
 =============================================================
@@ -1640,6 +1630,9 @@ extern  backEndData_t   *backEndData;   // the second one may not be allocated
 
 void *R_GetCommandBuffer( int bytes );
 void RB_ExecuteRenderCommands( const void *data );
+
+void SetViewportAndScissor          ( void );
+void RB_RenderWorldEffectSystems    ( void );
 
 void R_IssuePendingRenderCommands( void );
 
