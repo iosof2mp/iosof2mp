@@ -25,6 +25,87 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 =============================================
+----------------
+Misty fog effect
+----------------
+=============================================
+*/
+
+/*
+==================
+RB_LoadMistyFogImage
+
+TODO: Implement.
+==================
+*/
+
+qboolean RB_LoadMistyFogImage(mistyFogImage_t *fogImage, char *fileName)
+{
+    return qfalse;
+}
+
+/*
+==================
+RB_CreateMistyFogTextureCoords
+
+TODO: Implement.
+==================
+*/
+
+void RB_CreateMistyFogTextureCoords(mistyFogImage_t *fogImage)
+{
+
+}
+
+/*
+==================
+RB_MistyFogEffectUpdate
+
+TODO: Implement.
+==================
+*/
+
+void RB_MistyFogEffectUpdate(worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime)
+{
+
+}
+
+/*
+==================
+RB_MistyFogEffectRender
+
+TODO: Implement.
+==================
+*/
+
+void RB_MistyFogEffectRender(worldEffectSystem_t *weSystem, worldEffect_t *effect)
+{
+
+}
+
+/*
+=============================================
+-----------
+Wind effect
+-----------
+=============================================
+*/
+
+/*
+==================
+RB_WindEffectUpdate
+
+TODO: Implement.
+==================
+*/
+
+void RB_WindEffectUpdate(worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime)
+{
+
+}
+
+/*
+=============================================
 -----------
 Snow system
 -----------
