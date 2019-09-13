@@ -403,7 +403,7 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
     }
 
     // Update all effects if we are rendering.
-    if(snowSystem->isRendering){
+    if(weSystem->isRendering){
         R_UpdateWorldEffects(weSystem, elapsedTime);
     }
 
@@ -517,11 +517,11 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
     // No need to render or update any particle as none of
     // the particles are outside.
     if(!(snowSystem->overallContents & CONTENTS_OUTSIDE)){
-        snowSystem->isRendering = qfalse;
+        weSystem->isRendering = qfalse;
         return;
     }
 
-    snowSystem->isRendering     = qtrue;
+    weSystem->isRendering       = qtrue;
     item                        = weSystem->particleList;
     for(i = 0; i < weSystem->numParticles; i++){
         for(x = 0; x < 2; x++){
@@ -593,7 +593,7 @@ void RB_SnowSystemRender(worldEffectSystem_t *weSystem)
     snowSystem = (snowSystem_t *)weSystem;
 
     // Only render if any particle is currently outside.
-    if(!snowSystem->isRendering){
+    if(!weSystem->isRendering){
         return;
     }
 

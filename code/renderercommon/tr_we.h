@@ -134,6 +134,8 @@ struct worldEffectSystem_s {
     worldEffectParticle_t   *particleList;
     int                     numParticles;
 
+    qboolean                isRendering;
+
     void                    (*Update)           ( worldEffectSystem_t *weSystem, float elapsedTime );
     void                    (*Render)           ( worldEffectSystem_t *weSystem );
 };
@@ -175,8 +177,6 @@ typedef struct {
     vec3_t                  contentsSize, contentsStart;
 
     int                     overallContents;
-    qboolean                isRendering;
-
     float                   velocityStabilize;
 } snowSystem_t;
 

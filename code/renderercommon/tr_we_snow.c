@@ -87,10 +87,10 @@ static worldEffectSystem_t *R_SnowSystemInitialize(int maxSnowflakes)
     //
     Com_Memset(snowSystem->base.particleList, 0, sizeof(worldEffectParticle_t) * maxSnowflakes);
 
-    item = snowSystem->base.particleList;
     for(i = 0; i < maxSnowflakes; i++){
+        item = &snowSystem->base.particleList[i];
+
         VectorSet(item->pos, 99999, 99999, 99999);
-        item++;
     }
 
     //
@@ -127,7 +127,7 @@ void R_SnowSystemCommand(worldEffectSystem_t *weSystem, char *command)
     // Snow system initialization.
     //
 
-    // snow init <particles>
+    // snow init
     if(Q_stricmp(token, "init") == 0){
         // Check if particle count is valid.
         token = COM_ParseExt(&command, qfalse);
