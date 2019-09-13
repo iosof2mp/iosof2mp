@@ -479,6 +479,8 @@ static void R_WorldEffectSystemCommand(char *command)
 
     if(Q_stricmp(systemName, "snow") == 0){
         R_SnowSystemCommand(weSystem, command);
+    }else if(Q_stricmp(systemName, "rain") == 0){
+        R_RainSystemCommand(weSystem, command);
     }else{
         ri.Printf(PRINT_ERROR, "ERROR: Unknown world effect system '%s'.\n", systemName);
     }

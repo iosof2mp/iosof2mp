@@ -141,6 +141,23 @@ struct worldEffectSystem_s {
 typedef struct {
     worldEffectSystem_t     base;
 
+    float                   rainHeight;
+    float                   alpha;
+    float                   windAngle;
+
+    image_t                 *image;
+    vec3_t                  spread;
+    vec3_t                  minVelocity, maxVelocity;
+
+    vec3_t                  windNewDirection;
+    int                     windChange;
+
+    float                   fadeAlpha;
+} rainSystem_t;
+
+typedef struct {
+    worldEffectSystem_t     base;
+
     float                   alpha;
     vec3_t                  minSpread, maxSpread;
     vec3_t                  minVelocity, maxVelocity;
@@ -207,6 +224,12 @@ void                R_UpdateMistyFogTextures        ( mistyFogEffect_t *mistyFog
 void                R_UpdateMistyFogWindDirection   ( worldEffectSystem_t *weSystem, vec3_t windDirection );
 
 mistyFogEffect_t    *R_AddMistyFogEffect            ( worldEffectSystem_t *weSystem, int fogFileIndex );
+
+//
+// tr_we_rain.c
+//
+
+void                R_RainSystemCommand             ( worldEffectSystem_t *weSystem, char *command );
 
 //
 // tr_we_snow.c

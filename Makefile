@@ -1811,6 +1811,7 @@ Q3R2OBJ = \
   $(B)/renderergl2/tr_we_backend.o \
   $(B)/renderergl2/tr_we_main.o \
   $(B)/renderergl2/tr_we_mistyfog.o \
+  $(B)/renderergl2/tr_we_rain.o \
   $(B)/renderergl2/tr_we_snow.o \
   $(B)/renderergl2/tr_we_wind.o \
   $(B)/renderergl2/tr_world.o \
@@ -1882,6 +1883,7 @@ Q3ROBJ = \
   $(B)/renderergl1/tr_we_backend.o \
   $(B)/renderergl1/tr_we_main.o \
   $(B)/renderergl1/tr_we_mistyfog.o \
+  $(B)/renderergl1/tr_we_rain.o \
   $(B)/renderergl1/tr_we_snow.o \
   $(B)/renderergl1/tr_we_wind.o \
   $(B)/renderergl1/tr_world.o \
