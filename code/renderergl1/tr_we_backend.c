@@ -588,7 +588,6 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
         snowSystem->windDirection[2] = 0.0f;
 
         VectorNormalize(snowSystem->windDirection);
-        VectorScale(snowSystem->windDirection, 0.025f, snowSystem->windSpeed);
 
         snowSystem->windChange = irand(200, 450);
 
@@ -684,9 +683,9 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
             }
         }
 
-        item = weSystem->particleList;
         for(i = 0; i < weSystem->numParticles; i++){
-            resetFlake = qfalse;
+            item        = &weSystem->particleList[i];
+            resetFlake  = qfalse;
 
             for(x = 0; x < 3; x++){
                 if(item->pos[x] < newMins[x] || item->pos[x] > newMaxs[x]){
@@ -700,8 +699,6 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
                 item->velocity[1] = 0.0f;
                 item->velocity[2] = flrand(snowSystem->maxVelocity[2], snowSystem->minVelocity[2]);
             }
-
-            item++;
         }
 
         VectorCopy(newMins, snowSystem->mins);
@@ -715,9 +712,11 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
         return;
     }
 
-    weSystem->isRendering       = qtrue;
-    item                        = weSystem->particleList;
+    weSystem->isRendering = qtrue;
+
     for(i = 0; i < weSystem->numParticles; i++){
+        item = &weSystem->particleList[i];
+
         for(x = 0; x < 2; x++){
             if(item->velocity[x] < snowSystem->minVelocity[x]){
                 item->velocity[x] += snowSystem->velocityStabilize * elapsedTime;
@@ -760,8 +759,6 @@ void RB_SnowSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
         }else{
             item->flags &= ~PARTICLE_FLAG_RENDER;
         }
-
-        item++;
     }
 }
 

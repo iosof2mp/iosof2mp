@@ -171,7 +171,7 @@ typedef struct {
     vec3_t                  mins, maxs;
     float                   nextWindGust, windLowSize;
 
-    vec3_t                  windDirection, windSpeed;
+    vec3_t                  windDirection;
     int                     windChange;
 
     int                     contents[SNOWCONTENTS_Z_SIZE][SNOWCONTENTS_Y_SIZE][SNOWCONTENTS_X_SIZE];
