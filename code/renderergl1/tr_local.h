@@ -1668,15 +1668,15 @@ QUICK SPRITE SYSTEM
 */
 
 typedef struct {
-    textureBundle_t *mTexBundle;
-    unsigned long   mGLStateBits;
-    unsigned long   mFogColor;
-    qboolean        mUseFog;
-    vec4_t          mVerts[SHADER_MAX_VERTEXES];
-    vec2_t          mTextureCoords[SHADER_MAX_VERTEXES];
-    unsigned long   mColors[SHADER_MAX_VERTEXES];
-    int             mNextVert;
-    qboolean        mTurnCullBackOn;
+    textureBundle_t *texBundle;
+    unsigned long   glStateBits;
+    unsigned long   fogColor;
+    qboolean        useFog;
+    vec4_t          verts[SHADER_MAX_VERTEXES];
+    vec2_t          textureCoords[SHADER_MAX_VERTEXES];
+    unsigned long   colors[SHADER_MAX_VERTEXES];
+    int             nextVert;
+    qboolean        turnCullBackOn;
 } quickSprite_t;
 
 quickSprite_t   *R_InitQuickSprite              ( void );

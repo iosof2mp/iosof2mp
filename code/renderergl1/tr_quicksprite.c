@@ -43,20 +43,20 @@ quickSprite_t *R_InitQuickSprite(void)
     // Set initial texture coordinates.
     for(i = 0; i < SHADER_MAX_VERTEXES; i += 4){
         // Bottom right.
-        qs->mTextureCoords[i + 0][0] = 1.0;
-        qs->mTextureCoords[i + 0][1] = 1.0;
+        qs->textureCoords[i + 0][0] = 1.0;
+        qs->textureCoords[i + 0][1] = 1.0;
 
         // Top right.
-        qs->mTextureCoords[i + 1][0] = 1.0;
-        qs->mTextureCoords[i + 1][1] = 0.0;
+        qs->textureCoords[i + 1][0] = 1.0;
+        qs->textureCoords[i + 1][1] = 0.0;
 
         // Top left.
-        qs->mTextureCoords[i + 2][0] = 0.0;
-        qs->mTextureCoords[i + 2][1] = 0.0;
+        qs->textureCoords[i + 2][0] = 0.0;
+        qs->textureCoords[i + 2][1] = 0.0;
 
         // Bottom left.
-        qs->mTextureCoords[i + 3][0] = 0.0;
-        qs->mTextureCoords[i + 3][1] = 1.0;
+        qs->textureCoords[i + 3][0] = 0.0;
+        qs->textureCoords[i + 3][1] = 1.0;
     }
 
     return qs;
@@ -77,20 +77,20 @@ static void RB_RenderQuickSprite(quickSprite_t *qs)
 {
     //fog_t *fog;
 
-    if(qs->mNextVert == 0){
+    if(qs->nextVert == 0){
         return;
     }
 
     //
     // Render the main pass.
     //
-    R_BindAnimatedImage(qs->mTexBundle);
-    GL_State(qs->mGLStateBits);
+    R_BindAnimatedImage(qs->texBundle);
+    GL_State(qs->glStateBits);
 
     //
     // Render the fog pass.
     //
-    if(qs->mUseFog){
+    if(qs->useFog){
         // FIXME BOE: Hardware fog implementation.
         /*
         fog = &tr.world->fogs[tess.fogNum];
@@ -106,31 +106,31 @@ static void RB_RenderQuickSprite(quickSprite_t *qs)
     //
     // Set arrays and lock.
     //
-    qglTexCoordPointer(2, GL_FLOAT, 0, qs->mTextureCoords);
+    qglTexCoordPointer(2, GL_FLOAT, 0, qs->textureCoords);
     qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    qglColorPointer(4, GL_UNSIGNED_BYTE, 0, qs->mColors);
+    qglColorPointer(4, GL_UNSIGNED_BYTE, 0, qs->colors);
     qglEnableClientState(GL_COLOR_ARRAY);
 
-    qglVertexPointer(3, GL_FLOAT, 16, qs->mVerts);
+    qglVertexPointer(3, GL_FLOAT, 16, qs->verts);
 
     if(qglLockArraysEXT){
-        qglLockArraysEXT(0, qs->mNextVert);
+        qglLockArraysEXT(0, qs->nextVert);
         GLimp_LogComment("glLockArraysEXT\n");
     }
-    qglDrawArrays(GL_QUADS, 0, qs->mNextVert);
+    qglDrawArrays(GL_QUADS, 0, qs->nextVert);
 
     //
     // Update backend counters.
     //
-    backEnd.pc.c_vertexes       += qs->mNextVert;
-    backEnd.pc.c_indexes        += qs->mNextVert;
-    backEnd.pc.c_totalIndexes   += qs->mNextVert;
+    backEnd.pc.c_vertexes       += qs->nextVert;
+    backEnd.pc.c_indexes        += qs->nextVert;
+    backEnd.pc.c_totalIndexes   += qs->nextVert;
 
     //
     // Disable fog after drawing.
     //
-    if(qs->mUseFog){
+    if(qs->useFog){
         qglDisable(GL_FOG);
     }
 
@@ -142,7 +142,7 @@ static void RB_RenderQuickSprite(quickSprite_t *qs)
         GLimp_LogComment("glUnlockArraysEXT\n");
     }
 
-    qs->mNextVert = 0;
+    qs->nextVert = 0;
 }
 
 /*
@@ -162,21 +162,21 @@ void RB_AddSprite(quickSprite_t *qs, float *pointData, color4ub_t *color)
 
     // Render all sprites in this quick sprite and flush
     // the buffers right away if there is no room left.
-    if(qs->mNextVert > (SHADER_MAX_VERTEXES - 4)){
+    if(qs->nextVert > (SHADER_MAX_VERTEXES - 4)){
         RB_RenderQuickSprite(qs);
     }
 
     // Store point data.
-    currCoord = qs->mVerts[qs->mNextVert];
+    currCoord = qs->verts[qs->nextVert];
     Com_Memcpy(currCoord, pointData, sizeof(vec4_t) * 4);
 
     // Setup the color.
-    currColor = &qs->mColors[qs->mNextVert];
+    currColor = &qs->colors[qs->nextVert];
     for(i = 0; i < 4; i++){
         *currColor++ = *(unsigned long *)color;
     }
 
-    qs->mNextVert += 4;
+    qs->nextVert += 4;
 }
 
 /*
@@ -193,16 +193,16 @@ void RB_StartQuickSpriteRendering(quickSprite_t *qs, textureBundle_t *bundle, un
     int cullingOn;
 
     // Store common information.
-    qs->mTexBundle = bundle;
-    qs->mGLStateBits = stateBits;
-    qs->mNextVert = 0;
+    qs->texBundle = bundle;
+    qs->glStateBits = stateBits;
+    qs->nextVert = 0;
 
     // Check if we use fog.
     if(fogColor){
-        qs->mFogColor = fogColor; // FIXME BOE: This doesn't appear to be used anywhere.
-        qs->mUseFog = qtrue;
+        qs->fogColor = fogColor; // FIXME BOE: This doesn't appear to be used anywhere.
+        qs->useFog = qtrue;
     }else{
-        qs->mUseFog = qfalse;
+        qs->useFog = qfalse;
     }
 
     // Check if we have to turn culling back on after
@@ -210,9 +210,9 @@ void RB_StartQuickSpriteRendering(quickSprite_t *qs, textureBundle_t *bundle, un
     qglGetIntegerv(GL_CULL_FACE, &cullingOn);
 
     if(cullingOn){
-        qs->mTurnCullBackOn = qtrue;
+        qs->turnCullBackOn = qtrue;
     }else{
-        qs->mTurnCullBackOn = qfalse;
+        qs->turnCullBackOn = qfalse;
     }
 
     qglDisable(GL_CULL_FACE);
@@ -234,7 +234,7 @@ void RB_EndQuickSpriteRendering(quickSprite_t *qs)
 
     // Finish this render pass.
     qglColor4ub(255, 255, 255, 255);
-    if(qs->mTurnCullBackOn){
+    if(qs->turnCullBackOn){
         qglEnable(GL_CULL_FACE);
     }
 }
