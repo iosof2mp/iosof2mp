@@ -151,6 +151,7 @@ typedef struct {
     vec3_t                  spread;
     vec3_t                  minVelocity, maxVelocity;
 
+    vec3_t                  windDirection;
     vec3_t                  windNewDirection;
     int                     windChange;
 
@@ -192,6 +193,10 @@ void                RB_MistyFogEffectUpdate         ( worldEffectSystem_t *weSys
 void                RB_MistyFogEffectRender         ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
 
 void                RB_WindEffectUpdate             ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
+
+void                RB_LoadRainImage                ( rainSystem_t *rainSystem, const char *fileName );
+void                RB_RainSystemUpdate             ( worldEffectSystem_t *weSystem, float elapsedTime );
+void                RB_RainSystemRender             ( worldEffectSystem_t *weSystem );
 
 void                RB_SnowSystemUpdate             ( worldEffectSystem_t *weSystem, float elapsedTime );
 void                RB_SnowSystemRender             ( worldEffectSystem_t *weSystem );

@@ -53,9 +53,8 @@ static worldEffectSystem_t *R_RainSystemInitialize(int maxRaindrops)
     rainSystem->base.particleList   = ri.Malloc(sizeof(worldEffectParticle_t) * maxRaindrops);
     rainSystem->base.numParticles   = maxRaindrops;
 
-    // TODO: Set proper functions.
-    rainSystem->base.Update         = NULL;
-    rainSystem->base.Render         = NULL;
+    rainSystem->base.Update         = RB_RainSystemUpdate;
+    rainSystem->base.Render         = RB_RainSystemRender;
 
     //
     // Set snow system information.
@@ -68,7 +67,8 @@ static worldEffectSystem_t *R_RainSystemInitialize(int maxRaindrops)
     VectorSet(rainSystem->minVelocity, 0.1f, 0.1f, -60.0f);
     VectorSet(rainSystem->maxVelocity, -0.1f, -0.1f, -50.0f);
 
-    // TODO: Bind texture in backend.
+    // Load rain image in backend.
+    RB_LoadRainImage(rainSystem, "gfx/world/rain");
 
     //
     // Set raindrop particle defaults.
@@ -82,7 +82,7 @@ static worldEffectSystem_t *R_RainSystemInitialize(int maxRaindrops)
         item->pos[1] = flrand(0.0f, rainSystem->spread[1]);
         item->pos[2] = flrand(-rainSystem->spread[2], 40.0f);
 
-        for(j = 0; j < 2; j++){
+        for(j = 0; j < 3; j++){
             item->velocity[j] = flrand(rainSystem->minVelocity[j], rainSystem->maxVelocity[j]);
         }
     }

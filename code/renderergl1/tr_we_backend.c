@@ -351,6 +351,200 @@ void RB_WindEffectUpdate(worldEffectSystem_t *weSystem, worldEffect_t *effect, f
 /*
 =============================================
 -----------
+Rain system
+-----------
+=============================================
+*/
+
+/*
+==================
+RB_LoadRainImage
+
+Loads the specified rain image file.
+==================
+*/
+
+void RB_LoadRainImage(rainSystem_t *rainSystem, const char *fileName)
+{
+    rainSystem->image = R_FindImageFile(fileName, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION);
+
+    GL_Bind(rainSystem->image);
+    qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
+/*
+==================
+RB_RainSystemUpdate
+
+Checks the current player position and
+updates the rain effect system and all
+of its particles accordingly, also
+taking wind in account.
+==================
+*/
+
+void RB_RainSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
+{
+    rainSystem_t            *rainSystem;
+    worldEffectParticle_t   *item;
+    vec3_t                  windDifference;
+    int                     originContents;
+    int                     i, j;
+
+    rainSystem      = (rainSystem_t *)weSystem;
+    originContents  = ri.CM_PointContents(backEnd.viewParms.or.origin, 0);
+
+    rainSystem->windChange--;
+    if(rainSystem->windChange < 0){
+        rainSystem->windNewDirection[0] = flrand(-1.0f, 1.0f);
+        rainSystem->windNewDirection[1] = flrand(-1.0f, 1.0f);
+        rainSystem->windNewDirection[2] = 0.0f;
+
+        VectorNormalize(rainSystem->windNewDirection);
+
+        rainSystem->windChange = irand(200, 450);
+
+        // Update wind direction for all misty fog effect images.
+        R_UpdateMistyFogWindDirection(weSystem, rainSystem->windDirection);
+    }
+
+    // Set wind direction.
+    VectorSubtract(rainSystem->windNewDirection, rainSystem->windDirection, windDifference);
+    VectorMA(rainSystem->windDirection, elapsedTime, windDifference, rainSystem->windDirection);
+
+    // Update all effects if we are rendering.
+    if(weSystem->isRendering){
+        R_UpdateWorldEffects(weSystem, elapsedTime);
+    }
+
+    if(originContents & CONTENTS_OUTSIDE && !(originContents & CONTENTS_WATER)){
+        rainSystem->base.isRendering = qtrue;
+
+        if(rainSystem->fadeAlpha < 1.0f){
+            // Player just went outside, fade in rain.
+            rainSystem->fadeAlpha += elapsedTime / 2.0f;
+        }else if(rainSystem->fadeAlpha > 1.0f){
+            rainSystem->fadeAlpha = 1.0f;
+        }
+    }else{
+        if(rainSystem->fadeAlpha > 0.0f){
+            // Player just went inside, fade out rain.
+            rainSystem->fadeAlpha -= elapsedTime / 2.0f;
+        }else if(rainSystem->fadeAlpha <= 0.0f){
+            // No need to continue here as the player is (still) inside
+            // and the rain is already fully faded out.
+            rainSystem->base.isRendering = qfalse;
+            return;
+        }
+    }
+
+    //
+    // Re-determine particile positions.
+    //
+    for(i = 0; i < weSystem->numParticles; i++){
+        item = &weSystem->particleList[i];
+
+        VectorMA(item->pos, elapsedTime, item->velocity, item->pos);
+        if(item->pos[2] < -rainSystem->spread[2]){
+            item->pos[0] = flrand(0.0f, rainSystem->spread[0]);
+            item->pos[1] = flrand(0.0f, rainSystem->spread[1]);
+            item->pos[2] = 40.0f;
+
+            for(j = 0; j < 3; j++){
+                item->velocity[j] = flrand(rainSystem->minVelocity[j], rainSystem->maxVelocity[j]);
+            }
+        }
+    }
+}
+
+/*
+==================
+RB_RainSystemRender
+
+Renders all rain particles.
+==================
+*/
+
+void RB_RainSystemRender(worldEffectSystem_t *weSystem)
+{
+    rainSystem_t            *rainSystem;
+    worldEffectParticle_t   *item;
+    vec4_t                  left, down;
+    int                     i;
+
+    rainSystem = (rainSystem_t *)weSystem;
+
+    // Only render the player is currently outside
+    // or if the effect is currently fading out.
+    if(!weSystem->isRendering){
+        return;
+    }
+
+    VectorScale(backEnd.viewParms.or.axis[1], 0.2f, left);
+    down[0] = -(rainSystem->windDirection[0] * rainSystem->rainHeight * rainSystem->windAngle);
+    down[1] = -(rainSystem->windDirection[1] * rainSystem->rainHeight * rainSystem->windAngle);
+    down[2] = -rainSystem->rainHeight;
+
+    GL_Bind(rainSystem->image);
+
+    GL_State(GLS_ALPHA);
+    qglEnable(GL_TEXTURE_2D);
+    qglDisable(GL_CULL_FACE);
+
+    qglMatrixMode(GL_MODELVIEW);
+    qglPushMatrix();
+    qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+
+    qglBegin(GL_TRIANGLES);
+
+    for(i = 0; i < weSystem->numParticles; i++){
+        float   radius, alpha;
+        vec3_t  pos;
+
+        item    = &weSystem->particleList[i];
+        radius  = item->pos[1];
+
+        if(item->pos[2] < 0.0f){
+            alpha = rainSystem->alpha * (item->pos[1] / -item->pos[2]);
+
+            if(alpha > rainSystem->alpha){
+                alpha = rainSystem->alpha;
+            }
+
+            qglColor4f(1.0f, 1.0f, 1.0f, alpha * rainSystem->fadeAlpha);
+        }else{
+            qglColor4f(1.0f, 1.0f, 1.0f, rainSystem->alpha * rainSystem->fadeAlpha);
+        }
+
+        pos[0] = sin(item->pos[0]) * radius + (item->pos[2] * rainSystem->windDirection[0] * rainSystem->windAngle);
+        pos[1] = cos(item->pos[0]) * radius + (item->pos[2] * rainSystem->windDirection[1] * rainSystem->windAngle);
+        pos[2] = item->pos[2];
+
+        qglTexCoord2f(1.0f, 0.0f);
+        qglVertex3f(pos[0],
+                    pos[1],
+                    pos[2]);
+
+        qglTexCoord2f(0.0f, 0.0f);
+        qglVertex3f(pos[0] + left[0],
+                    pos[1] + left[1],
+                    pos[2] + left[2]);
+
+        qglTexCoord2f(0.0f, 1.0f);
+        qglVertex3f(pos[0] + down[0] + left[0],
+                    pos[1] + down[1] + left[1],
+                    pos[2] + down[2] + left[2]);
+    }
+
+    qglEnd();
+    qglEnable(GL_CULL_FACE);
+    qglPopMatrix();
+}
+
+/*
+=============================================
+-----------
 Snow system
 -----------
 =============================================
