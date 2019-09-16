@@ -107,6 +107,52 @@ void RB_WindEffectUpdate(worldEffectSystem_t *weSystem, worldEffect_t *effect, f
 /*
 =============================================
 -----------
+Rain system
+-----------
+=============================================
+*/
+
+/*
+==================
+RB_LoadRainImage
+
+TODO: Implement.
+==================
+*/
+
+void RB_LoadRainImage(rainSystem_t *rainSystem, const char *fileName)
+{
+
+}
+/*
+==================
+RB_RainSystemUpdate
+
+TODO: Implement.
+==================
+*/
+
+void RB_RainSystemUpdate(worldEffectSystem_t *weSystem, float elapsedTime)
+{
+
+}
+
+/*
+==================
+RB_RainSystemRender
+
+TODO: Implement.
+==================
+*/
+
+void RB_RainSystemRender(worldEffectSystem_t *weSystem)
+{
+
+}
+
+/*
+=============================================
+-----------
 Snow system
 -----------
 =============================================
