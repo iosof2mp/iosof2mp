@@ -87,6 +87,47 @@ typedef struct {
 
 //===============================================================================
 
+/*
+============================================================
+
+SURFACE SPRITE SYSTEM
+
+============================================================
+*/
+
+#define SURFSPRITE_NONE             0
+#define SURFSPRITE_VERTICAL         1
+#define SURFSPRITE_ORIENTED         2
+#define SURFSPRITE_EFFECT           3
+#define SURFSPRITE_WEATHERFX        4
+
+#define SURFSPRITE_FACING_NORMAL    0
+#define SURFSPRITE_FACING_UP        1
+#define SURFSPRITE_FACING_DOWN      2
+#define SURFSPRITE_FACING_ANY       3
+#define SURFSPRITE_FACING_SPURT     4
+#define SURFSPRITE_FACING_FLAT      5
+#define SURFSPRITE_FACING_SPURTFLAT 6
+
+typedef struct {
+    // Required parameters.
+    int         surfaceSpriteType;
+    float       width, height, density, fadeDist;
+
+    // Optional parameters.
+    float       fadeMax, fadeScale;
+    vec2_t      variance;
+    int         facing;
+    qboolean    noOffset;
+    float       wind, windIdle, vertSkew;
+
+    float       fxDuration;
+    vec2_t      fxGrow;
+    float       fxAlphaStart, fxAlphaEnd;
+} surfaceSprite_t;
+
+//===============================================================================
+
 typedef enum {
     SS_BAD,
     SS_PORTAL,          // mirrors, portals, viewscreens
@@ -319,6 +360,8 @@ typedef struct {
 
     acff_t          adjustColorsForFog;
     EGLFogOverride  mGLFogColorOverride;
+
+    surfaceSprite_t *ss;
 
     qboolean        isDetail;
 } shaderStage_t;

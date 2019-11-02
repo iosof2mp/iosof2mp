@@ -627,6 +627,555 @@ static void ParseTexMod( char *_text, shaderStage_t *stage )
 
 /*
 ===================
+ParseSurfaceSprites
+===================
+*/
+static void ParseSurfaceSprites( char *_text, shaderStage_t *stage )
+{
+    const char  *token;
+    char        **text = &_text;
+    int         type;
+    float       width, height, density, fadedist;
+
+    //
+    // type
+    //
+    token = COM_ParseExt( text, qfalse );
+    if ( token[0] == 0 )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite params in shader '%s'\n", shader.name );
+        return;
+    }
+
+    if ( !Q_stricmp( token, "vertical" ) )
+    {
+        type = SURFSPRITE_VERTICAL;
+    }
+    else if ( !Q_stricmp( token, "oriented" ) )
+    {
+        type = SURFSPRITE_ORIENTED;
+    }
+    else if ( !Q_stricmp( token, "effect" ) )
+    {
+        type = SURFSPRITE_EFFECT;
+    }
+    else
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite type in shader '%s'\n", shader.name );
+        return;
+    }
+
+    //
+    // width
+    //
+    token = COM_ParseExt( text, qfalse );
+    if ( token[0] == 0 )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite params in shader '%s'\n", shader.name );
+        return;
+    }
+
+    width = atof( token );
+    if ( width <= 0.0f )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite width in shader '%s'\n", shader.name );
+        return;
+    }
+
+    //
+    // height
+    //
+    token = COM_ParseExt( text, qfalse );
+    if ( token[0] == 0 )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite params in shader '%s'\n", shader.name );
+        return;
+    }
+
+    height = atof( token );
+    if ( height <= 0.0f )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite height in shader '%s'\n", shader.name );
+        return;
+    }
+
+    //
+    // density
+    //
+    token = COM_ParseExt( text, qfalse );
+    if ( token[0] == 0 )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite params in shader '%s'\n", shader.name );
+        return;
+    }
+
+    density = atof( token );
+    if ( density <= 0.0f )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite density in shader '%s'\n", shader.name );
+        return;
+    }
+
+    //
+    // fadedist
+    //
+    token = COM_ParseExt( text, qfalse );
+    if ( token[0] == 0 )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite params in shader '%s'\n", shader.name );
+        return;
+    }
+
+    fadedist = atof( token );
+    if ( fadedist < 32.0f )
+    {
+        ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite fadedist in shader '%s'\n", shader.name );
+        return;
+    }
+
+    // All required parameters are valid.
+    if ( stage->ss == NULL )
+    {
+        stage->ss = ri.Hunk_Alloc( sizeof(surfaceSprite_t), h_low );
+    }
+
+    // Set the parameters as defined.
+    stage->ss->surfaceSpriteType    = type;
+    stage->ss->width                = width;
+    stage->ss->height               = height;
+    stage->ss->density              = density;
+    stage->ss->fadeDist             = fadedist;
+
+    // Set defaults (can be overridden through optional parameters).
+    stage->ss->fadeMax              = fadedist * 1.33f;
+    stage->ss->fxDuration           = 1000.0f;
+    stage->ss->fxAlphaStart         = 1.0f;
+
+    // FIXME BOE: Set gore defaults.
+
+    shader.needsNormal = qtrue;
+}
+
+
+/*
+===================
+ParseSurfaceSpritesOptional
+===================
+*/
+static void ParseSurfaceSpritesOptional( char *param, char *_text, shaderStage_t *stage )
+{
+    const char      *token;
+    char            **text = &_text;
+    float           value;
+
+    if ( stage->ss == NULL )
+    {
+        ri.Printf ( PRINT_WARNING, "WARNING: skipping optional surfaceSprite param '%s' due to uninitialized surfaceSprite in shader '%s'\n", param, shader.name );
+        return;
+    }
+
+    //
+    // fademax
+    //
+    if ( !Q_stricmp( param, "ssFademax" ) )
+    {
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite fademax in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value <= stage->ss->fadeDist )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite fademax in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->fadeMax = value;
+    }
+    //
+    // fadescale
+    //
+    else if ( !Q_stricmp( param, "ssFadescale" ) )
+    {
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite fadescale in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->fadeScale = atof( token );
+    }
+    //
+    // variance
+    //
+    else if ( !Q_stricmp( param, "ssVariance" ) )
+    {
+        //
+        // width
+        //
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite variance width in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite variance width in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->variance[0] = value;
+
+        //
+        // height
+        //
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite variance height in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite variance height in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->variance[1] = value;
+    }
+    //
+    // hangdown
+    //
+    else if ( !Q_stricmp( param, "ssHangdown" ) )
+    {
+        if ( stage->ss->facing != SURFSPRITE_FACING_NORMAL )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: hangdown facing overrides previous facing in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->facing = SURFSPRITE_FACING_DOWN;
+    }
+    //
+    // spurt
+    //
+    else if ( !Q_stricmp( param, "ssSpurt" ) )
+    {
+        if ( stage->ss->facing != SURFSPRITE_FACING_NORMAL )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: spurt facing overrides previous facing in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->facing = SURFSPRITE_FACING_SPURT;
+
+        // FIXME BOE: Set goreSpurt.
+    }
+    //
+    // nooffset
+    //
+    else if ( !Q_stricmp( param, "ssNoOffset" ) )
+    {
+        stage->ss->noOffset = qtrue;
+    }
+    //
+    // faceflat
+    //
+    else if ( !Q_stricmp( param, "ssFaceflat" ) )
+    {
+        if ( stage->ss->facing != SURFSPRITE_FACING_NORMAL )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: faceflat facing overrides previous facing in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->facing = SURFSPRITE_FACING_FLAT;
+    }
+    //
+    // spurtflat
+    //
+    else if ( !Q_stricmp( param, "ssSpurtflat" ) )
+    {
+        if ( stage->ss->facing != SURFSPRITE_FACING_NORMAL )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: spurtflat facing overrides previous facing in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->facing = SURFSPRITE_FACING_SPURTFLAT;
+
+        // FIXME BOE: Set goreSpurt.
+    }
+    //
+    // anyangle
+    //
+    else if ( !Q_stricmp( param, "ssAnyangle" ) )
+    {
+        if ( stage->ss->facing != SURFSPRITE_FACING_NORMAL )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: anyangle facing overrides previous facing in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->facing = SURFSPRITE_FACING_ANY;
+    }
+    //
+    // faceup
+    //
+    else if ( !Q_stricmp( param, "ssFaceup" ) )
+    {
+        if ( stage->ss->facing != SURFSPRITE_FACING_NORMAL )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: faceup facing overrides previous facing in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->facing = SURFSPRITE_FACING_UP;
+    }
+    //
+    // wind
+    //
+    else if ( !Q_stricmp( param, "ssWind" ) )
+    {
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite wind in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite wind in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->wind = value;
+
+        if ( stage->ss->windIdle <= 0.0f )
+        {
+            // Also override the windidle, it is usually the same as wind.
+            stage->ss->windIdle = value;
+        }
+    }
+    //
+    // windidle
+    //
+    else if ( !Q_stricmp( param, "ssWindidle" ) )
+    {
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite windidle in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite windidle in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->windIdle = value;
+    }
+    //
+    // vertskew
+    //
+    else if ( !Q_stricmp( param, "ssVertskew" ) )
+    {
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite vertskew in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite vertskew in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->vertSkew = value;
+    }
+    //
+    // fxduration
+    //
+    else if ( !Q_stricmp( param, "ssFXDuration" ) )
+    {
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite FX duration in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value <= 0.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite FX duration in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->fxDuration = value;
+    }
+    //
+    // fxgrow
+    //
+    else if ( !Q_stricmp( param, "ssFXGrow" ) )
+    {
+        //
+        // width
+        //
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite FX grow width in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite FX grow width in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->fxGrow[0] = value;
+
+        //
+        // height
+        //
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite FX grow height in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite FX grow height in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->fxGrow[1] = value;
+    }
+    //
+    // fxalpharange
+    //
+    else if ( !Q_stricmp( param, "ssFXAlphaRange" ) )
+    {
+        //
+        // start
+        //
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite FX alpha start in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f || value > 5.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite FX alpha start in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->fxAlphaStart = value;
+
+        //
+        // end
+        //
+        token = COM_ParseExt( text, qfalse );
+
+        if ( token[0] == 0 )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: missing surfaceSprite FX alpha end in shader '%s'\n", shader.name );
+            return;
+        }
+
+        value = atof( token );
+        if ( value < 0.0f || value > 5.0f )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: invalid surfaceSprite FX alpha end in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->fxAlphaEnd = value;
+    }
+    //
+    // fxweather
+    //
+    else if ( !Q_stricmp( param, "ssFXWeather" ) )
+    {
+        if ( stage->ss->surfaceSpriteType != SURFSPRITE_EFFECT )
+        {
+            ri.Printf( PRINT_WARNING, "WARNING: weather applied to non-effect surfaceSprite in shader '%s'\n", shader.name );
+            return;
+        }
+
+        stage->ss->surfaceSpriteType = SURFSPRITE_WEATHERFX;
+    }
+    //
+    // gore
+    //
+    else if ( !Q_stricmp( param, "ssGore" ) )
+    {
+        // FIXME BOE
+        ri.Printf( PRINT_WARNING, "WARNING: optional surfaceSprite param '%s' not yet implemented, skipping in shader '%s'\n", param, shader.name );
+    }
+    //
+    // gorecentral
+    //
+    else if ( !Q_stricmp( param, "ssGoreCentral" ) )
+    {
+        // FIXME BOE
+        ri.Printf( PRINT_WARNING, "WARNING: optional surfaceSprite param '%s' not yet implemented, skipping in shader '%s'\n", param, shader.name );
+    }
+    //
+    // gorefx
+    //
+    else if ( !Q_stricmp( param, "ssGoreFX" ) )
+    {
+        // FIXME BOE
+        ri.Printf( PRINT_WARNING, "WARNING: optional surfaceSprite param '%s' not yet implemented, skipping in shader '%s'\n", param, shader.name );
+    }
+    //
+    // Invalid surfaceSprite command.
+    else
+    {
+        ri.Printf ( PRINT_WARNING, "WARNING: invalid optional surfaceSprite param '%s' in shader '%s'\n" , param, shader.name );
+    }
+}
+
+/*
+===================
 ParseStage
 ===================
 */
@@ -1102,6 +1651,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
             continue;
         }
+        //
+        // surfaceSprites <type> <...>
+        //
         else if ( !Q_stricmp( token, "surfaceSprites" ) )
         {
             char buffer[1024] = "";
@@ -1115,11 +1667,12 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
                 Q_strcat( buffer, sizeof (buffer), " " );
             }
 
-            //ParseSurfaceSprites( buffer, stage ); // FIXME BOE: VERTIGON system.
-            ri.Printf(PRINT_WARNING, "WARNING: VERTIGON system not yet implemented ('%s' in shader '%s')\n", token, shader.name);
+            ParseSurfaceSprites( buffer, stage );
 
             continue;
         }
+        //
+        // FIXME BOE
         //
         // ssFademax <fademax>
         // ssFadescale <fadescale>
@@ -1157,8 +1710,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
                 Q_strcat( buffer, sizeof (buffer), " " );
             }
 
-            //ParseSurfaceSpritesOptional( param, buffer, stage ); // FIXME BOE: VERTIGON system.
-            ri.Printf(PRINT_WARNING, "WARNING: VERTIGON system not yet implemented ('%s' in shader '%s')\n", token, shader.name);
+            ParseSurfaceSpritesOptional( param, buffer, stage );
 
             continue;
         }
