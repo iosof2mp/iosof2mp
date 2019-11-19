@@ -187,67 +187,71 @@ typedef struct {
 // tr_we backend.c
 //
 
-qboolean            RB_LoadMistyFogImage            ( mistyFogImage_t *fogImage, char *fileName );
-void                RB_CreateMistyFogTextureCoords  ( mistyFogImage_t *fogImage );
-void                RB_MistyFogEffectUpdate         ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
-void                RB_MistyFogEffectRender         ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
+qboolean            RB_LoadMistyFogImage                ( mistyFogImage_t *fogImage, char *fileName );
+void                RB_CreateMistyFogTextureCoords      ( mistyFogImage_t *fogImage );
+void                RB_MistyFogEffectUpdate             ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
+void                RB_MistyFogEffectRender             ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
 
-void                RB_WindEffectUpdate             ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
+void                RB_WindEffectUpdate                 ( worldEffectSystem_t *weSystem, worldEffect_t *effect, float elapsedTime );
 
-void                RB_LoadRainImage                ( rainSystem_t *rainSystem, const char *fileName );
-void                RB_RainSystemUpdate             ( worldEffectSystem_t *weSystem, float elapsedTime );
-void                RB_RainSystemRender             ( worldEffectSystem_t *weSystem );
+void                RB_LoadRainImage                    ( rainSystem_t *rainSystem, const char *fileName );
+void                RB_RainSystemUpdate                 ( worldEffectSystem_t *weSystem, float elapsedTime );
+void                RB_RainSystemRender                 ( worldEffectSystem_t *weSystem );
 
-void                RB_SnowSystemUpdate             ( worldEffectSystem_t *weSystem, float elapsedTime );
-void                RB_SnowSystemRender             ( worldEffectSystem_t *weSystem );
+void                RB_SnowSystemUpdate                 ( worldEffectSystem_t *weSystem, float elapsedTime );
+void                RB_SnowSystemRender                 ( worldEffectSystem_t *weSystem );
 
 //
 // tr_we_main.c
 //
 
-qboolean            R_ParseVectorArgument           ( char **text, int count, float *v, char *argDesc );
+qboolean            R_ParseVectorArgument               ( char **text, int count, float *v, char *argDesc );
 
-worldEffect_t       *R_GetWorldEffect               ( worldEffectSystem_t *weSystem, const char *name );
-worldEffect_t       *R_GetNextWorldEffect           ( worldEffect_t *effect );
-void                R_AddWorldEffect                ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
-void                R_RemoveWorldEffect             ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
-void                R_UpdateWorldEffects            ( worldEffectSystem_t *weSystem, float elapsedTime );
-void                R_RenderWorldEffects            ( worldEffectSystem_t *weSystem );
-qboolean            R_WorldEffectCommand            ( worldEffectSystem_t *weSystem, char *command );
+worldEffect_t       *R_GetWorldEffect                   ( worldEffectSystem_t *weSystem, const char *name );
+worldEffect_t       *R_GetNextWorldEffect               ( worldEffect_t *effect );
+void                R_AddWorldEffect                    ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
+void                R_RemoveWorldEffect                 ( worldEffectSystem_t *weSystem, worldEffect_t *effect );
+void                R_UpdateWorldEffects                ( worldEffectSystem_t *weSystem, float elapsedTime );
+void                R_RenderWorldEffects                ( worldEffectSystem_t *weSystem );
+qboolean            R_WorldEffectCommand                ( worldEffectSystem_t *weSystem, char *command );
 
-void                R_AddWorldEffectSystem          ( worldEffectSystem_t *weSystem );
-void                R_RemoveWorldEffectSystem       ( worldEffectSystem_t *weSystem );
-void                R_RenderWorldEffectSystems      ( float elapsedTime );
+void                R_AddWorldEffectSystem              ( worldEffectSystem_t *weSystem );
+void                R_RemoveWorldEffectSystem           ( worldEffectSystem_t *weSystem );
+void                R_RenderWorldEffectSystems          ( float elapsedTime );
+qboolean            R_IsAnyWorldEffectSystemRendering   ( void );
 
-void                R_WorldEffect_f                 ( void );
+void                R_WorldEffect_f                     ( void );
+
+qboolean            R_GetRainWindSpeed                  ( float *windSpeed );
+qboolean            R_GetWindDirection                  ( vec3_t windDirection );
 
 //
 // tr_we_mistyfog.c
 //
 
-void                R_UpdateMistyFogTextures        ( mistyFogEffect_t *mistyFogEffect );
-void                R_UpdateMistyFogWindDirection   ( worldEffectSystem_t *weSystem, vec3_t windDirection );
+void                R_UpdateMistyFogTextures            ( mistyFogEffect_t *mistyFogEffect );
+void                R_UpdateMistyFogWindDirection       ( worldEffectSystem_t *weSystem, vec3_t windDirection );
 
-mistyFogEffect_t    *R_AddMistyFogEffect            ( worldEffectSystem_t *weSystem, int fogFileIndex );
+mistyFogEffect_t    *R_AddMistyFogEffect                ( worldEffectSystem_t *weSystem, int fogFileIndex );
 
 //
 // tr_we_rain.c
 //
 
-void                R_RainSystemCommand             ( worldEffectSystem_t *weSystem, char *command );
+void                R_RainSystemCommand                 ( worldEffectSystem_t *weSystem, char *command );
 
 //
 // tr_we_snow.c
 //
 
-void                R_SnowSystemCommand             ( worldEffectSystem_t *weSystem, char *command );
+void                R_SnowSystemCommand                 ( worldEffectSystem_t *weSystem, char *command );
 
 //
 // tr_we_wind.c
 //
 
-void                R_UpdateWindParams              ( windEffect_t *windEffect, vec3_t point, vec3_t velocity, vec3_t size );
+void                R_UpdateWindParams                  ( windEffect_t *windEffect, vec3_t point, vec3_t velocity, vec3_t size );
 
-windEffect_t        *R_AddWindEffect                ( worldEffectSystem_t *weSystem, qboolean isGlobalEffect );
+windEffect_t        *R_AddWindEffect                    ( worldEffectSystem_t *weSystem, qboolean isGlobalEffect );
 
 #endif // __TR_WE__H

@@ -450,6 +450,31 @@ void R_RenderWorldEffectSystems(float elapsedTime)
 
 /*
 ==================
+R_IsAnyWorldEffectSystemRendering
+
+Returns whether any world effect
+system is currently rendering.
+==================
+*/
+
+qboolean R_IsAnyWorldEffectSystemRendering(void)
+{
+    worldEffectSystem_t *weSystem;
+
+    weSystem = worldEffectSystemList;
+    while(weSystem != NULL){
+        if(weSystem->isRendering){
+            return qtrue;
+        }
+
+        weSystem = weSystem->nextSystem;
+    }
+
+    return qfalse;
+}
+
+/*
+==================
 R_WorldEffectSystemCommand
 
 Any system defined should have a
@@ -504,4 +529,60 @@ void R_WorldEffect_f(void)
 
     ri.Cmd_ArgsBuffer(cmd, sizeof(cmd));
     R_WorldEffectSystemCommand(cmd);
+}
+
+//==============================================
+
+/*
+==================
+R_GetRainWindSpeed
+
+Gets the wind speed of an initialized
+rain system, if present.
+==================
+*/
+
+qboolean R_GetRainWindSpeed(float *windSpeed)
+{
+    rainSystem_t *rainSystem;
+
+    // Check if there is a rain system initialized.
+    rainSystem = (rainSystem_t *)R_IsWorldEffectSystemInitialized("rain");
+    if(rainSystem == NULL){
+        return qfalse;
+    }
+
+    *windSpeed = rainSystem->windAngle * 75.0f; // Pat scaled.
+    return qtrue;
+}
+
+/*
+==================
+R_GetWindDirection
+
+Gets the wind speed of an initialized
+rain or snow system, if present.
+==================
+*/
+
+qboolean R_GetWindDirection(vec3_t windDirection)
+{
+    rainSystem_t *rainSystem;
+    snowSystem_t *snowSystem;
+
+    // Check if there is a rain system initialized.
+    rainSystem = (rainSystem_t *)R_IsWorldEffectSystemInitialized("rain");
+    if(rainSystem != NULL){
+        VectorCopy(rainSystem->windDirection, windDirection);
+        return qtrue;
+    }
+
+    // Check if there is a snow system initialized.
+    snowSystem = (snowSystem_t *)R_IsWorldEffectSystemInitialized("snow");
+    if(snowSystem != NULL){
+        VectorCopy(snowSystem->windDirection, windDirection);
+        return qtrue;
+    }
+
+    return qfalse;
 }
