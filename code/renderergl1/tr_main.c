@@ -271,7 +271,6 @@ Called by both the front end and the back end
 */
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
                        orientationr_t *or ) {
-    float   glMatrix[16];
     vec3_t  delta;
     float   axisLength;
 
@@ -286,27 +285,27 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
     VectorCopy( ent->e.axis[1], or->axis[1] );
     VectorCopy( ent->e.axis[2], or->axis[2] );
 
-    glMatrix[0] = or->axis[0][0];
-    glMatrix[4] = or->axis[1][0];
-    glMatrix[8] = or->axis[2][0];
-    glMatrix[12] = or->origin[0];
+    or->preTransEntMatrix[0] = or->axis[0][0];
+    or->preTransEntMatrix[4] = or->axis[1][0];
+    or->preTransEntMatrix[8] = or->axis[2][0];
+    or->preTransEntMatrix[12] = or->origin[0];
 
-    glMatrix[1] = or->axis[0][1];
-    glMatrix[5] = or->axis[1][1];
-    glMatrix[9] = or->axis[2][1];
-    glMatrix[13] = or->origin[1];
+    or->preTransEntMatrix[1] = or->axis[0][1];
+    or->preTransEntMatrix[5] = or->axis[1][1];
+    or->preTransEntMatrix[9] = or->axis[2][1];
+    or->preTransEntMatrix[13] = or->origin[1];
 
-    glMatrix[2] = or->axis[0][2];
-    glMatrix[6] = or->axis[1][2];
-    glMatrix[10] = or->axis[2][2];
-    glMatrix[14] = or->origin[2];
+    or->preTransEntMatrix[2] = or->axis[0][2];
+    or->preTransEntMatrix[6] = or->axis[1][2];
+    or->preTransEntMatrix[10] = or->axis[2][2];
+    or->preTransEntMatrix[14] = or->origin[2];
 
-    glMatrix[3] = 0;
-    glMatrix[7] = 0;
-    glMatrix[11] = 0;
-    glMatrix[15] = 1;
+    or->preTransEntMatrix[3] = 0;
+    or->preTransEntMatrix[7] = 0;
+    or->preTransEntMatrix[11] = 0;
+    or->preTransEntMatrix[15] = 1;
 
-    myGlMultMatrix( glMatrix, viewParms->world.modelMatrix, or->modelMatrix );
+    myGlMultMatrix( or->preTransEntMatrix, viewParms->world.modelMatrix, or->modelMatrix );
 
     // calculate the viewer origin in the model's space
     // needed for fog, specular, and environment mapping
