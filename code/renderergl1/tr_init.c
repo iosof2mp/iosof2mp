@@ -85,6 +85,18 @@ cvar_t  *r_facePlaneCull;
 cvar_t  *r_showcluster;
 cvar_t  *r_nocurves;
 
+cvar_t  *r_surfaceSprites;
+cvar_t  *r_ssCheap;
+cvar_t  *r_surfaceWeather;
+
+cvar_t  *r_windSpeed;
+cvar_t  *r_windAngle;
+cvar_t  *r_windGust;
+cvar_t  *r_windDampFactor;
+cvar_t  *r_windPointForce;
+cvar_t  *r_windPointX;
+cvar_t  *r_windPointY;
+
 cvar_t  *r_allowExtensions;
 
 cvar_t  *r_ext_compressed_textures;
@@ -1105,6 +1117,20 @@ void R_Register( void )
     r_debugSort = ri.Cvar_Get( "r_debugSort", "0", CVAR_CHEAT );
     r_printShaders = ri.Cvar_Get( "r_printShaders", "0", 0 );
     r_saveFontData = ri.Cvar_Get( "r_saveFontData", "0", 0 );
+
+    r_surfaceSprites = ri.Cvar_Get( "r_surfaceSprites", "1", CVAR_CHEAT );
+    ri.Cvar_CheckRange( r_surfaceSprites, 1, 2, qtrue );
+    r_ssCheap = ri.Cvar_Get( "r_ssCheap", "0", CVAR_ARCHIVE );
+    ri.Cvar_CheckRange( r_ssCheap, 0.0f, 0.4f, qfalse );
+    r_surfaceWeather = ri.Cvar_Get( "r_surfaceWeather", "0", 0 );
+
+    r_windSpeed = ri.Cvar_Get( "r_windSpeed", "0", 0 );
+    r_windAngle = ri.Cvar_Get( "r_windAngle", "0", 0 );
+    r_windGust = ri.Cvar_Get( "r_windGust", "0", 0 );
+    r_windDampFactor = ri.Cvar_Get( "r_windDampFactor", "0.1", 0 );
+    r_windPointForce = ri.Cvar_Get( "r_windPointForce", "0", 0 );
+    r_windPointX = ri.Cvar_Get( "r_windPointX", "0", 0 );
+    r_windPointY = ri.Cvar_Get( "r_windPointY", "0", 0 );
 
     r_nocurves = ri.Cvar_Get ("r_nocurves", "0", CVAR_CHEAT );
     r_drawworld = ri.Cvar_Get ("r_drawworld", "1", CVAR_CHEAT );

@@ -1107,6 +1107,18 @@ extern  cvar_t  *r_facePlaneCull;       // enables culling of planar surfaces wi
 extern  cvar_t  *r_nocurves;
 extern  cvar_t  *r_showcluster;
 
+extern  cvar_t  *r_surfaceSprites;
+extern  cvar_t  *r_ssCheap;
+extern  cvar_t  *r_surfaceWeather;
+
+extern  cvar_t  *r_windSpeed;
+extern  cvar_t  *r_windAngle;
+extern  cvar_t  *r_windGust;
+extern  cvar_t  *r_windDampFactor;
+extern  cvar_t  *r_windPointForce;
+extern  cvar_t  *r_windPointX;
+extern  cvar_t  *r_windPointY;
+
 extern cvar_t   *r_gamma;
 extern cvar_t   *r_displayRefresh;      // optional display refresh option
 
