@@ -1718,26 +1718,19 @@ void RB_CalcDiffuseColor_altivec( unsigned char *colors );
 /*
 ============================================================
 
-QUICK SPRITE SYSTEM
+SURFACE SPRITE SYSTEM
 
 ============================================================
 */
 
-typedef struct {
-    textureBundle_t *texBundle;
-    unsigned long   glStateBits;
-    unsigned long   fogColor;
-    qboolean        useFog;
-    vec4_t          verts[SHADER_MAX_VERTEXES];
-    vec2_t          textureCoords[SHADER_MAX_VERTEXES];
-    unsigned long   colors[SHADER_MAX_VERTEXES];
-    int             nextVert;
-    qboolean        turnCullBackOn;
-} quickSprite_t;
+//
+// tr_quicksprite.c
+//
 
-quickSprite_t   *R_InitQuickSprite              ( void );
-void            RB_AddSprite                    ( quickSprite_t *qs, float *pointData, color4ub_t *color );
-void            RB_StartQuickSpriteRendering    ( quickSprite_t *qs, textureBundle_t *bundle, unsigned long stateBits, unsigned long fogColor );
-void            RB_EndQuickSpriteRendering      ( quickSprite_t *qs );
+void            RB_AddQuickSprite               ( float *pointData, color4ub_t *color );
+void            RB_StartQuickSpriteRendering    ( textureBundle_t *bundle, unsigned long stateBits, unsigned long fogColor );
+void            RB_EndQuickSpriteRendering      ( void );
+
+void            R_InitQuickSpriteSystem         ( void );
 
 #endif //TR_LOCAL_H

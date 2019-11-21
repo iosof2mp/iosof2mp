@@ -1275,6 +1275,7 @@ void R_Init( void ) {
 
     R_InitFreeType();
 
+    R_InitQuickSpriteSystem();
 
     err = qglGetError();
     if ( err != GL_NO_ERROR )
