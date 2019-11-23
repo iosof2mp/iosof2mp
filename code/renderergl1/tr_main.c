@@ -183,6 +183,18 @@ void R_LocalPointToWorld (vec3_t local, vec3_t world) {
 
 /*
 =================
+R_WorldNormalToEntity
+
+=================
+*/
+void R_WorldNormalToEntity (vec3_t world, vec3_t ent) {
+    ent[0] = -world[0] * tr.or.preTransEntMatrix[0] - world[1] * tr.or.preTransEntMatrix[4] + world[2] * tr.or.preTransEntMatrix[8];
+    ent[1] = -world[0] * tr.or.preTransEntMatrix[1] - world[1] * tr.or.preTransEntMatrix[5] + world[2] * tr.or.preTransEntMatrix[9];
+    ent[2] = -world[0] * tr.or.preTransEntMatrix[2] - world[1] * tr.or.preTransEntMatrix[6] + world[2] * tr.or.preTransEntMatrix[10];
+}
+
+/*
+=================
 R_WorldToLocal
 
 =================
