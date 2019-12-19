@@ -1728,8 +1728,8 @@ SURFACE SPRITE SYSTEM
 // tr_quicksprite.c
 //
 
-void            RB_AddQuickSprite               ( float *pointData, color4ub_t *color );
-void            RB_StartQuickSpriteRendering    ( textureBundle_t *bundle, unsigned long stateBits, unsigned long fogColor );
+void            RB_AddQuickSprite               ( float *pointData, color4ub_t color );
+void            RB_StartQuickSpriteRendering    ( textureBundle_t *bundle, uint32_t stateBits, uint32_t fogColor );
 void            RB_EndQuickSpriteRendering      ( void );
 
 void            R_InitQuickSpriteSystem         ( void );

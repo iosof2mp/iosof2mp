@@ -24,14 +24,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 static textureBundle_t  *texBundle;
-static unsigned long    glStateBits;
+static uint32_t         glStateBits;
 
-static unsigned long    fogColor;
+static uint32_t         fogColor;
 static qboolean         useFog;
 
 static vec4_t           verts[SHADER_MAX_VERTEXES];
 static vec2_t           textureCoords[SHADER_MAX_VERTEXES];
-static unsigned long    colors[SHADER_MAX_VERTEXES];
+static uint32_t         colors[SHADER_MAX_VERTEXES];
 
 static int              nextVert;
 static qboolean         turnCullBackOn;
@@ -132,9 +132,9 @@ of the quick sprite system.
 ==================
 */
 
-void RB_AddQuickSprite(float *pointData, color4ub_t *color)
+void RB_AddQuickSprite(float *pointData, color4ub_t color)
 {
-    unsigned long   *currColor;
+    uint32_t        *currColor;
     float           *currCoord;
     int             i;
 
@@ -151,7 +151,7 @@ void RB_AddQuickSprite(float *pointData, color4ub_t *color)
     // Setup the color.
     currColor = &colors[nextVert];
     for(i = 0; i < 4; i++){
-        *currColor++ = *(unsigned long *)color;
+        *currColor++ = *(uint32_t *)color;
     }
 
     nextVert += 4;
@@ -166,7 +166,7 @@ start rendering sprites.
 ==================
 */
 
-void RB_StartQuickSpriteRendering(textureBundle_t *bundle, unsigned long stateBits, unsigned long fogColor)
+void RB_StartQuickSpriteRendering(textureBundle_t *bundle, uint32_t stateBits, uint32_t fogColor)
 {
     int cullingOn;
 
