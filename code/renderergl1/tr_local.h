@@ -1735,9 +1735,9 @@ void            RB_EndQuickSpriteRendering      ( void );
 void            R_InitQuickSpriteSystem         ( void );
 
 //
-// tr_surfacesprite.c
+// tr_ss_main.c
 //
 
-void            RB_DrawSurfaceSprites           ( shaderStage_t *stage, shaderCommands_t *input );
+void            R_RenderSurfaceSprites          ( shaderStage_t *stage, shaderCommands_t *input );
 
 #endif //TR_LOCAL_H

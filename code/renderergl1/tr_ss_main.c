@@ -19,38 +19,32 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// tr_we_surfacesprite.c - Implementation of the surface sprite system.
+// tr_ss_main.c - Initialization and main functions of the
+// surface sprite system.
 
 #include "tr_local.h"
+#include "tr_ss_local.h"
 
-#define WIND_DAMP_INTERVAL  50.0f
-#define WIND_GUST_TIME      2500.0f
-#define WIND_GUST_DECAY     (1.0f / WIND_GUST_TIME)
+// Shared variables of the surface sprite system.
+surfaceSpriteSystem_t   ssSystem            = { 0 };
 
+// Local variable definitions.
 static int              lastUpdateTime;
 static trRefEntity_t    *lastEntityDrawn;
 
-static float            curWindSpeed;
-static float            curWeatherAmount        = 1.0f;
+static vec3_t           viewOrigin;
+static vec3_t           viewRight;
+static vec3_t           viewUp;
+static vec3_t           viewForward;
 
-static float            rangeScaleFactor        = 1.0f;
+static vec3_t           up;
+static vec3_t           down;
 
-static vec3_t           curWindBlowVect, curWindGrassDir;
+static vec3_t           *rightCoords;
+static vec3_t           *upCoords;
+static vec3_t           *forwardCoords;
 
-static qboolean         curWindPointActive;
-static float            curWindPointForce;
-static vec3_t           curWindPoint;
-
-static vec3_t           rightVectors[4];
-static vec3_t           fwdVector;
-
-static vec3_t           viewOrigin, viewRight, viewUp, viewForward;
-static vec3_t           up, down;
-static vec3_t           *rightCoords, *upCoords, *forwardCoords;
-
-static qboolean         additiveTransparency, usingFog;
-
-static int              numSurfaceSprites, numSurfaces;
+static int              numSurfaces;
 
 //==============================================
 
@@ -89,41 +83,41 @@ static void R_CreateRightVectors(qboolean drawingModel)
             backEnd.or.preTransEntMatrix[6],
             backEnd.or.preTransEntMatrix[10]);
 
-        VectorSet(down,
+        VectorSet(up,
             -backEnd.or.preTransEntMatrix[2],
             -backEnd.or.preTransEntMatrix[6],
             -backEnd.or.preTransEntMatrix[10]);
 
-        rightCoords     = &modelRight;
-        upCoords        = &modelUp;
-        forwardCoords   = &modelForward;
+        rightCoords   = &modelRight;
+        upCoords      = &modelUp;
+        forwardCoords = &modelForward;
     }else{
         VectorSet(up, 0.0f, 0.0f, 1.0f);
         VectorSet(down, 0.0f, 0.0f, -1.0f);
 
-        rightCoords     = &viewRight;
-        upCoords        = &viewUp;
-        forwardCoords   = &viewForward;
+        rightCoords   = &viewRight;
+        upCoords      = &viewUp;
+        forwardCoords = &viewForward;
     }
 
     // First generate a horizontal forward vector.
-    CrossProduct(*rightCoords, up, fwdVector);
+    CrossProduct(*rightCoords, up, ssSystem.fwdVector);
 
     // Nudge forward.
-    VectorScale(*rightCoords, 0.993f, rightVectors[0]);
-    VectorMA(rightVectors[0], 0.115f, fwdVector, rightVectors[0]);
+    VectorScale(*rightCoords, 0.993f, ssSystem.rightVectors[0]);
+    VectorMA(ssSystem.rightVectors[0], 0.115f, ssSystem.fwdVector, ssSystem.rightVectors[0]);
 
     // Big nudge back.
-    VectorScale(*rightCoords, 0.94f, rightVectors[1]);
-    VectorMA(rightVectors[1], -0.34f, fwdVector, rightVectors[1]);
+    VectorScale(*rightCoords, 0.94f, ssSystem.rightVectors[1]);
+    VectorMA(ssSystem.rightVectors[1], -0.34f, ssSystem.fwdVector, ssSystem.rightVectors[1]);
 
     // Big nudge forward.
-    VectorScale(*rightCoords, 0.94f, rightVectors[2]);
-    VectorMA(rightVectors[2], 0.34f, fwdVector, rightVectors[2]);
+    VectorScale(*rightCoords, 0.94f, ssSystem.rightVectors[2]);
+    VectorMA(ssSystem.rightVectors[2], 0.34f, ssSystem.fwdVector, ssSystem.rightVectors[2]);
 
     // Nudge back.
-    VectorScale(*rightCoords, 0.993f, rightVectors[3]);
-    VectorMA(rightVectors[3], -0.115f, fwdVector, rightVectors[3]);
+    VectorScale(*rightCoords, 0.993f, ssSystem.rightVectors[3]);
+    VectorMA(ssSystem.rightVectors[3], -0.115f, ssSystem.fwdVector, ssSystem.rightVectors[3]);
 }
 
 /*
@@ -161,10 +155,10 @@ static void R_SurfaceSpriteFrameUpdate(void)
         // reset everything.
         curWindGust         = 5.0f;
         curWindGustLeft     = 0.0f;
-        curWindSpeed        = r_windSpeed->value;
         nextWindGustTime    = 0;
 
-        VectorClear(curWindGrassDir);
+        ssSystem.curWindSpeed = r_windSpeed->value;
+        VectorClear(ssSystem.curWindGrassDir);
     }
 
     // Reset the last entity drawn, since this is a new frame.
@@ -182,22 +176,26 @@ static void R_SurfaceSpriteFrameUpdate(void)
             standardFovX = 90.0f;
         }
 
-        standardScaleX = tan(standardFovX * 0.5f * (M_PI / 180.0f));
+        standardScaleX                  = tan(standardFovX * 0.5f * (M_PI / 180.0f));
+        ssSystem.rangeScaleDistance     = standardScaleX;
 
         // Don't multiply the shader range by anything.
-        rangeScaleFactor = 1.0f;
+        ssSystem.rangeScaleFactor       = 1.0f;
     }else if(standardFovX == backEnd.refdef.fov_x){
         // This is the standard FOV or higher,
         // don't multiply the shader range.
-        rangeScaleFactor = 1.0f;
+        ssSystem.rangeScaleFactor       = 1.0f;
+        ssSystem.rangeScaleDistance     = standardScaleX;
     }else{
         // Using a non-standard FOV. Multiply the range
         // of the shader by the scale factor.
         if(backEnd.refdef.fov_x > 135){
-            rangeScaleFactor = standardScaleX / tan(135.0f * 0.5f * (M_PI / 180.0f));
+            ssSystem.rangeScaleDistance = tan(135.0f * 0.5f * (M_PI / 180.0f));
         }else{
-            rangeScaleFactor = standardScaleX / tan(backEnd.refdef.fov_x * 0.5f * (M_PI / 180.0f));
+            ssSystem.rangeScaleDistance = tan(backEnd.refdef.fov_x * 0.5f * (M_PI / 180.0f));
         }
+
+        ssSystem.rangeScaleFactor = standardScaleX / ssSystem.rangeScaleDistance;
     }
 
     //
@@ -210,9 +208,9 @@ static void R_SurfaceSpriteFrameUpdate(void)
     // render surface weather.
     //
     if(R_IsAnyWorldEffectSystemRendering()){
-        curWeatherAmount = 1.0f;
+        ssSystem.curWeatherAmount = 1.0f;
     }else{
-        curWeatherAmount = r_surfaceWeather->value;
+        ssSystem.curWeatherAmount = r_surfaceWeather->value;
     }
 
     //
@@ -289,48 +287,49 @@ static void R_SurfaceSpriteFrameUpdate(void)
     ratio = powf(dampFactor, dTime);
 
     // Apply this ratio to the windspeed.
-    curWindSpeed = targetSpeed - (ratio * (targetSpeed - curWindSpeed));
+    ssSystem.curWindSpeed = targetSpeed - (ratio * (targetSpeed - ssSystem.curWindSpeed));
 
     // Calculate the final target wind vector (with speed).
-    VectorScale(targetWindBlowVect, curWindSpeed, targetWindBlowVect);
-    VectorSubtract(targetWindBlowVect, curWindBlowVect, diff);
-    VectorMA(targetWindBlowVect, -ratio, diff, curWindBlowVect);
+    VectorScale(targetWindBlowVect, ssSystem.curWindSpeed, targetWindBlowVect);
+    VectorSubtract(targetWindBlowVect, ssSystem.curWindBlowVect, diff);
+    VectorMA(targetWindBlowVect, -ratio, diff, ssSystem.curWindBlowVect);
 
     // Update the grass vector now.
-    VectorSubtract(targetWindGrassDir, curWindGrassDir, diff);
-    VectorMA(targetWindGrassDir, -ratio, diff, curWindGrassDir);
+    VectorSubtract(targetWindGrassDir, ssSystem.curWindGrassDir, diff);
+    VectorMA(targetWindGrassDir, -ratio, diff, ssSystem.curWindGrassDir);
 
-    curWindPointForce = r_windPointForce->value - (ratio * (r_windPointForce->value - curWindPointForce));
-    if(curWindPointForce < 0.01f){
-        curWindPointActive = qfalse;
+    ssSystem.curWindPointForce = r_windPointForce->value - (ratio * (r_windPointForce->value - ssSystem.curWindPointForce));
+    if(ssSystem.curWindPointForce < 0.01f){
+        ssSystem.curWindPointActive = qfalse;
     }else{
-        VectorSet(curWindPoint,
+        VectorSet(ssSystem.curWindPoint,
             r_windPointX->value,
             r_windPointY->value,
             0);
 
-        curWindPointActive = qtrue;
+        ssSystem.curWindPointActive = qtrue;
     }
 
     if(r_surfaceSprites->integer == 2){
-        ri.Printf(PRINT_ALL, "Surfacesprites drawn: %d on %d surfaces.\n", numSurfaceSprites, numSurfaces);
+        ri.Printf(PRINT_ALL, "Surfacesprites drawn: %d on %d surfaces.\n", ssSystem.numSurfaceSprites, numSurfaces);
     }
 
-    lastUpdateTime      = backEnd.refdef.time;
-    numSurfaceSprites   = 0;
-    numSurfaces         = 0;
+    lastUpdateTime              = backEnd.refdef.time;
+    numSurfaces                 = 0;
+    ssSystem.numSurfaceSprites  = 0;
 }
 
 /*
 ==================
-RB_DrawSurfaceSprites
+R_RenderSurfaceSprites
 
-Draw any surface sprites present
-in the current shader stage.
+Updates and/or renders any surface
+sprite present in the current
+shader stage.
 ==================
 */
 
-void RB_DrawSurfaceSprites(shaderStage_t *stage, shaderCommands_t *input)
+void R_RenderSurfaceSprites(shaderStage_t *stage, shaderCommands_t *input)
 {
     unsigned long   glBits;
     fog_t           *fog;
@@ -349,19 +348,19 @@ void RB_DrawSurfaceSprites(shaderStage_t *stage, shaderCommands_t *input)
 
     if((glBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE)){
         // Additive transparency, scale light value.
-        additiveTransparency = qtrue;
+        ssSystem.additiveTransparency = qtrue;
     }else{
-        additiveTransparency = qfalse;
+        ssSystem.additiveTransparency = qfalse;
     }
 
-    if(tess.fogNum && tess.shader->fogPass && !additiveTransparency){
+    if(tess.fogNum && tess.shader->fogPass && !ssSystem.additiveTransparency){
         fog = tr.world->fogs + tess.fogNum;
 
         RB_StartQuickSpriteRendering(&stage->bundle[0], glBits, fog->colorInt);
-        usingFog = qtrue; // FIXME BOE: Apparently there is no using fog variable in SoF2MP?
+        ssSystem.usingFog = qtrue; // FIXME BOE: Apparently there is no using fog variable in SoF2MP?
     }else{
         RB_StartQuickSpriteRendering(&stage->bundle[0], glBits, 0);
-        usingFog = qfalse;
+        ssSystem.usingFog = qfalse;
     }
 
     //
